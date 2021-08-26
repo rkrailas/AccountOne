@@ -23,6 +23,65 @@ class SoDeliveryTax extends Component
     public $sNumberDelete, $modelMessage;
     public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
                         //, allcated, currencyid, posted, bookid, employee_id, transactiondate
+    public $firstTime = true;
+
+    // .For Customer Search
+    public $query;
+    public $customers;
+    public $highlightIndex;
+
+    public function reset1()
+    {
+        $this->query = '';
+        $this->customers = [];
+        $this->highlightIndex = 0;
+    }
+
+    public function incrementHighlight()
+    {
+        if ($this->highlightIndex == count($this->customers) - 1)
+        {
+            $this->highlightIndex = 0;
+        }
+
+        $this->highlightIndex++;
+    }
+
+    public function decrementHighlight()
+    {
+        if ($this->highlightIndex == 0)
+        {
+            $this->highlightIndex = count($this->customers) - 1;
+        }
+        
+        $this->highlightIndex--;
+    }
+
+    public function selectCustomer($selectByClick = null)
+    {
+        if ($selectByClick == null){
+            $customers = $this->customers[$this->highlightIndex] ?? null;
+            if ($customers){
+                dd($customers);
+            }
+        }else{
+            $customers = $this->customers[$selectByClick] ?? null;
+            if ($customers){
+                dd($customers);
+            }
+        }  
+    }
+
+    public function updatedQuery()
+    {
+        $data = DB::table('customer')
+                        ->select('customerid','name')
+                        ->where('name', 'LIKE', '%'.$this->query.'%')
+                        ->get()
+                        ->toArray();
+        $this->customers = json_decode(json_encode($data), true); 
+    }
+    // /.For Customer Search
 
     public function getGlNunber($bookid)
     {
@@ -123,9 +182,9 @@ class SoDeliveryTax extends Component
         }
 
         $this->genGLs[] = ([
-            'gjournal'=>'SO', 'gltran'=>$newGlNo, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
+            'gjournal'=>'SO', 'gltran'=>'', 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
             , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$this->soHeader['sototal'], 'glcredit'=>0, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>Auth::user()->id
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
         // /.Dr.ลูกหนี้การค้า 
@@ -161,9 +220,9 @@ class SoDeliveryTax extends Component
             }
     
             $this->genGLs[] = ([
-                'gjournal'=>'SO', 'gltran'=>$newGlNo, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$salesAcc, 'glaccname'=>$salesAccName
+                'gjournal'=>'SO', 'gltran'=>'', 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$salesAcc, 'glaccname'=>$salesAccName
                 , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$this->soDetails[$i]['netamount']
-                , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>Auth::user()->id
+                , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);            
         }
@@ -189,9 +248,9 @@ class SoDeliveryTax extends Component
         }
 
         $this->genGLs[] = ([
-            'gjournal'=>'SO', 'gltran'=>$newGlNo, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
+            'gjournal'=>'SO', 'gltran'=>'', 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
             , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$this->soHeader['salestax'], 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>Auth::user()->id
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
         // /.Cr.ภาษีขาย
@@ -239,9 +298,9 @@ class SoDeliveryTax extends Component
                 $totalCostAmt = $totalCostAmt + $costAmt;
         
                 $this->genGLs[] = ([
-                    'gjournal'=>'SO', 'gltran'=>$newGlNo, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
+                    'gjournal'=>'SO', 'gltran'=>'', 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
                     , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$costAmt
-                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>Auth::user()->id
+                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                     , 'transactiondate'=>Carbon::now()
                 ]);  
             }
@@ -267,9 +326,9 @@ class SoDeliveryTax extends Component
             }
     
             $this->genGLs[] = ([
-                'gjournal'=>'SO', 'gltran'=>$newGlNo, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
+                'gjournal'=>'SO', 'gltran'=>'', 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
                 , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$totalCostAmt, 'glcredit'=>0, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>Auth::user()->id
+                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
             // /.Dr.ต้นทุนขาย 
@@ -473,7 +532,7 @@ class SoDeliveryTax extends Component
         //.Create soHeader
         $data = DB::table('sales')
             ->selectRaw("snumber,to_char(sodate,'YYYY-MM-DD') as sodate, invoiceno, to_char(invoicedate,'YYYY-MM-DD') as invoicedate
-                        , deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate, payby, CONCAT(customerid,': ',shipname) as shipname
+                        , deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate, payby, customerid || ': ' || shipname as shipname
                         , CONCAT(shipadd1,' ',shipadd2,' ',shipcity,' ',shipstate,' ',shipzip) as full_address
                         , to_char(duedate,'YYYY-MM-DD') as duedate, to_char(journaldate,'YYYY-MM-DD') as journaldate, exclusivetax
                         , taxontotal, posted, salesaccount, taxrate, salestax, discountamount, sototal, customerid")
@@ -510,8 +569,28 @@ class SoDeliveryTax extends Component
         $this->resetPage();
     }
 
+    public function mount()
+    {
+        $this->reset1(); //For Customer Search
+    }
+
     public function render()
     {
+        // .Summary grid     
+        if($this->soDetails != Null)
+        {            
+            $this->reCalculateSummary();
+        }else{
+            $this->sumQuantity = 0;
+            $this->sumAmount = 0;
+            $this->sumDiscountAmount = 0;
+            $this->sumNetAmount = 0;
+            $this->soHeader['discountamount'] = 0;
+            $this->soHeader['salestax'] = 0;
+            $this->soHeader['sototal'] = 0;  
+        }
+        // ./Summary grid 
+        
         // .Bind Data to Dropdown
         $this->itemNos_dd = DB::table('inventory')
         ->select('itemid','description')
@@ -531,21 +610,7 @@ class SoDeliveryTax extends Component
         ->get();
         // ./Bind Data to Dropdown
 
-        // .Summary grid     
-        if($this->soDetails != Null)
-        {            
-            $this->reCalculateSummary();
-        }else{
-            $this->sumQuantity = 0;
-            $this->sumAmount = 0;
-            $this->sumDiscountAmount = 0;
-            $this->sumNetAmount = 0;
-            $this->soHeader['discountamount'] = 0;
-            $this->soHeader['salestax'] = 0;
-            $this->soHeader['sototal'] = 0;  
-        }
-        // ./Summary grid  
-
+        // .getSalesOrder
         $salesOrders = DB::table('sales')
             ->select('sales.id','snumber','sodate','name','sototal')
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
@@ -564,6 +629,7 @@ class SoDeliveryTax extends Component
                 })
             ->orderBy('snumber')
             ->paginate(10);
+        // /.getSalesOrder
 
         return view('livewire.accstar.so-delivery-tax',[
             'salesOrders' => $salesOrders

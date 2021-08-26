@@ -13,7 +13,6 @@
             <div class="list-group-item list-group-item-action"><b>Search...</b></div>
         </div>
 
-
         @if(!empty($query))
         <div class="absolute z-10 list-group bg-white w-full rounded-t-none shadow-lg">
             @if(!empty($contacts))
@@ -30,9 +29,5 @@
             @endif
         </div>
         @endif
-
-
-
-    </div>
-    
+    </div>    
 </div>
