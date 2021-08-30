@@ -19,70 +19,16 @@ class SoDeliveryTax extends Component
                            //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,shipname,full_address
     public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
     public $sumQuantity, $sumAmount, $sumDiscountAmount, $sumNetAmount = 0;
-    public $itemNos_dd, $taxRates_dd, $salesAcs_dd; //Dropdown
+    public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
     public $sNumberDelete, $modelMessage;
     public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
                         //, allcated, currencyid, posted, bookid, employee_id, transactiondate
-    public $firstTime = true;
 
-    // .For Customer Search
-    public $query;
-    public $customers;
-    public $highlightIndex;
-
-    public function reset1()
+    public function popUpCustomer()
     {
-        $this->query = '';
-        $this->customers = [];
-        $this->highlightIndex = 0;
+        $this->dispatchBrowserEvent('show-modalCustomer'); //แสดง Model Form
     }
-
-    public function incrementHighlight()
-    {
-        if ($this->highlightIndex == count($this->customers) - 1)
-        {
-            $this->highlightIndex = 0;
-        }
-
-        $this->highlightIndex++;
-    }
-
-    public function decrementHighlight()
-    {
-        if ($this->highlightIndex == 0)
-        {
-            $this->highlightIndex = count($this->customers) - 1;
-        }
         
-        $this->highlightIndex--;
-    }
-
-    public function selectCustomer($selectByClick = null)
-    {
-        if ($selectByClick == null){
-            $customers = $this->customers[$this->highlightIndex] ?? null;
-            if ($customers){
-                dd($customers);
-            }
-        }else{
-            $customers = $this->customers[$selectByClick] ?? null;
-            if ($customers){
-                dd($customers);
-            }
-        }  
-    }
-
-    public function updatedQuery()
-    {
-        $data = DB::table('customer')
-                        ->select('customerid','name')
-                        ->where('name', 'LIKE', '%'.$this->query.'%')
-                        ->get()
-                        ->toArray();
-        $this->customers = json_decode(json_encode($data), true); 
-    }
-    // /.For Customer Search
-
     public function getGlNunber($bookid)
     {
         $newGlNo = "";
@@ -569,11 +515,6 @@ class SoDeliveryTax extends Component
         $this->resetPage();
     }
 
-    public function mount()
-    {
-        $this->reset1(); //For Customer Search
-    }
-
     public function render()
     {
         // .Summary grid     
@@ -607,6 +548,12 @@ class SoDeliveryTax extends Component
         ->select('code','taxrate')
         ->where('taxtype','1')
         ->orderby('code')
+        ->get();
+
+        $this->customers_dd = DB::table('customer')
+        ->select('customerid','name','taxid')
+        ->where('debtor',true)
+        ->orderBy('customerid')
         ->get();
         // ./Bind Data to Dropdown
 
