@@ -86,10 +86,7 @@
     <!-- /.List Sales Order -->
 
     @include('livewire.accstar._modalSalesOrder')
-
     @include('livewire.accstar._modalGenGL')
-
     @include('livewire.accstar._mypopup')
-
     @include('livewire.accstar._mycss')
 </div>

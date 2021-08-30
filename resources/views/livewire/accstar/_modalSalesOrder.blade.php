@@ -56,7 +56,8 @@
                                         <i class="fas fa-calendar"></i>
                                     </span>
                                 </div>
-                                <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'" required />
+                                <x-datepicker wire:model.defer="soHeader.journaldate" id="journaldate" :error="'date'"
+                                    required />
                             </div>
                         </div>
                     </div>
@@ -104,21 +105,23 @@
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-4">
+                        <div class="col-6">
                             <label class="mb-0">ชื่อ:</label>
                             @if ($showEditModal)
                             <input type="text" class="form-control mb-1" readonly required
                                 wire:model.defer="soHeader.shipname">
                             @else
-                            <select id="selectCustomer" class="selectCustomer" name="selectCustomer">
-                                @foreach($customers_dd as $customer)
-                                    <option value="{{ $customer->customerid }}"> 
-                                        {{ $customer->customerid . ": " . $customer->name }}                                        
+                            <br>
+                            <div wire:ignore>
+                                <select id="customer-dropdown" class="form-control" style="width: 100%" wire:model="soHeader.customerid">
+                                    @foreach($customers_dd as $customer_dd)
+                                    <option value="{{ $customer_dd->customerid }}">
+                                        {{ $customer_dd->customerid . ": " . $customer_dd->name }}
                                     </option>
-                                @endforeach
-                            </select>                         
+                                    @endforeach
+                                </select>
+                            </div>
                             @endif
-
                         </div>
                         <div class="col">
                             <label class="mb-0">ที่อยู่:</label>
@@ -173,7 +176,7 @@
                                             <center>{{ $loop->iteration }}</center>
                                         </td>
                                         <td>
-                                            <select class="form-control " required
+                                            <select class="form-control" required
                                                 wire:model.lazy="soDetails.{{$index}}.itemid">
                                                 <option value="">--- โปรดเลือก ---</option>
                                                 @foreach($itemNos_dd as $itemNo_dd)
@@ -315,16 +318,24 @@
 </div>
 
 @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap4/tail.select-default.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
+    integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
 
 @push('js')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tail.select@0.5.15/js/tail.select-full.min.js"></script>
-    <script>
-        tail.select('#selectCustomer', {
-            search: true,
-        });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"
+    integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    </script>
+<script>
+$(document).ready(function() {
+    $('#customer-dropdown').select2();
+    $('#customer-dropdown').on('change', function(e) {
+        let data = $(this).val();
+        @this.set('soHeader.customerid', data);
+    });
+
+});
+</script>
 @endpush

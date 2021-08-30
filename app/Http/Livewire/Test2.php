@@ -5,23 +5,16 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
-class Test1 extends Component
+class Test2 extends Component
 {
     public $customers_dd;
-
-    public function modelTest()
-    {
-        $this->dispatchBrowserEvent('show-modaltest555');
-    }
-
-    public function test555()
-    {
-        dd('here');
-    }
+    public $customer;
 
     public function updated($item)
     {
-        dd('here');
+        if ($item == "customer") {
+            dd($this->customer);
+        };
     }
 
     public function render()
@@ -32,6 +25,6 @@ class Test1 extends Component
         ->orderBy('customerid')
         ->get();
 
-        return view('livewire.test1');
+        return view('livewire.test2');
     }
 }

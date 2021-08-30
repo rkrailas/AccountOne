@@ -13,13 +13,24 @@
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
-                <select id="select1">
+                <select id="select1" wire:model="customers_dd">
                     @foreach($customers_dd as $customer)
                     <option value="{{ $customer->customerid }}">
                         {{ $customer->customerid . ": " . $customer->name }}
                     </option>
                     @endforeach
                 </select>
+                <br>
+                <select id="select2" wire:model="customers_dd"
+                        wire:click="test555">
+                    @foreach($customers_dd as $customer)
+                    <option value="{{ $customer->customerid }}">
+                        {{ $customer->customerid . ": " . $customer->name }}
+                    </option>
+                    @endforeach
+                </select>
+                <br>
+                <button wire:click.prevent="test555">Test555</button>
             </div>
             <div class="modal-footer">
                 <a href="#" data-dismiss="modal" class="btn">Close</a>
@@ -32,7 +43,6 @@
 <link href="https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap4/tail.select-default.min.css"
     rel="stylesheet">
 @endpush
-
 
 @push('js')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

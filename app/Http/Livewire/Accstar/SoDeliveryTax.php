@@ -291,10 +291,9 @@ class SoDeliveryTax extends Component
         $this->soHeader = ([
             'snumber'=>'', 'sonumber'=>'', 'sodate'=>'', 'invoiceno'=>'', 'invoicedate'=>'', 'deliveryno'=>'', 'deliverydate'=>''
             ,'payby'=>'0', 'duedate'=>'', 'journaldate'=>'', 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>'Standard'
-            ,'salestax'=>0, 'discountamount'=>0, 'sototal'=>0
+            ,'salestax'=>0, 'discountamount'=>0, 'sototal'=>0, 'customerid'=>''
         ]); //เป็น Array 1 มิติ
         $this->soDetails =[];
-        $this->genGLs =[];
         $this->addRowInGrid();
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
     }
@@ -324,7 +323,7 @@ class SoDeliveryTax extends Component
             where snumber=?" 
             , [$this->soHeader['sodate'], $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno']
             , $this->soHeader['deliverydate'], $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate']
-            , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Auth::user()->id, Carbon::now()
+            , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], 'Admin', Carbon::now()
             , $this->soHeader['snumber']]);
         
             // Table "SalesDetail" 
@@ -337,7 +336,7 @@ class SoDeliveryTax extends Component
                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
                     , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'], $soDetails2['quantity']
                     , 0, $soDetails2['quantity'], $this->soHeader['taxrate'], $this->soHeader['salestax'], $this->soHeader['discountamount'], 'N'
-                    , $soDetails2['salesac'], Auth::user()->id, Carbon::now()]);
+                    , $soDetails2['salesac'], 'Admin', Carbon::now()]);
             }
 
             // ??? IF ปิดรายการ $this->soHeader['posted'] == TRUE
@@ -355,6 +354,16 @@ class SoDeliveryTax extends Component
     public function updated($item) //Event จากการ Update Property ของ Livewire มันจะส่ง Property หรือตัวแปรที่มีการ update มาให้ เช่น $soHeader, $soDetails
     {
         $xxx = explode(".",$item); //$item = soHeader.sodate หรือ soDetails.0.quantity
+
+        //ตรวจสอบว่า Update Dropdown ของลูกค้าหรือไม่
+        if ($item == "soHeader.customerid") {
+            $data = DB::table('customer')
+            ->selectRaw("COALESCE(address11,'') || ' ' || COALESCE(address12,'') || ' ' ||
+                        COALESCE(city1,'') || ' ' || COALESCE(state1,'') || ' ' || COALESCE(zipcode1,'') as full_address")
+            ->where('customerid', $this->soHeader['customerid'])
+            ->get();
+            $this->soHeader['full_address'] = $data[0]->full_address;
+        }
 
         //ตรวจสอบว่าเป็นการแก้ไขข้อมูลที่ Grid หรือไม่
         if($xxx[0] == "soDetails") 

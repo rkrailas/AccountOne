@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\Test1;
 use App\Http\Livewire\ContactSearchBar;
 use App\Http\Livewire\AccStar\ListGjournal;
 use App\Http\Livewire\AccStar\Customer;
@@ -9,6 +8,8 @@ use App\Http\Livewire\AccStar\CustomerForm;
 use App\Http\Livewire\AccStar\Accounting;
 use App\Http\Livewire\AccStar\Products;
 use App\Http\Livewire\AccStar\SoDeliveryTax;
+use App\Http\Livewire\Test1;
+use App\Http\Livewire\Test2;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,7 @@ Route::get('/', function () {
 });
 
 Route::get('test1', Test1::class);
+Route::get('test2', Test2::class);
 Route::get('contactsearch', ContactSearchBar::class);
 Route::get('accstar/gjournal', ListGjournal::class)->name('accstar.gljournal');
 Route::get('accstar/customer', Customer::class)->name('accstar.customer');
