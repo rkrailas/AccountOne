@@ -172,14 +172,6 @@
     window.addEventListener('show-myModal2', event => {
         $('#myModal2').modal('show');
     })
-
-    window.addEventListener('show-modalCustomer', event => {
-        $('#modalCustomer').modal('show');
-    })
-
-    window.addEventListener('show-modaltest555', event => {
-        $('#modeltest555').modal('show');
-    })
     </script>
 
     <script type="text/javascript">
