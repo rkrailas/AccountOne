@@ -29,7 +29,7 @@
                     <div class="d-flex justify-content-between mb-2">
                         <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
-                            สร้างข้อมูลใหม่</button>
+                            สร้างข้อมูลใหม่</button>                        
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-2">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
@@ -49,10 +49,27 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">เลขที่ใบสั่งขาย</th>
-                                <th scope="col">วันที่ใบสั่งขาย</th>
-                                <th scope="col">ผู้ซื้อ</th>
-                                <th scope="col">ยอดเงิน</th>
+                                <th scope="col">เลขที่ใบสั่งขาย
+                                    <a href="" wire:click.prevent="sortSO('sales.snumber')">
+                                        <i class="fa fa-sort" aria-hidden="true"></i>
+                                    </a>
+                                </th>
+                                <th scope="col">วันที่ใบสั่งขาย
+                                    <a href="" wire:click.prevent="sortSO('sales.sodate')">
+                                        <i class="fa fa-sort" aria-hidden="true"></i>
+                                    </a>
+                                </th>
+                                <th scope="col">ผู้ซื้อ
+                                    <a href="" wire:click.prevent="sortSO('customer.name')">
+                                        <i class="fa fa-sort" aria-hidden="true"></i>
+                                    </a>
+                                </th>
+                                    
+                                <th scope="col">ยอดเงิน
+                                    <a href="" wire:click.prevent="sortSO('sales.sototal')">
+                                        <i class="fa fa-sort" aria-hidden="true"></i>
+                                    </a>
+                                </th>                                    
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -77,14 +94,23 @@
                         </tbody>
                     </table>
                     <div class="d-flex justify-content-between">
+                        <div>
                         {{ $salesOrders->links() }} จำนวน {{ number_format($salesOrders->Total(),0) }} รายการ
-                    </div>
+                        </div>                        
+                        <div>                        
+                            <select class="form-control" style="width: 70px;"
+                                wire:model.lazy="numberOfPage">
+                                <option value="10" selected>10</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>                            
+                        </div>                        
+                    </div>                    
                 </div>
             </div>
         </div>
     </div>
     <!-- /.List Sales Order -->
-
     @include('livewire.accstar._modalSalesOrder')
     @include('livewire.accstar._modalGenGL')
     @include('livewire.accstar._mypopup')

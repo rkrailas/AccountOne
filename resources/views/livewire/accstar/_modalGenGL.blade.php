@@ -42,7 +42,8 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <a href="#" data-dismiss="modal" class="btn">Close</a>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                            <i class="fa fa-times mr-1"></i>Close</button>
             </div>
         </div>
     </div>

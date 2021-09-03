@@ -1,57 +1,39 @@
-<div>
-    <button type="button" class="btn btn-primary"
-        wire:click.prevent="modelTest">
-        Primary
-    </button>
-</div>
-
-<div class="modal" id="modeltest555" data-backdrop="static">
-    <div class="modal-dialog" style="max-width: 60%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">ทดสอบ</h4>
-                <button type="button" class="close" data-dismiss="modal">×</button>
-            </div>
-            <div class="modal-body">
-                <select id="select1" wire:model="customers_dd">
-                    @foreach($customers_dd as $customer)
-                    <option value="{{ $customer->customerid }}">
-                        {{ $customer->customerid . ": " . $customer->name }}
-                    </option>
-                    @endforeach
-                </select>
-                <br>
-                <select id="select2" wire:model="customers_dd"
-                        wire:click="test555">
-                    @foreach($customers_dd as $customer)
-                    <option value="{{ $customer->customerid }}">
-                        {{ $customer->customerid . ": " . $customer->name }}
-                    </option>
-                    @endforeach
-                </select>
-                <br>
-                <button wire:click.prevent="test555">Test555</button>
-            </div>
-            <div class="modal-footer">
-                <a href="#" data-dismiss="modal" class="btn">Close</a>
-            </div>
-        </div>
-    </div>
+<div class="container">
+    <table class="table table-hover" data-toggle="table" data-pagination="true" data-search="true">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th data-sortable="true" scope="col">เลขที่ใบสั่งขาย</th>
+                <th scope="col">วันที่ใบสั่งขาย</th>
+                <th scope="col">ผู้ซื้อ</th>
+                <th scope="col">ยอดเงิน</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($salesOrders as $salesOrder)
+            <tr>
+                <td scope="col"></td>
+                <td scope="col">{{ $salesOrder->snumber }} </td>
+                <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->sodate)->format('Y-m-d') }} </td>
+                <td scope="col">{{ $salesOrder->name }} </td>
+                <td scope="col">{{ number_format($salesOrder->sototal,2) }} </td>
+                <td>
+                    <a href="" >
+                        <i class="fa fa-trash text-danger"></i>
+                    </a>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @include('livewire.accstar._modalSalesOrder')
 </div>
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap4/tail.select-default.min.css"
-    rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css">
 @endpush
 
 @push('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tail.select@0.5.15/js/tail.select-full.min.js"></script>
-<script>
-tail.select('#select1', {
-    search: true,
-});
-</script>
+<script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
 @endpush
-
-@include('livewire.accstar._mycss')

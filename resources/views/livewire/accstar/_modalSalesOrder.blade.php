@@ -13,7 +13,7 @@
                     </h5>
                     <div class="float-right">
                         @if($showEditModal)
-                        <button type="button" class="btn btn-secondary" wire:click.prevent="generateGl">
+                        <button type="button" class="btn btn-secondary" wire:click.prevent="showGL">
                             Gen GL</button>
                         @endif
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -107,23 +107,24 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="mb-0">ชื่อ:</label>
-                            @if ($showEditModal)
-                            <input type="text" class="form-control mb-1" readonly
-                                wire:model.defer="soHeader.shipname">
-                            @else
-                            <br>
-                            <div wire:ignore>
-                                <select id="customer-dropdown" class="form-control" style="width: 100%" required
-                                    wire:model="soHeader.customerid">
-                                    <option value="">--- โปรดเลือก ---</option>
-                                    @foreach($customers_dd as $customer_dd)
-                                    <option value="{{ $customer_dd->customerid }}">
-                                        {{ $customer_dd->customerid . ": " . $customer_dd->name }}
-                                    </option>
-                                    @endforeach
-                                </select>
+                            <div {{ $showEditModal ? '' : 'class=d-none'}}>
+                                <input type="text" class="form-control mb-1" readonly
+                                    wire:model.defer="soHeader.shipname">
                             </div>
-                            @endif
+                            <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
+                                <div wire:ignore>
+                                    <select id="customer-dropdown" class="form-control" 
+                                        style="width: 100%" required 
+                                        wire:model.defer="soHeader.customerid">
+                                        <option value=''>--- โปรดเลือก ---</option>
+                                        @foreach($customers_dd as $customer_dd)
+                                        <option value='{{ $customer_dd->customerid }}'>
+                                            {{ $customer_dd->customerid . ': ' . $customer_dd->name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="col">
                             <label class="mb-0">ที่อยู่:</label>
@@ -137,11 +138,6 @@
                                 <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.exclusivetax"
                                     wire:change="checkExclusiveTax">
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.taxontotal"
-                                    wire:change="checkTaxOnTotal">
-                                <label class="form-check-label" for="taxOnTotal">ภาษีจากยอดรวม</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.posted">
@@ -162,11 +158,12 @@
                                         </th>
                                         <th scope="col">รหัส</th>
                                         <th scope="col" style="width: 25%;">รายละเอียด</th>
-                                        <th scope="col">บัญชีขาย</th>
                                         <th scope="col" style="width: 7%;">จำนวน</th>
                                         <th scope="col">ต่อหน่วย</th>
                                         <th scope="col">รวม</th>
                                         <th scope="col">ส่วนลด</th>
+                                        <th scope="col" style="width: 5%;">%ภาษี</th>
+                                        <th scope="col">ภาษี</th>
                                         <th scope="col">สุทธิ</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -193,17 +190,6 @@
                                                 wire:model.defer="soDetails.{{$index}}.description">
                                         </td>
                                         <td>
-                                            <select class="form-control" wire:model.lazy="soDetails.{{$index}}.salesac">
-                                                <option value="">--- โปรดเลือก ---</option>
-                                                @foreach($salesAcs_dd as $salesAc_dd)
-                                                <option value="{{ $salesAc_dd->account }}">
-                                                    {{ $salesAc_dd->account }}:
-                                                    {{ $salesAc_dd->accnameother }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
                                             <input type="number" step="0.01" class="form-control" required
                                                 style="text-align: right;"
                                                 wire:model.lazy="soDetails.{{$index}}.quantity">
@@ -224,6 +210,16 @@
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" class="form-control" required
+                                                style="text-align: right;"
+                                                wire:model="soDetails.{{$index}}.taxrate">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" class="form-control" required
+                                                style="text-align: right;"
+                                                wire:model="soDetails.{{$index}}.taxamount">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" class="form-control" required
                                                 style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
                                         </td>
                                         </td>
@@ -241,51 +237,19 @@
                                     <tr style="text-align: right; color: blue; font-weight: bold;">
                                         <td></td>
                                         <td></td>
-                                        <td></td>
                                         <td>ยอดรวม</td>
                                         <td>{{ number_format($sumQuantity,2) }}</td>
                                         <td></td>
                                         <td>{{ number_format($sumAmount,2) }}</td>
-                                        <td>{{ number_format($sumDiscountAmount,2) }}</td>
-                                        <td>{{ number_format($sumNetAmount,2) }}</td>
+                                        <td>{{ number_format($soHeader['discountamount'],2) }}</td>
+                                        <td></td>
+                                        <td>{{ number_format($soHeader['salestax'],2) }}</td>
+                                        <td>{{ number_format($soHeader['sototal'],2) }}</td>
                                         <td></td>
                                     <tr>
                                 </tfoot>
                             </table>
 
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col">
-                            <label class="mb-0">ส่วนลด:</label>
-                            <input type="number" step="0.01" class="form-control" required style="text-align: right;"
-                                wire:model.defer="soHeader.discountamount">
-                        </div>
-                        <div class="col">
-                            <label class="mb-0">ค่าขนส่ง:</label>
-                            <input type="number" step="0.01" class="form-control" required style="text-align: right;"
-                                wire:model.defer="soHeader.shipcost">
-                        </div>
-                        <div class="col">
-                            <label class="mb-0">อัตราภาษี:</label>                            
-                            <select class="form-control" wire:model="soHeader.taxrate">
-                                 @foreach($taxRates_dd as $taxRate_dd)
-                                <option value="{{ $taxRate_dd->taxrate }}">
-                                    {{ $taxRate_dd->code }}
-                                    ({{ number_format($taxRate_dd->taxrate,2) }})
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label class="mb-0">ภาษีขาย:</label>
-                            <input type="number" step="0.01" class="form-control" required style="text-align: right;"
-                                wire:model.defer="soHeader.salestax">
-                        </div>
-                        <div class="col">
-                            <label class="mb-0">ยอดสุทธิ:</label>
-                            <input type="number" step="0.01" class="form-control" required style="text-align: right;"
-                                wire:model.defer="soHeader.sototal">
                         </div>
                     </div>
                     <!-- /.Grid -->
@@ -320,12 +284,11 @@
 
 <script>
 $(document).ready(function() {
-    $('#customer-dropdown').select2();
+    $('#customer-dropdown').select2("val", "");
     $('#customer-dropdown').on('change', function(e) {
         let data = $(this).val();
         @this.set('soHeader.customerid', data);
     });
-
 });
 </script>
 @endpush
