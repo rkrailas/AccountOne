@@ -39,7 +39,7 @@
     <div class="wrapper">
 
         <!-- Navbar -->
-        @include('layouts.partials.navbar')
+        <!-- @include('layouts.partials.navbar') -->
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
@@ -50,16 +50,6 @@
             {{ $slot }}
         </div>
         <!-- /.content-wrapper -->
-
-        <!-- Control Sidebar -->
-        <!-- <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-            <div class="p-3">
-                <h5>Title</h5>
-                <p>Sidebar content</p>
-            </div>
-        </aside> -->
-        <!-- /.control-sidebar -->
 
         <!-- Main Footer -->
         @include('layouts.partials.footer')
@@ -169,19 +159,21 @@
         $('#soDeliveryTaxForm').modal('hide');
     })
 
+    window.addEventListener('show-receiveOnSalesForm', event => {
+        $('#receiveOnSalesForm').modal('show');
+    })
+
+    window.addEventListener('hide-receiveOnSalesForm', event => {
+        $('#receiveOnSalesForm').modal('hide');
+    })
+
     window.addEventListener('show-myModal2', event => {
         $('#myModal2').modal('show');
     })
-    </script>
 
-    <script type="text/javascript">
-    function canNotEmpty(inputtx) {
-        if (inputtx.value.length == 0) {
-            alert("กรุณาป้อนค่า !");
-            return false;
-        }
-        return true;
-    }
+    window.addEventListener('destroy-Select2', event => {
+        $('#customer-dropdown').select2('destroy');
+    })
     </script>
     <!-- /For Accstar -->
 

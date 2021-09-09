@@ -16,7 +16,7 @@
                         <button type="button" class="btn btn-secondary" wire:click.prevent="showGL">
                             Gen GL</button>
                         @endif
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-secondary" wire:click.prevent="closeSOModal" data-dismiss="modal">
                             <i class="fa fa-times mr-1"></i>Cancel</button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fa fa-save mr-1"></i>
@@ -249,7 +249,6 @@
                                     <tr>
                                 </tfoot>
                             </table>
-
                         </div>
                     </div>
                     <!-- /.Grid -->
@@ -283,8 +282,10 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-$(document).ready(function() {
-    $('#customer-dropdown').select2("val", "");
+$(document).ready(function() {    
+    $('#customer-dropdown').select2({
+        placeholder: "--- โปรดเลือก ---"
+    });
     $('#customer-dropdown').on('change', function(e) {
         let data = $(this).val();
         @this.set('soHeader.customerid', data);

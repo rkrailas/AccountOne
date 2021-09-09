@@ -40,6 +40,12 @@
                     <p>ส่งสินค้าพร้อมใบกำกับ</p>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('accstar.receiveonsales') }}" class="nav-link {{ request()->is('accstar/receiveonsales') ? 'active' : '' }}">
+                    <i class="nav-icon fa fa-university" aria-hidden="true"></i>
+                    <p>รับชำระเงิน</p>
+                </a>
+            </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

@@ -13,7 +13,11 @@ class SoDeliveryTax extends Component
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
+    public $sortDirection = "desc";
+    public $sortBy = "sales.snumber";
+    public $numberOfPage = 10;
     public $searchTerm = null;
+    
     public $showEditModal = null;
     public $soHeader = []; //sodate,invoiceno,invoicedate,deliveryno,deliverydate,payby,duedate,journaldate,exclusivetax
                            //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,full_address,shipcost
@@ -23,9 +27,11 @@ class SoDeliveryTax extends Component
     public $sNumberDelete, $modelMessage;
     public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
                         //, allcated, currencyid, posted, bookid, employee_id, transactiondate
-    public $sortDirection = "desc";
-    public $sortBy = "sales.snumber";
-    public $numberOfPage = 10;
+    
+
+    public function closeSOModal(){
+        $this->dispatchBrowserEvent('destroy-Select2'); //แสดง Model Form
+    }
 
     public function updatingNumberOfPage(){
         $this->resetPage();
@@ -460,7 +466,7 @@ class SoDeliveryTax extends Component
             $this->soHeader['snumber'] = $this->getDocNunber("SO");
             $this->soHeader['sonumber'] = $this->soHeader['snumber'];
             $this->soHeader['invoiceno'] = $this->getGLNunber("SO");
-            
+
             DB::transaction(function () {
                 // Table "Sales"
                     //Posted = True
@@ -470,7 +476,7 @@ class SoDeliveryTax extends Component
                         $xposted = false;
                     }
 
-                    DB::statement("INSERT INTO sales(snumber, sonumber, sdate, customerid, invoiceno, invoicedate
+                    DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate
                                 , deliveryno, deliverydate, payby, duedate, journaldate, exclusivetax, taxontotal
                                 , salesaccount, expirydate, sototal, salestax, closed, employee_id, transactiondate, posted)
                     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
@@ -712,7 +718,7 @@ class SoDeliveryTax extends Component
 
         // .getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','snumber','sodate','name','sototal', 'sales.sodate')
+            ->select('sales.id','snumber','sodate','name','sototal')
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', FALSE)            
             ->where('soreturn','N')
