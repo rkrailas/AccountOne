@@ -113,6 +113,7 @@
     <!-- /.แสดงรายการใบสำคัญรับ -->
 
     @include('livewire.accstar._modalReceiveOnSales')
+    @include('livewire.accstar._modalGenGL')
     @include('livewire.accstar._mypopup')
     @include('livewire.accstar._mycss')
 </div>

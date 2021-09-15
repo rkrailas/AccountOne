@@ -22,18 +22,20 @@ class SoDeliveryTax extends Component
     public $soHeader = []; //sodate,invoiceno,invoicedate,deliveryno,deliverydate,payby,duedate,journaldate,exclusivetax
                            //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,full_address,shipcost
     public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
-    public $sumQuantity, $sumAmount, $sumDebit, $sumCredit = 0;
+    public $sumQuantity, $sumAmount = 0;
     public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
     public $sNumberDelete, $modelMessage;
     public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
                         //, allcated, currencyid, posted, bookid, employee_id, transactiondate
-    
+    public $sumDebit, $sumCredit = 0;
 
-    public function closeSOModal(){
+    public function closeSOModal()
+    {
         $this->dispatchBrowserEvent('destroy-Select2'); //แสดง Model Form
     }
 
-    public function updatingNumberOfPage(){
+    public function updatingNumberOfPage()
+    {
         $this->resetPage();
     }
 
@@ -45,60 +47,6 @@ class SoDeliveryTax extends Component
         }else{
             $this->sortDirection = "asc";
         }
-    }
-
-    public function getGlNunber($bookid)
-    {
-        $newGlNo = "";
-        $data = DB::table('misctable')
-                ->select('lastglnumber', 'prefix_lastglnumber')
-                ->where('tabletype', 'JR')
-                ->where('code', $bookid)
-                ->get();
-        $data2 = explode("-" , $data[0]->lastglnumber);        
-
-        if (count($data2)){
-            if ($data2[0] == $data[0]->prefix_lastglnumber . date_format(now(),"ym")){
-                $newGlNo = intval($data2[1]) + 1;
-                $newGlNo = $data2[0] . "-" . sprintf("%06d", $newGlNo);
-
-                DB::statement("UPDATE misctable SET lastglnumber=? where tabletype=? and code=?"
-                , [$newGlNo,"JR",$bookid]);
-            }else{
-                $newGlNo = $data[0]->prefix_lastglnumber . date_format(now(),"ym") . "-000001";
-
-                DB::statement("UPDATE misctable SET lastglnumber=? where tabletype=? and code=?"
-                , [$newGlNo,"JR",$bookid]);
-            }
-        }
-        return $newGlNo;
-    }
-
-    public function getDocNunber($bookid)
-    {
-        $newDocNo = "";
-        $data = DB::table('misctable')
-                ->select('lastdocnumber', 'prefix_lastdocnumber')
-                ->where('tabletype', 'JR')
-                ->where('code', $bookid)
-                ->get();
-        $data2 = explode("-" , $data[0]->lastdocnumber);        
-
-        if (count($data2)){
-            if ($data2[0] == $data[0]->prefix_lastdocnumber . date_format(now(),"ym")){
-                $newDocNo = intval($data2[1]) + 1;
-                $newDocNo = $data2[0] . "-" . sprintf("%06d", $newDocNo);
-
-                DB::statement("UPDATE misctable SET lastdocnumber=? where tabletype=? and code=?"
-                , [$newDocNo,"JR",$bookid]);
-            }else{
-                $newDocNo = $data[0]->prefix_lastdocnumber . date_format(now(),"ym") . "-000001";
-
-                DB::statement("UPDATE misctable SET lastdocnumber=? where tabletype=? and code=?"
-                , [$newDocNo,"JR",$bookid]);
-            }
-        }
-        return $newDocNo;
     }
 
     public function showGL()
@@ -392,12 +340,11 @@ class SoDeliveryTax extends Component
                     , $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax'], $this->soHeader['taxontotal']
                     , $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $xposted, $this->soHeader['snumber']]);
 
-                    
-                    if ($this->soHeader['posted'] == true) {                    
-                        DB::statement("UPDATE sales SET posted=?, employee_id=?, transactiondate=?
-                            where snumber=?" 
-                            , [true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
-                    }
+                    // if ($this->soHeader['posted'] == true) {                    
+                    //     DB::statement("UPDATE sales SET posted=?, employee_id=?, transactiondate=?
+                    //         where snumber=?" 
+                    //         , [true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
+                    // }
                 // ./Table "Sales"
             
                 // Table "SalesDetail" 
@@ -455,7 +402,7 @@ class SoDeliveryTax extends Component
                 // ./Table "SalesDetail" 
 
                 // .Table "gltran"
-                    $this->generateGl($this->getGlNunber("SO"));
+                    $this->generateGl(getGlNunber('SO'));
                     DB::table('gltran')->insert($this->genGLs);
                 // ./Table "gltran"
   
@@ -463,9 +410,9 @@ class SoDeliveryTax extends Component
                 $this->dispatchBrowserEvent('alert',['message' => 'Save Successfully!']);
             });
         }else{
-            $this->soHeader['snumber'] = $this->getDocNunber("SO");
+            $this->soHeader['snumber'] = getDocNunber('SO');
             $this->soHeader['sonumber'] = $this->soHeader['snumber'];
-            $this->soHeader['invoiceno'] = $this->getGLNunber("SO");
+            $this->soHeader['invoiceno'] = getGLNunber('SO');
 
             DB::transaction(function () {
                 // Table "Sales"
