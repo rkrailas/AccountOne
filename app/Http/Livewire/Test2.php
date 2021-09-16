@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 class Test2 extends Component
 {
     public function getDateWiseScore($data) {
+        //Group & Summary Array
+        
         $groups = array();
         foreach ($data as $item) {
             $key = $item['account'];

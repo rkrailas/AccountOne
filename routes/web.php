@@ -9,6 +9,7 @@ use App\Http\Livewire\AccStar\Accounting;
 use App\Http\Livewire\AccStar\Products;
 use App\Http\Livewire\AccStar\SoDeliveryTax;
 use App\Http\Livewire\AccStar\ReceiveOnSales;
+use App\Http\Livewire\AccStar\PostJournal;
 
 use App\Http\Livewire\Test1;
 use App\Http\Livewire\Test2;
@@ -36,6 +37,7 @@ Route::get('accstar/customer', Customer::class)->name('accstar.customer');
 Route::get('accstar/customer/{customer_id}/edit', CustomerForm::class)->name('accstar.customer.form');
 Route::get('accstar/sodeliverytax', SoDeliveryTax::class)->name('accstar.sodeliverytax');
 Route::get('accstar/receiveonsales', ReceiveOnSales::class)->name('accstar.receiveonsales');
+Route::get('accstar/postJournal', PostJournal::class)->name('accstar.postjournal');
 
 Route::get('accstar/accounting', Accounting::class); //Not Used
 Route::get('accstar/products', Products::class); //Not Used

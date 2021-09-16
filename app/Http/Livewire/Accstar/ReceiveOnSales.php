@@ -354,7 +354,7 @@ class ReceiveOnSales extends Component
             DB::transaction(function () {
 
                 // .Table Bank
-                $xGLNumber = etGlNunber('SO');
+                $xGLNumber = getGlNunber('JR');
                 DB::statement("INSERT INTO bank(gltran, gjournaldt, documentref, customerid, customername, addressl1, addressl2, addressl3
                 , amount, findiscount, fincharge, feeamt, payby, journal, bookid, account, accountcus, accounttax, accountcharge, accountdis
                 , accountfee, taxscheme, witholdamt, witholdtax, witholdtaxrate, employee_id, transactiondate)
