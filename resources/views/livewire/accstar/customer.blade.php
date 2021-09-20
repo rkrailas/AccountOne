@@ -9,7 +9,7 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">ข้อมูลลูกค้า</h1>
+                    <h3 class="m-0 text-dark">ข้อมูลลูกค้า</h3>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -30,7 +30,7 @@
                         <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
                             สร้างลูกค้า</button>
-                        <div class="d-flex justify-content-center align-items-center border bg-while pr-2">
+                        <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
@@ -45,7 +45,7 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-striped">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -88,8 +88,20 @@
                             @endforeach
                             @endif
                         </tbody>
-                    </table>
-                    {{ $customers->links() }} จำนวน {{ number_format($customers->Total(),0) }} รายการ
+                    </table>                  
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 d-flex justify-content-start">{{ $customers->links() }} จำนวน {{ number_format($customers->Total(),0) }}
+                    รายการ 
+                </div>
+                <div class="col">
+                    <select class="form-control" style="width: 70px;"
+                        wire:model.lazy="numberOfPage">
+                        <option value="10" selected>10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -103,13 +115,13 @@
             <form autocomplete="off" wire:submit.prevent="{{ $showEditModal ? 'updateCustomer' : 'createCustomer' }}">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">
+                        <h6 class="modal-title" id="exampleModalLabel">
                             @if($showEditModal)
                             แก้ไขข้อมูลลูกค้า #{{$state['customerid']}} ({{$state['name']}})
                             @else
                             สร้างข้อมูลลูกค้า
                             @endif
-                        </h5>
+                        </h6>
                         <div class="float-right">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                 <i class="fa fa-times mr-1"></i>Cancel</button>
@@ -125,7 +137,7 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="form-group row">
+                        <div class="row">
                             <div class="col-md-12">
                                 <!-- .Tab Header -->
                                 <ul class="nav nav-tabs" id="pills-tab" role="tablist">
@@ -151,7 +163,7 @@
                                 <div class="tab-content ml-2 mt-2" id="pills-tabContent">
                                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
                                         aria-labelledby="pills-home-tab">
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-4">
                                                 <label for="customerID" style="color:red;">รหัส</label>
                                                 <input class="form-control @error('customerid') is-invalid @enderror"
@@ -170,7 +182,7 @@
                                                     wire:model.defer="state.name">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="names" style="color:red;">ชื่อ2</label>
                                                 <input class="form-control" type="text" id="names" required
@@ -182,7 +194,7 @@
                                                     wire:model.defer="state.name1">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-4">
                                                 <label for="taxID" style="color:red;">เลขประจำตัวภาษี</label>
                                                 <input class="form-control" type="text" id="taxID" required
@@ -216,21 +228,21 @@
 
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-12">
                                                 <label for="address11" style="color:red;">ที่อยู่บรรทัดที่ 1</label>
                                                 <input class="form-control" type="text" id="address11" required
                                                     wire:model.defer="state.address11">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-12">
                                                 <label for="address12">ที่อยู่บรรทัดที่ 2</label>
                                                 <input class="form-control" type="text" id="address12"
                                                     wire:model.defer="state.address12">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-3">
                                                 <label for="city1">อำเภอ</label>
                                                 <select class="form-control" id="city1" wire:model.defer="state.city1">
@@ -260,7 +272,7 @@
                                                     wire:model.defer="state.zipcode1">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-3">
                                                 <label for="phone1">โทรศัพท์</label>
                                                 <input class="form-control" type="text" id="phone1"
@@ -282,11 +294,11 @@
                                                     wire:model.defer="state.contact1">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-12">
                                                 <label for="notes1">บันทึก</label>
-                                                <textarea class="form-control" id="notes1" rows="2"
-                                                    wire:model.defer="state.notes1"></textarea>
+                                                <input class="form-control" type="text" id="notes1"
+                                                    wire:model.defer="state.notes1"></input>
                                             </div>
                                         </div>
 
@@ -296,7 +308,7 @@
                                     <!-- .Tab ลูกหนี้ -->
                                     <div class="tab-pane fade" id="pills-profile" role="tabpanel"
                                         aria-labelledby="pills-profile-tab">
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="creditLimit">วงเงินเครดิต</label>
                                                 <input class="form-control" type="text" id="creditLimit"
@@ -308,7 +320,7 @@
                                                     wire:model.defer="state.discountday">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-4">
                                                 <label for="discount">ได้รับส่วนลด %</label>
                                                 <input class="form-control" type="text" id="discount"
@@ -325,14 +337,14 @@
                                                     wire:model.defer="state.generaldiscount">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-12">
                                                 <label for="termDiscount">เงิ่อนไขชำระเงิน</label>
                                                 <input class="form-control" type="text" id="termDiscount"
                                                     wire:model.defer="state.termdiscount">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="account">บัญชีลูกหนี้</label>
                                                 <select class="form-control" id="account"
@@ -358,7 +370,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="tax1">ภาษีหัก ณ ที่จ่าย</label>
                                                 <select class="form-control" id="tax1" wire:model.defer="state.tax1">
@@ -390,7 +402,7 @@
                                     <!-- .Tab เจ้าหนี้ -->
                                     <div class="tab-pane fade" id="pills-contact" role="tabpanel"
                                         aria-labelledby="pills-contact-tab">
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="creditLimit_ap">วงเงินเครดิต</label>
                                                 <input class="form-control" type="text" id="creditLimit_ap"
@@ -402,7 +414,7 @@
                                                     wire:model.defer="state.discountday_ap">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-4">
                                                 <label for="discount_ap">ได้รับส่วนลด %</label>
                                                 <input class="form-control" type="text" id="discount_ap"
@@ -419,14 +431,14 @@
                                                     wire:model.defer="state.generaldiscount_ap">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-12">
                                                 <label for="termDiscount_ap">เงิ่อนไขชำระเงิน</label>
                                                 <input class="form-control" type="text" id="termDiscount_ap"
                                                     wire:model.defer="state.termdiscount_ap">
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="account">บัญชีเจ้าหนี้</label>
                                                 <select class="form-control" id="account_ap"
@@ -453,7 +465,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group row">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <label for="tax1">ภาษีหัก ณ ที่จ่าย</label>
                                                 <select class="form-control" id="tax1_ap"
@@ -508,5 +520,5 @@
             </form>
         </div>
     </div>
-
+    @include('livewire.accstar._mycss')
 </div>

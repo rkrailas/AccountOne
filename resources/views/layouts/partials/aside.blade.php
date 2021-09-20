@@ -55,6 +55,13 @@
             <p>ผ่านรายการบัญชี</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="{{ route('accstar.cancelpostjournal') }}"
+            class="nav-link {{ request()->is('accstar/cancelpostjournal') ? 'active' : '' }}">
+            <i class="nav-icon fa fa-undo" aria-hidden="true"></i>
+            <p>ยกเลิกผ่านรายการบัญชี</p>
+          </a>
+        </li>
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

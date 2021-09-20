@@ -10,153 +10,172 @@ class PostJournal extends Component
 {
     public $journalNoFrom, $journalNoTo;
     public $journalDateFrom, $journalDateTo;
-    public $journalType;
-    public $totalFailed, $totalPass = 0;
-    public $listFailed, $listPass = [];
-
-    public function clearValue()
-    {
-        $this->totalFailed = 0;
-        $this->totalPass = 0;
-        $this->listFailed = [];
-        $this->listPass = [];
-    }
+    public $listFailed = [];
+    public $countPostPass = 0;
 
     public function postJournal()
     {
-        // Query Journal ตามเงื่อนที่ยังไม่ Post เรียงตาม gltran
+        // จัดการเงื่อนไข และ Query เอาเฉพาะเลขที่ใบสำคัญ (Group By)
         // Loop แล้วทำตาม Step ด้านล่าง
         // Update currentbal ต้องตรวจสอบด้วยว่าจะลบหรือบวก (Dr.หมวด 1,5 Cr.หมวด 2,3,4) 
         // Update debitp1-24 หรือ creditp1-24 ต้องตรวจสอบว่าอยู่ในงวดบัญชีไหน'
         // Update currentdebit หรือ currentcredit
 
-        // .จัดการเงื่อนไขการดึงข้อมูล
-        if ($this->journalNoFrom != "" and $this->journalNoTo == "") {
-            $this->journalNoTo = $this->journalNoFrom;
-        }
+        DB::transaction(function () {
+            // จัดการเงื่อนไขการดึงข้อมูล
+            if ($this->journalNoFrom != "" and $this->journalNoTo == "") {
+                $this->journalNoTo = $this->journalNoFrom;
+            }
 
-        if ($this->journalDateFrom != "" and $this->journalDateTo == "") {
-            $this->journalDateTo = $this->journalDateFrom;
-        }
+            if ($this->journalDateFrom != "" and $this->journalDateTo == "") {
+                $this->journalDateTo = $this->journalDateFrom;
+            }
 
-        $xWhere = "1=1";
-        if ($this->journalNoFrom != "") {
-            $xWhere = $xWhere . " and gltran between '" . $this->journalNoFrom . "' and '" . $this->journalNoTo . "'";
-        }
+            $xWhere = "1=1";
+            if ($this->journalNoFrom != "") {
+                $xWhere = $xWhere . " and gltran between '" . $this->journalNoFrom . "' and '" . $this->journalNoTo . "'";
+            }
 
-        if ($this->journalDateFrom != "") {
-            $xWhere = $xWhere . " and gjournaldt between '" . $this->journalDateFrom . "' and '" . $this->journalDateTo . "'";
-        }
+            if ($this->journalDateFrom != "") {
+                $xWhere = $xWhere . " and gjournaldt between '" . $this->journalDateFrom . "' and '" . $this->journalDateTo . "'";
+            }
 
-        if ($this->journalType != "") {
-            $xWhere = $xWhere . " and account.acctype = '" . $this->journalType . "'";
-        }
-        // /.จัดการเงื่อนไขการดึงข้อมูล
+            // หาใบสำคัญที่ผ่านรายการไม่ได้
+            $strsql = "select gltran from 
+                        (select gltran
+                        from gltran
+                        where glaccount not in (select account from account)
+                        or gjournaldt not between (select min(startdate) from perioddetail) 
+                                                and (select max(enddate) from perioddetail)"
+                . " and " . $xWhere
+                . " union all
+                       select gltran from gltran where " . $xWhere . " group by gltran having sum(gldebit) <> sum(glcredit) ) a
+                    group by a.gltran";
+            $this->listFailed = DB::select($strsql);
+            $this->listFailed = json_decode(json_encode($this->listFailed), true);
 
-        // .Post Process
-        $gltranHeader = DB::table('gltran')
-            ->select('gltran')
-            ->whereRaw($xWhere)
-            ->Join('account', 'gltran.glaccount', '=', 'account.account')
-            ->groupBy('gltran')
-            ->get();
-        $gltranHeader = json_decode(json_encode($gltranHeader), true);
+            // ทำเป็นเงื่อนไขใบสำคัญที่ต้องยกเว้น
+            $exceptGL = "";
+            for ($i = 0; $i < count($this->listFailed); $i++) {
+                $exceptGL = $exceptGL . "'" . $this->listFailed[$i]['gltran'] . "'";
+                if ($i <> count($this->listFailed) - 1) {
+                    $exceptGL = $exceptGL . ',';
+                }
+            }
 
-        $this->clearValue();
+            if ($exceptGL != "") {
+                $xWhere = $xWhere . " and gltran not in (" . $exceptGL . ")";
+            }
 
-        for ($i = 0; $i < count($gltranHeader); $i++) {
-
-            $gltranDetail = DB::table('gltran')
+            // ผ่านรายการ GL ผ่านรายการ GL ที่ผ่านการตรวจสอบ
+            $gltran = DB::table('gltran')
                 ->select('gltran.*', 'account.acctype', 'perioddetail.period')
-                ->where('gltran', $gltranHeader[$i]['gltran'])
-                ->leftJoin('account', 'gltran.glaccount', '=', 'account.account')
-                ->leftJoin('perioddetail', function ($join) {
+                ->whereRaw($xWhere)
+                ->Join('account', 'gltran.glaccount', '=', 'account.account')
+                ->Join('perioddetail', function ($join) {
                     $join->on('perioddetail.startdate', '<=', 'gltran.gjournaldt');
                     $join->on('perioddetail.enddate', '>=', 'gltran.gjournaldt');
                 })
                 ->orderBy('id')
                 ->get();
-            $gltranDetail = json_decode(json_encode($gltranDetail), true);
+            $gltran = json_decode(json_encode($gltran), true);
 
-            DB::beginTransaction();
+            $account = DB::table('account')
+                ->select('*')
+                ->where('detail', true)
+                ->get();
+            $account = json_decode(json_encode($account), true);
 
-            for ($o = 0; $o < count($gltranDetail); $o++) {
-                if ($gltranDetail[$o]['acctype'] == null or $gltranDetail[$o]['period'] == null) {
-                    $this->totalFailed = $this->totalFailed + 1;
-                    $this->listFailed[] = $gltranHeader[$i]['gltran'];
-                    DB::rollBack();
-                    break;
+            for ($i = 0; $i < count($gltran); $i++) {
+                //หาว่าอยู่ Row ไหน
+                $index = array_search($gltran[$i]['glaccount'], array_column($account, 'account'));
+
+                // Update currentbal
+                if (($gltran[$i]['acctype'] == '1') or ($gltran[$i]['acctype'] == '5')) {
+                    $account[$index]['currentbal'] = $account[$index]['currentbal'] + $gltran[$i]['gldebit'];
+                    $account[$index]['currentbal'] = $account[$index]['currentbal'] - $gltran[$i]['glcredit'];
                 } else {
-                    $account = DB::table('account')
-                        ->select('*')
-                        ->where('account', $gltranDetail[$o]['glaccount'])
-                        ->get();
-                    $account = json_decode(json_encode($account[0]), true);
+                    $account[$index]['currentbal'] = $account[$index]['currentbal'] - $gltran[$i]['gldebit'];
+                    $account[$index]['currentbal'] = $account[$index]['currentbal'] + $gltran[$i]['glcredit'];
+                }
 
-                    // Update currentbal
-                    if (($gltranDetail[$o]['acctype'] == '1') or ($gltranDetail[$o]['acctype'] == '5')) {
-                        $account['currentbal'] = $account['currentbal'] + $gltranDetail[$o]['gldebit'];
-                        $account['currentbal'] = $account['currentbal'] - $gltranDetail[$o]['glcredit'];
-                    } else {
-                        $account['currentbal'] = $account['currentbal'] - $gltranDetail[$o]['gldebit'];
-                        $account['currentbal'] = $account['currentbal'] + $gltranDetail[$o]['glcredit'];
-                    }
+                // Update debitp1-24 หรือ creditp1-24            
+                $xDebitpField  = "debitp" . $gltran[$i]['period'];
+                $xCreditpField  = "creditp" . $gltran[$i]['period'];
 
-                    // Update debitp1-24 หรือ creditp1-24            
-                    $xDebitpField  = "debitp" . $gltranDetail[$o]['period'];
-                    $xCreditpField  = "creditp" . $gltranDetail[$o]['period'];
+                $account[$index][$xDebitpField] = $account[$index][$xDebitpField] + $gltran[$i]['gldebit'];
+                $account[$index][$xCreditpField] = $account[$index][$xCreditpField] + $gltran[$i]['glcredit'];
 
-                    $account[$xDebitpField] = $account[$xDebitpField] + $gltranDetail[$o]['gldebit'];
-                    $account[$xCreditpField] = $account[$xCreditpField] + $gltranDetail[$o]['glcredit'];
+                // Update currentdebit หรือ currentcredit
+                $account[$index]['currentdebit'] = $account[$index]['currentdebit'] + $gltran[$i]['gldebit'];
+                $account[$index]['currentcredit'] = $account[$index]['currentcredit'] + $gltran[$i]['glcredit'];
 
-                    // Update currentdebit หรือ currentcredit
-                    $account['currentdebit'] = $account['currentdebit'] + $gltranDetail[$o]['gldebit'];
-                    $account['currentcredit'] = $account['currentcredit'] + $gltranDetail[$o]['glcredit'];
+                $account[$index]['employee_id'] = 'Admin555';
+                $account[$index]['transactiondate'] = Carbon::now();
+            }
 
-                    $account['employee_id'] = 'Admin';
-                    $account['transactiondate'] = Carbon::now();
+            // insert data to glmast
+            $insert_glmast = array_map(function ($gltran) {
+                return array(
+                    'bookid' => $gltran['bookid'],
+                    'gjournal' => $gltran['gjournal'],
+                    'gltran' => $gltran['gltran'],
+                    'gjournaldt' => $gltran['gjournaldt'],
+                    'glaccount' => $gltran['glaccount'],
+                    'gldebit' => $gltran['gldebit'],
+                    'glcredit' => $gltran['glcredit'],
+                    'invoiceno' => $gltran['currencyid'],
+                    'jobid' => $gltran['jobid'],
+                    'department' => $gltran['department'],
+                    'allocated' => $gltran['allocated'],
+                    'employee_id' => 'Admin555',
+                    'transactiondate' => Carbon::now(),
+                    'gldescription' => $gltran['gldescription']
+                );
+            }, $gltran);
 
-                    DB::table('account')->where('id', $account['id'])->update($account);
-                    DB::statement(
-                        "INSERT INTO glmast(bookid, gjournal, gltran, gjournaldt, glaccount
-                        , gldebit, glcredit, invoiceno, jobid, department
-                        , allocated, employee_id, transactiondate, gldescription)
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                        [
-                            $gltranDetail[$o]['bookid'], $gltranDetail[$o]['gjournal'], $gltranDetail[$o]['gltran'], $gltranDetail[$o]['gjournaldt']
-                            , $gltranDetail[$o]['glaccount'], $gltranDetail[$o]['gldebit'], $gltranDetail[$o]['glcredit'], $gltranDetail[$o]['currencyid']
-                            , $gltranDetail[$o]['jobid'], $gltranDetail[$o]['department'], $gltranDetail[$o]['allocated'], 'Admin', Carbon::now()
-                            , $gltranDetail[$o]['gldescription']
-                        ]
-                    );
-                    DB::table('gltran')->where('gltran', $gltranDetail[$o]['gltran'])->delete();
+            $insert_data = collect($insert_glmast); // Make a collection to use the chunk method
+            // it will chunk the dataset in smaller collections containing 500 values each. 
+            // Play with the value to get best result
+            $chunks = $insert_data->chunk(500);
 
-                    if ($o == count($gltranDetail) - 1)
-                    {
-                        $this->totalPass = $this->totalPass + 1;
-                        $this->listPass[] = $gltranHeader[$i]['gltran'];
-                        DB::commit();
-                    }
+            foreach ($chunks as $chunk) {
+                DB::table('glmast')->insert($chunk->toArray());
+            }
+
+            // delete data ingltran
+            $deleteGLTran = "";
+
+            for ($i = 0; $i < count($gltran); $i++) {
+                $deleteGLTran = $deleteGLTran . $gltran[$i]['id'];
+
+                if ($i < count($gltran) - 1) {
+                    $deleteGLTran = $deleteGLTran . ",";
                 }
             }
-        }
+
+            $deleteGLTran = explode(",", $deleteGLTran);
+
+            DB::table('gltran')
+                ->whereIn('id', $deleteGLTran)
+                ->delete();
+
+            // update data in account
+            foreach ($account as $item) {
+                DB::table('account')->where('id', $item['id'])->update($item);
+            }
+            
+            $this->countPostPass = count($gltran);
+        });
     }
 
     public function mount()
     {
-        $this->clearValue();
+        $this->listFailed = [];
     }
 
     public function render()
     {
-        // .Bind Data to Dropdown
-        $journalTypes_dd = DB::table('misctable')
-            ->select('code', 'other')
-            ->where('tabletype', 'JR')
-            ->get();
-
-        return view('livewire.accstar.post-journal', [
-            'journalTypes_dd' => $journalTypes_dd,
-        ]);
+        return view('livewire.accstar.post-journal');
     }
 }

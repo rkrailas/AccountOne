@@ -1,6 +1,6 @@
 <div class="modal fade bd-example-modal-xl" id="receiveOnSalesForm" tabindex="-1" role="dialog"
     aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
-    <div class="modal-dialog" style="max-width: 95%;">
+    <div class="modal-dialog" style="max-width: 85%;">
         <form autocomplete="off" wire:submit.prevent="createUpdateReceiveOnSales">
             <div class="modal-content ">
                 <div class="modal-header">
@@ -13,12 +13,12 @@
                     </h5>
                     <div class="float-right">
                         @if($showEditModal)
-                        <button type="button" class="btn btn-secondary" wire:click.prevent="showGL">
+                        <button type="button" class="btn btn-sm btn-secondary" wire:click.prevent="showGL">
                             Gen GL</button>
                         @endif
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
                             <i class="fa fa-times mr-1"></i>Cancel</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-sm btn-primary">
                             <i class="fa fa-save mr-1"></i>
                             @if($showEditModal)
                             <span>Save Changes</span>
@@ -204,7 +204,7 @@
                             <!-- .Grid -->
                             <div class="row mb-2">
                                 <div class="col">
-                                    <table class="table table-striped">
+                                    <table class="table table-sm table-striped">
                                         <thead>
                                             <tr>
                                                 <th>#</th>
@@ -363,9 +363,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
                         <i class="fa fa-times mr-1"></i>Cancel</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-sm btn-primary">
                         <i class="fa fa-save mr-1"></i>
                         @if($showEditModal)
                         <span>Save Changes</span>

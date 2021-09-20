@@ -71,7 +71,7 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover">
+                    <table class="table table-md table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -101,7 +101,9 @@
                             @endif
                         </tbody>
                     </table>
-                    {{ $gltrans->links() }} จำนวน {{ number_format($gltrans->Total(),0) }} รายการ
+                    <div class="d-flex justify-content-between footgrid">
+                        {{ $gltrans->links() }} จำนวน {{ number_format($gltrans->Total(),0) }} รายการ
+                    </div>
                 </div>
             </div>
         </div>
@@ -187,7 +189,7 @@
                         <!-- .Grid -->
                         <div class="row">
                             <div class="col">
-                                <table class="table table-striped">
+                                <table class="table table-sm table-hover">
                                     <thead>
                                         <tr>
                                             <th scope="col">

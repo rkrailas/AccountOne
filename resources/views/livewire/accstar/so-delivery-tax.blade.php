@@ -45,7 +45,7 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover">
+                    <table class="table table-md table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -93,7 +93,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between footgrid">
                         <div>
                         {{ $salesOrders->links() }} จำนวน {{ number_format($salesOrders->Total(),0) }} รายการ
                         </div>                        

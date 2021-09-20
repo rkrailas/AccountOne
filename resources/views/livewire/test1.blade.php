@@ -1,30 +1,25 @@
 <div class="container">
-    <x-loading-indicator />
+    <x-loading-indicator target="getAccount" />
     <div class="row">
-        <button type="button" class="btn btn-primary mt-2" wire:click.prevent="getCustomer">
-            รายชื่อลูกค้า</button>
+        <div class="col">
+            <button type="button" class="btn btn-danger mt-2" wire:click.prevent="getAccount">
+                ผ่านรายการบัญชี</button>
+        </div>
     </div>
     <div class="row mt-2">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Customer ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Phone</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($myCustomer as $item)
-                <tr>
-                    <th scope="row">1</th>
-                    <td>{{ $item->customerid }}</td>
-                    <td>{{ $item->name }}</td>
-                    <td>{{ $item->phone1 }}</td>
-                </tr>
+        <div class="col">
+            <input list="customers" value="" class="col-sm-6 custom-select custom-select-sm" wire:model.lazy="selectCustomer">
+            <datalist id="customers">
+                @foreach ($customer as $item)
+                <option value="{{ $item->customerid }}"> {{ $item->name }}
                 @endforeach
-            </tbody>
-        </table>
+            </datalist>
+            <button type="button" class="btn btn-primary mt-2" wire:click.prevent="clearSelectCustomer">
+                Reset Customer</button>
+        </div>
+        <div class="col">
+            <label>Customer :</label> <h3>{{ $selectCustomer }}   </h3>         
+        </div>
     </div>
 
 </div>

@@ -1,4 +1,7 @@
-<div wire:loading.delay>
+@props(['target']) 
+
+<div wire:loading.delay wire:target="{{ $target }}">
+
     <div style="display: flex; justify-content: center; align-items: center; background-color: black;
                     position: fixed; top: 0px; left: 0px; z-index: 9999; width: 100%; height:100%;
                     opacity: .75;">

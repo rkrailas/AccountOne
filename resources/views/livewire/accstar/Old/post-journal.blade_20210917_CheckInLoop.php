@@ -1,5 +1,5 @@
 <div>
-    <x-loading-indicator target="postJournal" />
+    <x-loading-indicator />
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -27,11 +27,11 @@
             <div class="row mb-2">
                 <div class="col">
                     <label class="mb-0">เลขที่ใบสำคัญ:</label>
-                    <input type="text" class="form-control" wire:model.defer="journalNoFrom">
+                    <input type="text" class="form-control mb-1" wire:model.defer="journalNoFrom">
                 </div>
                 <div class="col">
                     <label class="mb-0">ถึง:</label>
-                    <input type="text" class="form-control" wire:model.defer="journalNoTo">
+                    <input type="text" class="form-control mb-1" wire:model.defer="journalNoTo">
                 </div>
             </div>
             <div class="row mb-2">
@@ -43,7 +43,7 @@
                                 <i class="fas fa-calendar"></i>
                             </span>
                         </div>
-                        <x-datepicker wire:model.defer="journalDateFrom"
+                        <x-datepicker wire:model.defer="journalDateFrom" wire:keydown.enter="changeDateFrom"
                             id="journalDateFrom" :error="'date'" required />
                     </div>
                 </div>
@@ -59,6 +59,20 @@
                     </div>
                 </div>
             </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <label class="mb-0">สมุดรายวัน:</label>
+                    <select class="form-control mb-1" wire:model.defer="journalType">
+                        <option value="" selected>ทั้งหมด</option>
+                        @foreach ($journalTypes_dd as $item)
+                        <option value="{{ $item->code }}" selected>{{ $item->other }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col">
+
+                </div>
+            </div>
             <div class="row">
                 <div class="col">
                     <button type="button" class="btn btn-primary" wire:click.prevent="postJournal">
@@ -66,30 +80,35 @@
                 </div>
             </div>
             <div class="row mt-5">
-                <div class="col">
-                    @if ($listFailed)
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong><i class="fa fa-check-circle mr-1"></i> ใบสำคัญที่ Post ไม่ได้ </strong>
-                        <ul>
-                            @foreach ($listFailed as $item)
-                            <li> {{ $item['gltran'] }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    @endif
-                    @if ($countPostPass)
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa fa-check-circle mr-1"></i> จำนวนรายการที่ Post ได้ {{ $countPostPass }} รายการ
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    @endif
-                    
-                </div>
+                <table class="table w-75">
+                    <thead>
+                        <tr>
+                            <th scope="col">ผลการผ่านรายการ</th>
+                            <th scope="col" class="w-20">จำนวนใบสำคัญ</th>
+                            <th scope="col" class="w-50">หมายเหตุ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-success">
+                            <td>ผ่านรายการแล้ว</td>
+                            <td style="text-align: right; padding-right:50px;">
+                                {{ number_format($totalPass,0) }}</td>
+                            <td></td>
+                        </tr>
+                        <tr class="table-danger">
+                            <td>ผ่านรายการไม่ได้</td>
+                            <td style="text-align: right; padding-right:50px;">
+                                {{ number_format($totalFailed,0) }}</td>
+                            <td>
+                                <ul>
+                                    @foreach ($listFailed as $item)
+                                    <li>{{ $item }}</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

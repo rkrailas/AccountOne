@@ -1,36 +1,50 @@
 @push('styles')
 <style>
 
-table.table-striped>thead>tr>td,
-table.table-striped>thead>tr>th,
-table.table-striped>tbody>tr>td,
-table.table-striped>tfoot>tr>td {
-    padding-right: 1px;
-    padding-left: 1px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+/* table {
+    font-size: 14px;
 }
 
-table.table-striped>tbody>tr {
-    height: 40px;
+tr {
+   line-height: 15px;
 }
 
-input.form-control,
-select.form-control {
-    padding-right: 0px;
-    padding-left: px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    height: 35px;
+.pagination .page-link {
+    line-height: 10px;
+}
+
+.font14 {
+    font-size: 14px;
 }
 
 .row {
-    padding-bottom: 0px;
+    margin-bottom: 8px;
 }
 
 label{
-    padding-bottom: 0px;
+    margin-bottom: 0px;
+    font-size: 12px;
 }
+
+.form-control {
+    height: calc(1em + .375rem + 5px) !important;
+    padding: .125rem .25rem !important;
+    font-size: .75rem !important;
+    line-height: 1.5;
+    border-radius: .2rem;
+} 
+
+.btn {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+
+.nav-tabs {
+    font-size: 14px;
+} */
+
 
 </style>
 @endpush
