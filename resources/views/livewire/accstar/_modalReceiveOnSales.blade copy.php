@@ -46,11 +46,13 @@
                         <!-- .Tab ข้อมูลทั่วไป -->
                         <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
                             aria-labelledby="pills-home-tab">
-                            <div class="row">
-                                <div class="col-6 mb-1 form-group">
+                            <div class="row mt-2">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ชื่อ:</label>
+                                </div>
+                                <div class="col-5">
                                     <div {{ $showEditModal ? '' : 'class=d-none'}}>
-                                        <input type="text" class="form-control" readonly
+                                        <input type="text" class="form-control mb-1" readonly
                                             wire:model.defer="bankHeader.customername">
                                     </div>
                                     <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
@@ -67,10 +69,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6 mb-1 form-group">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ภาษีถูกหัก:</label>
-                                    <div class="form-inline d-flex justify-content-between">
-                                        <select class="form-control" wire:model.lazy="bankHeader.taxscheme">
+                                </div>
+                                <div class="col-5">
+                                    <div class="form-inline">
+                                    <select class="form-control mb-1 mr-1" wire:model.lazy="bankHeader.taxscheme">
                                             <option value="">---โปรดเลือก---</option>
                                             @foreach ($taxTypes_dd as $row)
                                             <option value='{{ $row->code }}'>
@@ -78,24 +82,28 @@
                                             </option>
                                             @endforeach
                                         </select>
-                                        <input type="number" step="0.01" class="form-control"
-                                            style="width: 30%;"
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1"
+                                            style="text-align: right; width: 20%;"
                                             wire:model.defer="bankHeader.witholdamt">
-                                        <input type="number" step="0.01" class="form-control"
-                                            style="width: 30%;"
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1"
+                                            style="text-align: right; width: 20%;"
                                             wire:model.defer="bankHeader.witholdtax">
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col mb-1 form-group">
-                                    <label class="mr-1">เลขที่:</label>
+                            <div class="row ">
+                                <div class="col-1" style="text-align: right;">
+                                    <label class=" mr-1">เลขที่:</label>
+                                </div>
+                                <div class="col-2">
                                     <input type="text" class="form-control mb-1 mr-1" readonly
                                         wire:model.defer="bankHeader.gltran">
                                 </div>
-                                <div class="col mb-1 form-group">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">วันที่:</label>
-                                    <div class="input-group">
+                                </div>
+                                <div class="col-2">
+                                    <div class="input-group mb-1 mr-1">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
                                                 <i class="fas fa-calendar"></i>
@@ -104,11 +112,14 @@
                                         <x-datepicker wire:model.defer="bankHeader.gjournaldt" id="่jrDate"
                                             :error="'date'" required />
                                     </div>
+
                                 </div>
-                                <div class="col-6 mb-1 form-group">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ภาษีถูกหัก-1:</label>
-                                    <div class="form-inline d-flex justify-content-between">
-                                        <select class="form-control" wire:model.lazy="bankHeader.taxscheme1">
+                                </div>
+                                <div class="col-5">
+                                    <div class="form-inline">
+                                        <select class="form-control mb-1 mr-1" wire:model.lazy="bankHeader.taxscheme1">
                                             <option value="">---โปรดเลือก---</option>
                                             @foreach ($taxTypes_dd as $row)
                                             <option value='{{ $row->code }}'>
@@ -116,18 +127,20 @@
                                             </option>
                                             @endforeach
                                         </select>
-                                        <input type="number" step="0.01" class="form-control" required
-                                            style="width: 30%;"
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" required
+                                            style="text-align: right; width: 20%;"
                                             wire:model.lazy="bankHeader.witholdamt1">
-                                        <input type="number" step="0.01" class="form-control" required
-                                            style="width: 30%;"
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" required
+                                            style="text-align: right; width: 20%;"
                                             wire:model.defer="bankHeader.witholdtax1">
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col mb-1 form-group">
+                            <div class="row ">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ชำระโดย:</label>
+                                </div>
+                                <div class="col-2">
                                     <select class="form-control mb-1 mr-1" wire:model.defer="bankHeader.payby">
                                         <option value="">ยังไม่ชำระ</option>
                                         <option value="1">เงินสด</option>
@@ -138,24 +151,32 @@
                                         <option value="9">รวม</option>
                                     </select>
                                 </div>
-                                <div class="col mb-1 form-group">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">เลขอ้างอิง:</label>
-                                    <input type="text" class="form-control mb-1 mr-1"
-                                    wire:model.defer="bankHeader.documentref">
                                 </div>
-                                <div class="col mb-1 form-group"">
+                                <div class="col-2">
+                                    <input type="text" class="form-control mb-1 mr-1"
+                                        wire:model.defer="bankHeader.documentref">
+                                </div>
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">เลขภาษีหัก:</label>
-                                    <input type="text" class="form-control mb-1 mr-1"
-                                    wire:model.defer="bankHeader.taxrunningno">
                                 </div>
-                                <div class="col form-group">
+                                <div class="col-2">
+                                    <input type="text" class="form-control mb-1 mr-1"
+                                        wire:model.defer="bankHeader.taxrunningno">
+                                </div>
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ปิดรายการ:</label>
+                                </div>
+                                <div class="col-2">
                                     <input type="checkbox" wire:model.defer="bankHeader.posted">
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col mb-1">
+                            <div class="row mb-2">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">รับเข้าบัญชี:</label>
+                                </div>
+                                <div class="col-2">
                                     <select class="form-control mb-1 mr-1" wire:model.defer="bankHeader.account">
                                         <option value="">--โปรดเลือก---</option>
                                         @foreach ($accountNos_dd as $row)
@@ -165,8 +186,10 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col mb-1">
+                                <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">บัญชีลูกหนี้:</label>
+                                </div>
+                                <div class="col-2">
                                     <select class="form-control mb-1 mr-1" wire:model.defer="bankHeader.accountcus">
                                         <option value="">--โปรดเลือก---</option>
                                         @foreach ($accountNos_dd as $row)
@@ -176,12 +199,12 @@
                                         @endforeach
                                     </select>
                                 </div>
-
+                                <div col=6></div>
                             </div>
                             <!-- .Grid -->
                             <div class="row mb-2">
                                 <div class="col">
-                                    <table class="table table-striped">
+                                    <table class="table table-sm table-striped">
                                         <thead>
                                             <tr>
                                                 <th>#</th>

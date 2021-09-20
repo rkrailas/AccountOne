@@ -30,7 +30,7 @@
                         <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
                             สร้างข้อมูลใหม่</button>                        
-                        <div class="d-flex justify-content-center align-items-center border bg-while pr-2">
+                        <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
@@ -50,23 +50,23 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">เลขที่ใบสั่งขาย
-                                    <a href="" wire:click.prevent="sortSO('sales.snumber')">
+                                    <a href="" wire:click.prevent="sortBy('sales.snumber')">
                                         <i class="fa fa-sort" aria-hidden="true"></i>
                                     </a>
                                 </th>
                                 <th scope="col">วันที่ใบสั่งขาย
-                                    <a href="" wire:click.prevent="sortSO('sales.sodate')">
+                                    <a href="" wire:click.prevent="sortBy('sales.sodate')">
                                         <i class="fa fa-sort" aria-hidden="true"></i>
                                     </a>
                                 </th>
                                 <th scope="col">ผู้ซื้อ
-                                    <a href="" wire:click.prevent="sortSO('customer.name')">
+                                    <a href="" wire:click.prevent="sortBy('customer.name')">
                                         <i class="fa fa-sort" aria-hidden="true"></i>
                                     </a>
                                 </th>
                                     
                                 <th scope="col">ยอดเงิน
-                                    <a href="" wire:click.prevent="sortSO('sales.sototal')">
+                                    <a href="" wire:click.prevent="sortBy('sales.sototal')">
                                         <i class="fa fa-sort" aria-hidden="true"></i>
                                     </a>
                                 </th>                                    
@@ -93,19 +93,18 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-between footgrid">
-                        <div>
-                        {{ $salesOrders->links() }} จำนวน {{ number_format($salesOrders->Total(),0) }} รายการ
-                        </div>                        
-                        <div>                        
-                            <select class="form-control" style="width: 70px;"
-                                wire:model.lazy="numberOfPage">
-                                <option value="10" selected>10</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>                            
-                        </div>                        
-                    </div>                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $salesOrders->links() }} <span
+                        class="ml-2">จำนวน {{ number_format($salesOrders->Total(),0) }} รายการ</span>
+                    <div class="col">
+                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                            <option value="10" selected>10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>

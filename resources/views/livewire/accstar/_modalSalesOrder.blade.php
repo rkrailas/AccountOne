@@ -29,14 +29,14 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="row mb-0">
+                    <div class="row ">
                         <div class="col">
-                            <label class="mb-0">เลขที่ใบสั่งขาย:</label>
+                            <label class="">เลขที่ใบสั่งขาย:</label>
                             <input type="text" class="form-control mb-1" readonly
                                 wire:model.defer="soHeader.snumber">
                         </div>
                         <div class="col">
-                            <label class="mb-0">วันที่ใบสั่งขาย:</label>
+                            <label class="">วันที่ใบสั่งขาย:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
@@ -47,12 +47,12 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="mb-0">เลขที่ใบสำคัญ:</label>
+                            <label class="">เลขที่ใบสำคัญ:</label>
                             <input type="text" class="form-control mb-1" {{ $showEditModal ? 'required' : 'readonly' }} 
                                 wire:model.defer="soHeader.invoiceno">
                         </div>
                         <div class="col">
-                            <label class="mb-0">วันที่ใบสำคัญ:</label>
+                            <label class="">วันที่ใบสำคัญ:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
@@ -63,14 +63,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-0">
+                    <div class="row ">
                         <div class="col">
-                            <label class="mb-0">เลขที่ใบกำกับ:</label>
+                            <label class="">เลขที่ใบกำกับ:</label>
                             <input type="text" class="form-control mb-1" required
                                 wire:model.defer="soHeader.deliveryno">
                         </div>
                         <div class="col">
-                            <label class="mb-0">วันที่ใบกำกับ:</label>
+                            <label class="">วันที่ใบกำกับ:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
@@ -81,7 +81,7 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="mb-0">วันที่ครบกำหนด:</label>
+                            <label class="">วันที่ครบกำหนด:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
@@ -92,7 +92,7 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="mb-0">การชำระเงิน:</label>
+                            <label class="">การชำระเงิน:</label>
                             <select class="form-control mb-1" wire:model.defer="soHeader.payby">
                                 <option value="0" selected>ยังไม่ชำระ</option>
                                 <option value="1">เงินสด</option>
@@ -106,7 +106,7 @@
                     </div>
                     <div class="row mb-2">
                         <div class="col-6">
-                            <label class="mb-0">ชื่อ:</label>
+                            <label class="">ชื่อ:</label>
                             <div {{ $showEditModal ? '' : 'class=d-none'}}>
                                 <input type="text" class="form-control mb-1" readonly
                                     wire:model.defer="soHeader.shipname">
@@ -127,7 +127,7 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="mb-0">ที่อยู่:</label>
+                            <label class="">ที่อยู่:</label>
                             <textarea class="form-control mb-1" rows="2" readonly 
                                 wire:model.defer="soHeader.full_address"></textarea>
                         </div>
@@ -271,6 +271,7 @@
 </div>
 
 @push('styles')
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
     integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />

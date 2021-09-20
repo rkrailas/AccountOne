@@ -30,7 +30,7 @@
                         <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
                             สร้างข้อมูลใหม่</button>                        
-                        <div class="d-flex justify-content-center align-items-center border bg-while pr-2">
+                        <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
@@ -93,19 +93,18 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-between">
-                        <div>
-                        {{ $recieptJournals->links() }} จำนวน {{ number_format($recieptJournals->Total(),0) }} รายการ
-                        </div>                        
-                        <div>                        
-                            <select class="form-control" style="width: 70px;"
-                                wire:model.lazy="numberOfPage">
-                                <option value="10" selected>10</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>                            
-                        </div>                        
-                    </div>                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $recieptJournals->links() }} <span
+                        class="ml-2">จำนวน {{ number_format($recieptJournals->Total(),0) }} รายการ</span>
+                    <div class="col">
+                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                            <option value="10" selected>10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>

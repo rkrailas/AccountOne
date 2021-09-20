@@ -13,12 +13,26 @@ class ListGjournal extends Component
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
+    public $sortDirection = "desc";
+    public $sortBy = "gltran.gltran";
+    public $numberOfPage = 10;
     public $searchTerm = null;
+
     public $showEditModal = null;
     public $journalDetails = []; //รายละเอียดของใบสำคัญนั้น ๆ
     public $allocations,$accountNos,$journals; //ตัวแปร Dropdown
     public $sumGldebit,$sumGlcredit,$gltranNo2,$gjournal2,$department2,$gjournaldt2,$gldescription2 = 0; //ตัวแปรใน Model Form
     public $book;
+
+    public function sortBy($sortby)
+    {
+        $this->sortBy = $sortby;
+        if ($this->sortDirection == "asc"){
+            $this->sortDirection = "desc";
+        }else{
+            $this->sortDirection = "asc";
+        }
+    }
 
     public function filterJournalByBook($book = null) //จากปุ่มประเภทใบสำคัญ
     {
@@ -129,21 +143,6 @@ class ListGjournal extends Component
             $this->sumGlcredit = round(array_sum(array_column($this->journalDetails,'glcredit')),2);
         }
                 
-        // .นับจำนวนแยกตาม Book (ยังไม่ได้ใช้งาน เพราะนับไม่ตรงกับ List)
-        $allCount = DB::select("select count(*) as mycount from (select gltran from gltran where gltran<>'' 
-                            group by gltran) as xxx")[0]->mycount;
-        $glCount = DB::select("select count(*) as mycount from (select gltran from gltran where gltran<>'' 
-                            and gjournal='GL' group by gltran) as xxx")[0]->mycount;
-        $poCount = DB::select("select count(*) as mycount from (select gltran from gltran where gltran<>'' 
-                            and gjournal='PO' group by gltran) as xxx")[0]->mycount;
-        $soCount = DB::select("select count(*) as mycount from (select gltran from gltran where gltran<>'' 
-                            and gjournal='SO' group by gltran) as xxx")[0]->mycount;
-        $jpCount = DB::select("select count(*) as mycount from (select gltran from gltran where gltran<>'' 
-                            and gjournal='JP' group by gltran) as xxx")[0]->mycount;
-        $jrCount = DB::select("select count(*) as mycount from (select gltran from gltran where gltran<>'' 
-                            and gjournal='JR' group by gltran) as xxx")[0]->mycount;
-        // /.นับจำนวนแยกตาม Book (ยังไม่ได้ใช้งาน เพราะนับไม่ตรงกับ List)
-
         //แสดงรายการใบสำคัญ ค้นหาจาก gltran หรือ gldescription แต่ดึงมาเฉพาะ gltran ไม่ว่าง
         if($this->book){
             $gltrans = DB::table('gltran')
@@ -153,7 +152,6 @@ class ListGjournal extends Component
                     $join->on('gltran.gjournal', '=', 'misctable.code')
                     ->where('misctable.tabletype', '=', 'JR');
                 })
-            ->join('employee','gltran.employee_id','=','employee.employeeid')
             ->where('gltran.gltran', '<>', '')
             ->Where(function($query) 
                 {
@@ -168,10 +166,9 @@ class ListGjournal extends Component
             ->select('gltran.gltran','gltran.gjournaldt','gltran.gldescription','misctable.other')
             ->join('misctable', function ($join) 
                 {
-                    $join->on('gltran.gjournal', '=', 'misctable.code')
-                     ->where('misctable.tabletype', '=', 'JR');
+                    $join->on('gltran.gjournal', 'misctable.code')
+                     ->where('misctable.tabletype', 'JR');
                 })
-            ->join('employee','gltran.employee_id','=','employee.employeeid')
             ->where('gltran.gltran', '<>', '')
             ->Where(function($query) 
                 {
@@ -179,17 +176,12 @@ class ListGjournal extends Component
                           ->orWhere('gltran.gldescription', 'like', '%'.$this->searchTerm.'%');
                 })
             ->groupBy('gltran.gltran','gltran.gjournaldt','gltran.gldescription','misctable.other')
-            ->paginate(10);
+            ->orderBy($this->sortBy,$this->sortDirection)
+            ->paginate($this->numberOfPage);
         }
         
         return view('livewire.accstar.list-gjournal',[
             'gltrans' => $gltrans,
-            'allCount' => $allCount,
-            'glCount' => $glCount,
-            'poCount' => $poCount,
-            'soCount' => $soCount,
-            'jpCount' => $jpCount,
-            'jrCount' => $jrCount,
         ]);
     }
 }

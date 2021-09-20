@@ -1,6 +1,15 @@
 @push('styles')
 <style>
 
+label{
+    margin-bottom: 0px;
+}
+
+.row {
+    margin-bottom: 8px;
+}
+
+
 /* table {
     font-size: 14px;
 }

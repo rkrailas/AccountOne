@@ -11,11 +11,25 @@ class Customer extends Component
 {
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
-    
+
+    public $sortDirection = "desc";
+    public $sortBy = "customer.customerid";
+    public $numberOfPage = 10;
     public $searchTerm = null;
+    
     public $showEditModal;    
     public $citys_dd, $states_dd, $accountNos_dd, $taxs_dd, $taxs1_dd, $taxs1Ap_dd, $priceLevels_dd; //Dropdown
     public $state = [];
+
+    public function sortBy($sortby)
+    {
+        $this->sortBy = $sortby;
+        if ($this->sortDirection == "asc"){
+            $this->sortDirection = "desc";
+        }else{
+            $this->sortDirection = "asc";
+        }
+    }
 
     public function addNew()
     {
@@ -200,8 +214,8 @@ class Customer extends Component
                 $query->where('customer.customerid', 'like', '%'.$this->searchTerm.'%')
                       ->orWhere('customer.name', 'like', '%'.$this->searchTerm.'%');
                 })
-        ->orderBy('customer.customerid')
-        ->paginate(10);
+        ->orderBy($this->sortBy,$this->sortDirection)
+        ->paginate($this->numberOfPage);
 
         return view('livewire.accstar.customer',[
             'customers' => $customers,

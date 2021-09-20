@@ -39,7 +39,7 @@ class SoDeliveryTax extends Component
         $this->resetPage();
     }
 
-    public function sortSO($sortby)
+    public function sortBy($sortby)
     {
         $this->sortBy = $sortby;
         if ($this->sortDirection == "asc"){
