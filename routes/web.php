@@ -11,6 +11,7 @@ use App\Http\Livewire\AccStar\SoDeliveryTax;
 use App\Http\Livewire\AccStar\ReceiveOnSales;
 use App\Http\Livewire\AccStar\PostJournal;
 use App\Http\Livewire\AccStar\CancelPostJournal;
+use App\Http\Livewire\AccStar\TrialBalance;
 
 use App\Http\Livewire\Test1;
 use App\Http\Livewire\Test2;
@@ -40,6 +41,7 @@ Route::get('accstar/sodeliverytax', SoDeliveryTax::class)->name('accstar.sodeliv
 Route::get('accstar/receiveonsales', ReceiveOnSales::class)->name('accstar.receiveonsales');
 Route::get('accstar/postjournal', PostJournal::class)->name('accstar.postjournal');
 Route::get('accstar/cancelpostjournal', CancelPostJournal::class)->name('accstar.cancelpostjournal');
+Route::get('accstar/trialbalance', TrialBalance::class)->name('accstar.trialbalance');
 
 Route::get('accstar/accounting', Accounting::class); //Not Used
 Route::get('accstar/products', Products::class); //Not Used

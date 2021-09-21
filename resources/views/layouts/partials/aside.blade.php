@@ -62,6 +62,13 @@
             <p>ยกเลิกผ่านรายการบัญชี</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="{{ route('accstar.trialbalance') }}"
+            class="nav-link {{ request()->is('accstar/trialbalance') ? 'active' : '' }}">
+            <i class="nav-icon fa fa-file" aria-hidden="true"></i>
+            <p>งบทดลอง</p>
+          </a>
+        </li>
       </ul>
     </nav>
     <!-- /.sidebar-menu -->
