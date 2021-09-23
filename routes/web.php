@@ -15,6 +15,7 @@ use App\Http\Livewire\AccStar\TrialBalance;
 
 use App\Http\Livewire\Test1;
 use App\Http\Livewire\Test2;
+use App\Http\Livewire\Test3;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,9 +31,6 @@ use App\Http\Livewire\Test2;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('test1', Test1::class);
-Route::get('test2', Test2::class);
 Route::get('contactsearch', ContactSearchBar::class);
 Route::get('accstar/gjournal', ListGjournal::class)->name('accstar.gljournal');
 Route::get('accstar/customer', Customer::class)->name('accstar.customer');
@@ -43,5 +41,8 @@ Route::get('accstar/postjournal', PostJournal::class)->name('accstar.postjournal
 Route::get('accstar/cancelpostjournal', CancelPostJournal::class)->name('accstar.cancelpostjournal');
 Route::get('accstar/trialbalance', TrialBalance::class)->name('accstar.trialbalance');
 
+Route::get('test1', Test1::class);
+Route::get('test2', Test2::class);
+Route::get('test3', Test3::class);
 Route::get('accstar/accounting', Accounting::class); //Not Used
 Route::get('accstar/products', Products::class); //Not Used
