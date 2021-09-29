@@ -17,6 +17,8 @@ use App\Http\Livewire\Test1;
 use App\Http\Livewire\Test2Sumgrouparray;
 use App\Http\Livewire\Test3Coa;
 use App\Http\Livewire\Test4DataTable;
+use App\Http\Livewire\Test5;
+use App\Http\Livewire\Test6Invoice;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,4 +50,6 @@ Route::get('test1', Test1::class);
 Route::get('test2', Test2Sumgrouparray::class);
 Route::get('test3', Test3Coa::class);
 Route::get('test4', Test4DataTable::class);
+Route::get('test5', Test5::class);
+Route::get('test6', Test6Invoice::class);
 Route::get('accstar/accounting', Accounting::class); //Not Used

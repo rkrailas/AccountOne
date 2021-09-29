@@ -15,15 +15,15 @@ class Test4DataTable extends Component
 
     public function render()
     {
-         $recieptJournals = DB::table('bank')
-         ->select('gltran','gjournaldt','customername','amount')
-         ->where('posted', FALSE)            
-         ->where('bookid','R1')
-         ->orderBy('gltran')
-         ->get();
+        $customers = DB::table('customer')
+        ->select('customer.customerid','customer.name','customer.contact1','customer.phone1'
+                ,'customer.taxid','customer.debtor','customer.creditor','customer.corporate')
+        ->whereNotNull('customerid')
+        ->orderBy('customerid')
+        ->get();
 
         return view('livewire.test4-data-table',[
-            'recieptJournals' => $recieptJournals,
+            'customers' => $customers,
         ]);
     }
 }
