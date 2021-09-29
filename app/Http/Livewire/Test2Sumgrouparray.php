@@ -5,7 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
-class Test2 extends Component
+class Test2Sumgrouparray extends Component
 {
     public function getDateWiseScore($data) {
         //Group & Summary Array
@@ -50,6 +50,6 @@ class Test2 extends Component
         
         dd($this->getDateWiseScore($aa));
 
-        return view('livewire.test2');
+        return view('livewire.test2-sumgrouparray');
     }
 }

@@ -1,5 +1,4 @@
-<div class="modal fade bd-example-modal-xl" id="receiveOnSalesForm" tabindex="-1" role="dialog"
-    aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
+<div class="modal fade bd-example-modal-xl" id="receiveOnSalesForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
     <div class="modal-dialog" style="max-width: 85%;">
         <form autocomplete="off" wire:submit.prevent="createUpdateReceiveOnSales">
             <div class="modal-content ">
@@ -32,33 +31,28 @@
                     <!-- .Tab Header -->
                     <ul class="nav nav-tabs" id="pills-tab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home"
-                                role="tab" aria-controls="pills-home" aria-selected="true">ทั่วไป</a>
+                            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">ทั่วไป</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="pills-account-tab" data-toggle="pill" href="#pills-account"
-                                role="tab" aria-controls="pills-account" aria-selected="false">บัญชี และอื่น ๆ</a>
+                            <a class="nav-link" id="pills-account-tab" data-toggle="pill" href="#pills-account" role="tab" aria-controls="pills-account" aria-selected="false">บัญชี และอื่น ๆ</a>
                         </li>
                     </ul>
                     <!-- /.Tab Header -->
 
                     <div class="tab-content ml-2 mt-2" id="pills-tabContent">
                         <!-- .Tab ข้อมูลทั่วไป -->
-                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
-                            aria-labelledby="pills-home-tab">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                             <div class="row mt-2">
                                 <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ชื่อ:</label>
                                 </div>
                                 <div class="col-5">
                                     <div {{ $showEditModal ? '' : 'class=d-none'}}>
-                                        <input type="text" class="form-control mb-1" readonly
-                                            wire:model.defer="bankHeader.customername">
+                                        <input type="text" class="form-control mb-1" readonly wire:model.defer="bankHeader.customername">
                                     </div>
                                     <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
                                         <div wire:ignore>
-                                            <select id="customer-dropdown" class="form-control" style="width: 100%;"
-                                                required wire:model.defer="bankHeader.customerid">
+                                            <select id="customer-dropdown" class="form-control" style="width: 100%;" required wire:model.defer="bankHeader.customerid">
                                                 <option value=''>--- โปรดเลือก ---</option>
                                                 @foreach($customers_dd as $row)
                                                 <option value='{{ $row->customerid }}'>
@@ -74,7 +68,7 @@
                                 </div>
                                 <div class="col-5">
                                     <div class="form-inline">
-                                    <select class="form-control mb-1 mr-1" wire:model.lazy="bankHeader.taxscheme">
+                                        <select class="form-control mb-1 mr-1" wire:model.lazy="bankHeader.taxscheme">
                                             <option value="">---โปรดเลือก---</option>
                                             @foreach ($taxTypes_dd as $row)
                                             <option value='{{ $row->code }}'>
@@ -82,12 +76,8 @@
                                             </option>
                                             @endforeach
                                         </select>
-                                        <input type="number" step="0.01" class="form-control mb-1 mr-1"
-                                            style="text-align: right; width: 20%;"
-                                            wire:model.defer="bankHeader.witholdamt">
-                                        <input type="number" step="0.01" class="form-control mb-1 mr-1"
-                                            style="text-align: right; width: 20%;"
-                                            wire:model.defer="bankHeader.witholdtax">
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" style="text-align: right; width: 20%;" wire:model.defer="bankHeader.witholdamt">
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" style="text-align: right; width: 20%;" wire:model.defer="bankHeader.witholdtax">
                                     </div>
                                 </div>
                             </div>
@@ -96,8 +86,7 @@
                                     <label class=" mr-1">เลขที่:</label>
                                 </div>
                                 <div class="col-2">
-                                    <input type="text" class="form-control mb-1 mr-1" readonly
-                                        wire:model.defer="bankHeader.gltran">
+                                    <input type="text" class="form-control mb-1 mr-1" readonly wire:model.defer="bankHeader.gltran">
                                 </div>
                                 <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">วันที่:</label>
@@ -109,8 +98,7 @@
                                                 <i class="fas fa-calendar"></i>
                                             </span>
                                         </div>
-                                        <x-datepicker wire:model.defer="bankHeader.gjournaldt" id="่jrDate"
-                                            :error="'date'" required />
+                                        <x-datepicker wire:model.defer="bankHeader.gjournaldt" id="่jrDate" :error="'date'" required />
                                     </div>
 
                                 </div>
@@ -127,12 +115,8 @@
                                             </option>
                                             @endforeach
                                         </select>
-                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" required
-                                            style="text-align: right; width: 20%;"
-                                            wire:model.lazy="bankHeader.witholdamt1">
-                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" required
-                                            style="text-align: right; width: 20%;"
-                                            wire:model.defer="bankHeader.witholdtax1">
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" required style="text-align: right; width: 20%;" wire:model.lazy="bankHeader.witholdamt1">
+                                        <input type="number" step="0.01" class="form-control mb-1 mr-1" required style="text-align: right; width: 20%;" wire:model.defer="bankHeader.witholdtax1">
                                     </div>
                                 </div>
                             </div>
@@ -155,15 +139,13 @@
                                     <label class=" mr-1">เลขอ้างอิง:</label>
                                 </div>
                                 <div class="col-2">
-                                    <input type="text" class="form-control mb-1 mr-1"
-                                        wire:model.defer="bankHeader.documentref">
+                                    <input type="text" class="form-control mb-1 mr-1" wire:model.defer="bankHeader.documentref">
                                 </div>
                                 <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">เลขภาษีหัก:</label>
                                 </div>
                                 <div class="col-2">
-                                    <input type="text" class="form-control mb-1 mr-1"
-                                        wire:model.defer="bankHeader.taxrunningno">
+                                    <input type="text" class="form-control mb-1 mr-1" wire:model.defer="bankHeader.taxrunningno">
                                 </div>
                                 <div class="col-1" style="text-align: right;">
                                     <label class=" mr-1">ปิดรายการ:</label>
@@ -229,12 +211,10 @@
                                                 <td class="align-middle" style="text-align: right; font-weight: bold;">
                                                     <a href="#" wire:click.prevent="getBalance({{ $index }})">
                                                         {{ number_format($bankDetails[$index]['balance'],2) }}
-                                                    </a>                                                    
-                                                </td>                                                
+                                                    </a>
+                                                </td>
                                                 <td class="align-middle">
-                                                    <input type="number" step="0.01" class="form-control float-right"
-                                                        style="text-align: right; width: 120px;"
-                                                        wire:model.lazy="bankDetails.{{$index}}.amount">
+                                                    <input type="number" step="0.01" class="form-control float-right" style="text-align: right; width: 120px;" wire:model.lazy="bankDetails.{{$index}}.amount">
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -270,8 +250,7 @@
                         <!-- /.Tab ข้อมูลทั่วไป -->
 
                         <!-- .Tab Account -->
-                        <div class="tab-pane fade" id="pills-account" role="tabpanel"
-                            aria-labelledby="pills-account-tab">
+                        <div class="tab-pane fade" id="pills-account" role="tabpanel" aria-labelledby="pills-account-tab">
                             <div class="row ">
                                 <div class="col-2" style="text-align: right;">
                                     <label class=" mr-1">ภาษีจ่าย:</label>
@@ -306,8 +285,7 @@
                                     <label class=" mr-1">จำนวนเงิน:</label>
                                 </div>
                                 <div class="col-2">
-                                    <input type="number" step="0.01" class="form-control mb-1 mr-1"
-                                        style="text-align: right;" wire:model.lazy="bankHeader.fincharge">
+                                    <input type="number" step="0.01" class="form-control mb-1 mr-1" style="text-align: right;" wire:model.lazy="bankHeader.fincharge">
                                 </div>
                                 <div class="col-4"></div>
                             </div>
@@ -329,8 +307,7 @@
                                     <label class=" mr-1">จำนวนเงิน:</label>
                                 </div>
                                 <div class="col-2">
-                                    <input type="number" step="0.01" class="form-control mb-1 mr-1"
-                                        style="text-align: right;" wire:model.lazy="bankHeader.findiscount">
+                                    <input type="number" step="0.01" class="form-control mb-1 mr-1" style="text-align: right;" wire:model.lazy="bankHeader.findiscount">
                                 </div>
                                 <div class="col-4"></div>
                             </div>
@@ -352,8 +329,7 @@
                                     <label class=" mr-1">จำนวนเงิน:</label>
                                 </div>
                                 <div class="col-2">
-                                    <input type="number" step="0.01" class="form-control mb-1 mr-1"
-                                        style="text-align: right;" wire:model.lazy="bankHeader.feeamt">
+                                    <input type="number" step="0.01" class="form-control mb-1 mr-1" style="text-align: right;" wire:model.lazy="bankHeader.feeamt">
                                 </div>
                                 <div class="col-4"></div>
                             </div>
@@ -380,25 +356,21 @@
 </div>
 
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
-    integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
 
 @push('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"
-    integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-$(document).ready(function() {
-    $('#customer-dropdown').select2({
-        placeholder: "--- โปรดเลือก ---"
+    $(document).ready(function() {
+        $('#customer-dropdown').select2({
+            placeholder: "--- โปรดเลือก ---"
+        });
+        $('#customer-dropdown').on('change', function(e) {
+            let data = $(this).val();
+            @this.set('bankHeader.customerid', data);
+        });
     });
-    $('#customer-dropdown').on('change', function(e) {
-        let data = $(this).val();
-        @this.set('bankHeader.customerid', data);
-    });
-});
 </script>
 @endpush

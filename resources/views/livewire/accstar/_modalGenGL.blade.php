@@ -48,3 +48,11 @@
         </div>
     </div>
 </div>
+
+@push('js')
+<script>
+    window.addEventListener('show-myModal2', event => {
+        $('#myModal2').modal('show');
+    })
+</script>
+@endpush

@@ -9,6 +9,9 @@ label{
     margin-bottom: 8px;
 }
 
+th {
+    white-space: nowrap;
+}
 
 /* table {
     font-size: 14px;

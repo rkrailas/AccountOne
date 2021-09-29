@@ -6,7 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
 
-class Test3 extends Component
+class Test3Coa extends Component
 {
     public $coa;
     public $tree;
@@ -76,6 +76,6 @@ class Test3 extends Component
 
     public function render()
     {
-        return view('livewire.test3');
+        return view('livewire.test3-coa');
     }
 }

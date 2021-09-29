@@ -44,7 +44,7 @@
         <li class="nav-item">
           <a href="{{ route('accstar.receiveonsales') }}"
             class="nav-link {{ request()->is('accstar/receiveonsales') ? 'active' : '' }}">
-            <i class="nav-icon fa fa-university" aria-hidden="true"></i>
+            <i class="nav-icon fas fa-hand-holding-usd"></i></i>
             <p>รับชำระเงิน</p>
           </a>
         </li>
@@ -67,6 +67,13 @@
             class="nav-link {{ request()->is('accstar/trialbalance') ? 'active' : '' }}">
             <i class="nav-icon fa fa-file" aria-hidden="true"></i>
             <p>งบทดลอง</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ route('accstar.products') }}"
+            class="nav-link {{ request()->is('accstar/products') ? 'active' : '' }}">
+            <i class="nav-icon fab fa-product-hunt" aria-hidden="true"></i>
+            <p>ข้อมูลสินค้า</p>
           </a>
         </li>
       </ul>

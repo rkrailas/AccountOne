@@ -42,7 +42,8 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table w-100 small table-hover">
+                    <table class="table table-hover w-100 small">
+                    
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -87,7 +88,7 @@
                                     </a>
                                 </th>
                                 <th scope="col">ยอดปัจจุบัน
-                                    <a href="" wire:click.prevent="sortBy('amount')">
+                                    <a href="" wire:click.prevent="sortBy('currentbal')">
                                         <i class="fa fa-sort" aria-hidden="true"></i>
                                     </a>
                                 </th>

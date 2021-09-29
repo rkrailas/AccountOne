@@ -1,5 +1,4 @@
-<div class="modal fade bd-example-modal-xl" id="formJournal" tabindex="-1" role="dialog"
-    aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
+<div class="modal fade bd-example-modal-xl" id="formJournal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
     <div class="modal-dialog modal-xl">
         <form autocomplete="off" wire:submit.prevent="createUpdateJournal">
             <div class="modal-content">
@@ -38,8 +37,7 @@
                                         <i class="fas fa-calendar"></i>
                                     </span>
                                 </div>
-                                <x-datepicker wire:model.defer="gjournaldt2" id="gjournalDate" :error="'date'"
-                                    required />
+                                <x-datepicker wire:model.defer="gjournaldt2" id="gjournalDate" :error="'date'" required />
                             </div>
                         </div>
                         <div class="col">
@@ -79,8 +77,7 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">
-                                            <button class="btn btn-sm btn-primary"
-                                                wire:click.prevent="addRow">+Add</button>
+                                            <button class="btn btn-sm btn-primary" wire:click.prevent="addRow">+Add</button>
                                         </th>
                                         <th scope="col">บัญชี</th>
                                         <th scope="col">เดบิต</th>
@@ -96,8 +93,7 @@
                                             <center>{{ $loop->iteration }}</center>
                                         </td>
                                         <td>
-                                            <select class="form-control" required
-                                                wire:model.defer="journalDetails.{{$index}}.glaccount">
+                                            <select class="form-control" required wire:model.defer="journalDetails.{{$index}}.glaccount">
                                                 <option value="">--- โปรดเลือก ---</option>
                                                 @foreach($accountNos as $accountNo)
                                                 <option value="{{ $accountNo->account }}">{{ $accountNo->account }}:
@@ -107,14 +103,10 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control"
-                                                style="text-align: right;"
-                                                wire:model.lazy="journalDetails.{{$index}}.gldebit">
+                                            <input type="number" step="0.01" class="form-control" style="text-align: right;" wire:model.lazy="journalDetails.{{$index}}.gldebit">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control"
-                                                style="text-align: right;"
-                                                wire:model.lazy="journalDetails.{{$index}}.glcredit">
+                                            <input type="number" step="0.01" class="form-control" style="text-align: right;" wire:model.lazy="journalDetails.{{$index}}.glcredit">
                                         </td>
                                         <td>
                                             <center>
@@ -133,12 +125,10 @@
                                         <td></td>
                                         <td></td>
                                         <td>
-                                            <input wire:model="sumGldebit" class="form-control" type="number"
-                                                style="text-align: right;" readonly>
+                                            <input wire:model="sumGldebit" class="form-control" type="number" style="text-align: right;" readonly>
                                         </td>
                                         <td>
-                                            <input wire:model="sumGlcredit" class="form-control" type="number"
-                                                style="text-align: right;" readonly>
+                                            <input wire:model="sumGlcredit" class="form-control" type="number" style="text-align: right;" readonly>
                                         </td>
                                         <td>
                                         </td>
@@ -165,3 +155,18 @@
         </form>
     </div>
 </div>
+
+@push('js')
+
+<script>
+    window.addEventListener('show-formJournal', event => {
+        $('#formJournal').modal('show');
+    })
+
+    window.addEventListener('hide-formJournal', event => {
+        $('#formJournal').modal('hide');
+        toastr.success(event.detail.message, 'Success!');
+    })
+</script>
+
+@endpush

@@ -1,5 +1,4 @@
-<div class="modal fade bd-example-modal-xl" id="soDeliveryTaxForm" tabindex="-1" role="dialog"
-    aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
+<div class="modal fade bd-example-modal-xl" id="soDeliveryTaxForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
     <div class="modal-dialog modal-dialog-scrollable" style="max-width: 95%;">
         <form autocomplete="off" wire:submit.prevent="createUpdateSalesOrder">
             <div class="modal-content ">
@@ -32,8 +31,7 @@
                     <div class="row ">
                         <div class="col">
                             <label class="">เลขที่ใบสั่งขาย:</label>
-                            <input type="text" class="form-control mb-1" readonly
-                                wire:model.defer="soHeader.snumber">
+                            <input type="text" class="form-control mb-1" readonly wire:model.defer="soHeader.snumber">
                         </div>
                         <div class="col">
                             <label class="">วันที่ใบสั่งขาย:</label>
@@ -48,8 +46,7 @@
                         </div>
                         <div class="col">
                             <label class="">เลขที่ใบสำคัญ:</label>
-                            <input type="text" class="form-control mb-1" {{ $showEditModal ? 'required' : 'readonly' }} 
-                                wire:model.defer="soHeader.invoiceno">
+                            <input type="text" class="form-control mb-1" {{ $showEditModal ? 'required' : 'readonly' }} wire:model.defer="soHeader.invoiceno">
                         </div>
                         <div class="col">
                             <label class="">วันที่ใบสำคัญ:</label>
@@ -66,8 +63,7 @@
                     <div class="row ">
                         <div class="col">
                             <label class="">เลขที่ใบกำกับ:</label>
-                            <input type="text" class="form-control mb-1" required
-                                wire:model.defer="soHeader.deliveryno">
+                            <input type="text" class="form-control mb-1" required wire:model.defer="soHeader.deliveryno">
                         </div>
                         <div class="col">
                             <label class="">วันที่ใบกำกับ:</label>
@@ -108,14 +104,11 @@
                         <div class="col-6">
                             <label class="">ชื่อ:</label>
                             <div {{ $showEditModal ? '' : 'class=d-none'}}>
-                                <input type="text" class="form-control mb-1" readonly
-                                    wire:model.defer="soHeader.shipname">
+                                <input type="text" class="form-control mb-1" readonly wire:model.defer="soHeader.shipname">
                             </div>
                             <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
                                 <div wire:ignore>
-                                    <select id="customer-dropdown" class="form-control" 
-                                        style="width: 100%" required 
-                                        wire:model.defer="soHeader.customerid">
+                                    <select id="customer-dropdown" class="form-control" style="width: 100%" required wire:model.defer="soHeader.customerid">
                                         <option value=''>--- โปรดเลือก ---</option>
                                         @foreach($customers_dd as $customer_dd)
                                         <option value='{{ $customer_dd->customerid }}'>
@@ -128,15 +121,13 @@
                         </div>
                         <div class="col">
                             <label class="">ที่อยู่:</label>
-                            <textarea class="form-control mb-1" rows="2" readonly 
-                                wire:model.defer="soHeader.full_address"></textarea>
+                            <textarea class="form-control mb-1" rows="2" readonly wire:model.defer="soHeader.full_address"></textarea>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.exclusivetax"
-                                    wire:change="checkExclusiveTax">
+                                <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.exclusivetax" wire:change="checkExclusiveTax">
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
                             </div>
                             <div class="form-check form-check-inline">
@@ -153,8 +144,7 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">
-                                            <button class="btn btn-sm btn-primary"
-                                                wire:click.prevent="addRowInGrid">+Add</button>
+                                            <button class="btn btn-sm btn-primary" wire:click.prevent="addRowInGrid">+Add</button>
                                         </th>
                                         <th scope="col">รหัส</th>
                                         <th scope="col" style="width: 25%;">รายละเอียด</th>
@@ -175,8 +165,7 @@
                                             <center>{{ $loop->iteration }}</center>
                                         </td>
                                         <td>
-                                            <select class="form-control" required
-                                                wire:model.lazy="soDetails.{{$index}}.itemid">
+                                            <select class="form-control" required wire:model.lazy="soDetails.{{$index}}.itemid">
                                                 <option value="">--- โปรดเลือก ---</option>
                                                 @foreach($itemNos_dd as $itemNo_dd)
                                                 <option value="{{ $itemNo_dd->itemid }}">{{ $itemNo_dd->itemid }}:
@@ -186,41 +175,28 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control"
-                                                wire:model.defer="soDetails.{{$index}}.description">
+                                            <input type="text" class="form-control" wire:model.defer="soDetails.{{$index}}.description">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required
-                                                style="text-align: right;"
-                                                wire:model.lazy="soDetails.{{$index}}.quantity">
+                                            <input type="number" step="0.01" class="form-control" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required
-                                                style="text-align: right;"
-                                                wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                            <input type="number" step="0.01" class="form-control" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required readonly
-                                                style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
+                                            <input type="number" step="0.01" class="form-control" required readonly style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required
-                                                style="text-align: right;"
-                                                wire:model="soDetails.{{$index}}.discountamount">
+                                            <input type="number" step="0.01" class="form-control" required style="text-align: right;" wire:model="soDetails.{{$index}}.discountamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required
-                                                style="text-align: right;"
-                                                wire:model="soDetails.{{$index}}.taxrate">
+                                            <input type="number" step="0.01" class="form-control" required style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required
-                                                style="text-align: right;"
-                                                wire:model="soDetails.{{$index}}.taxamount">
+                                            <input type="number" step="0.01" class="form-control" required style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control" required
-                                                style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                            <input type="number" step="0.01" class="form-control" required style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
                                         </td>
                                         </td>
                                         <td>
@@ -272,25 +248,31 @@
 
 @push('styles')
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
-    integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
 
 @push('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"
-    integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-$(document).ready(function() {    
-    $('#customer-dropdown').select2({
-        placeholder: "--- โปรดเลือก ---"
+    $(document).ready(function() {
+        $('#customer-dropdown').select2({
+            placeholder: "--- โปรดเลือก ---"
+        });
+        $('#customer-dropdown').on('change', function(e) {
+            let data = $(this).val();
+            @this.set('soHeader.customerid', data);
+        });
     });
-    $('#customer-dropdown').on('change', function(e) {
-        let data = $(this).val();
-        @this.set('soHeader.customerid', data);
-    });
-});
+</script>
+
+<script>
+    window.addEventListener('show-soDeliveryTaxForm', event => {
+        $('#soDeliveryTaxForm').modal('show');
+    })
+
+    window.addEventListener('hide-soDeliveryTaxForm', event => {
+        $('#soDeliveryTaxForm').modal('hide');
+    })
 </script>
 @endpush
