@@ -11,11 +11,12 @@ use App\Http\Livewire\AccStar\ReceiveOnSales;
 use App\Http\Livewire\AccStar\PostJournal;
 use App\Http\Livewire\AccStar\CancelPostJournal;
 use App\Http\Livewire\AccStar\TrialBalance;
-use App\Http\Livewire\AccStar\Products;
+use App\Http\Livewire\AccStar\Inventory;
+use App\Http\Livewire\AccStar\ListCoa;
 
-use App\Http\Livewire\Test1;
+use App\Http\Livewire\Test1CustomerForm;
 use App\Http\Livewire\Test2Sumgrouparray;
-use App\Http\Livewire\Test3Coa;
+use App\Http\Livewire\Test3;
 use App\Http\Livewire\Test4DataTable;
 use App\Http\Livewire\Test5;
 use App\Http\Livewire\Test6Invoice;
@@ -34,6 +35,7 @@ use App\Http\Livewire\Test6Invoice;
 Route::get('/', function () {
     return view('welcome');
 });
+
 Route::get('contactsearch', ContactSearchBar::class);
 Route::get('accstar/gjournal', ListGjournal::class)->name('accstar.gljournal');
 Route::get('accstar/customer', Customer::class)->name('accstar.customer');
@@ -43,12 +45,13 @@ Route::get('accstar/receiveonsales', ReceiveOnSales::class)->name('accstar.recei
 Route::get('accstar/postjournal', PostJournal::class)->name('accstar.postjournal');
 Route::get('accstar/cancelpostjournal', CancelPostJournal::class)->name('accstar.cancelpostjournal');
 Route::get('accstar/trialbalance', TrialBalance::class)->name('accstar.trialbalance');
-Route::get('accstar/products', Products::class)->name('accstar.products');
+Route::get('accstar/inventory', Inventory::class)->name('accstar.inventory');
+Route::get('accstar/listcoa', ListCoa::class)->name('accstar.listcoa');
 
 
-Route::get('test1', Test1::class);
+Route::get('test1', Test1CustomerForm::class);
 Route::get('test2', Test2Sumgrouparray::class);
-Route::get('test3', Test3Coa::class);
+Route::get('test3', Test3::class);
 Route::get('test4', Test4DataTable::class);
 Route::get('test5', Test5::class);
 Route::get('test6', Test6Invoice::class);

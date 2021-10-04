@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        <div class="col-3">
+        <div class="col-3 mt-2">
             <div class="info-box">
                 <span class="info-box-icon bg-info"><i class="fas fa-info"></i></span>
                 <div class="info-box-content">
@@ -9,7 +9,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-3 mt-2">
             <div class="info-box">
                 <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
                 <div class="info-box-content">
@@ -18,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-3 mt-2">
             <div class="info-box">
                 <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
                 <div class="info-box-content">
@@ -27,7 +27,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-3 mt-2">
             <div class="info-box">
                 <span class="info-box-icon bg-danger"><i class="far fa-clock"></i></span>
                 <div class="info-box-content">
@@ -172,5 +172,3 @@
     </div>
 
 </div>
-
-@include('livewire.accstar._mycss')

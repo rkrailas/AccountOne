@@ -6,7 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class Test1 extends Component
+class Test1CustomerForm extends Component
 {
     public $myCustomer = [];
     public $selectCustomer;
@@ -159,7 +159,7 @@ class Test1 extends Component
             ->orderby('customerid')
             ->get();
 
-        return view('livewire.test1',[
+        return view('livewire.test1-customer-form',[
             'customer' => $data,
         ]);
     }

@@ -130,6 +130,4 @@
         </div>
     </div>
     <!-- /.แสดงรายการใบสำคัญรับ -->
-
-    @include('livewire.accstar._mycss')
 </div>

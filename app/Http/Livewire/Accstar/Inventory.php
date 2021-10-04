@@ -5,23 +5,21 @@ namespace App\Http\Livewire\Accstar;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use App\Exports\InventorysExport;
+use Maatwebsite\Excel\Facades\Excel;
 
-class Products extends Component
+class Inventory extends Component
 {
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
-    public $sortDirection = "asc";
+    public $sortDirection = "desc";
     public $sortBy = "inventory.itemid";
     public $numberOfPage = 10;
     public $searchTerm = null;
 
-    public $showEditModal;
-
-    public function addNew()
-    {
-
+    public function exportExcel(){
+        return Excel::download(new InventorysExport($this->searchTerm), 'Inventorys.xlsx');
     }
 
     public function sortBy($sortby)
@@ -36,22 +34,26 @@ class Products extends Component
 
     public function render()
     {
-        $products = DB::table('inventory')
+        $inventorys = DB::table('inventory')
         ->select('inventory.id','inventory.itemid','inventory.description','b.other as stocktype'
-                ,'c.other as category','inventory.instock')
+                ,'c.other as category','inventory.instock','inventory.salesprice')
         ->leftJoin('misctable as b', function ($join) {
             $join->on('inventory.stocktype', '=', 'b.code')
-                 ->where('b.tabletype', 'CA');
+                 ->where('b.tabletype', 'I1');
                 }) 
         ->leftJoin('misctable as c', function ($join) {
             $join->on('inventory.category', '=', 'c.code')
-                    ->where('c.tabletype', 'I1');
-                }) 
+                    ->where('c.tabletype', 'CA');
+                })
+        ->Where(function($query) {
+            $query->where('inventory.itemid', 'like', '%'.$this->searchTerm.'%')
+                    ->orWhere('inventory.description', 'like', '%'.$this->searchTerm.'%');
+            })
         ->orderBy($this->sortBy,$this->sortDirection)
         ->paginate($this->numberOfPage);
 
-        return view('livewire.accstar.products',[
-            'products' => $products,
+        return view('livewire.accstar.inventory',[
+            'inventorys' => $inventorys,
         ]);
     }
 }

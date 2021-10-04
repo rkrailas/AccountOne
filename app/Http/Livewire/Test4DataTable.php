@@ -8,6 +8,13 @@ use Carbon\Carbon;
 
 class Test4DataTable extends Component
 {
+    protected $listeners = ['sayhello' => 'sayHello'];
+
+    public function sayHello()
+    {
+        dd('here');
+    }
+
     public function edit($gltran)
     {
         dd($gltran);

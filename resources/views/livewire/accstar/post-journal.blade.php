@@ -93,6 +93,4 @@
             </div>
         </div>
     </div>
-
-    @include('livewire.accstar._mycss')
 </div>

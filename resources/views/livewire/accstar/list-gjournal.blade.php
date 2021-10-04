@@ -136,5 +136,4 @@
     <!-- /.List Journal -->
 
     @include('livewire.accstar._modelListGjournal')
-    @include('livewire.accstar._mycss')
 </div>

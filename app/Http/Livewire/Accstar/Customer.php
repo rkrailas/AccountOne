@@ -6,6 +6,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\CustomersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Customer extends Component
 {
@@ -20,6 +22,15 @@ class Customer extends Component
     public $showEditModal;    
     public $citys_dd, $states_dd, $accountNos_dd, $taxs_dd, $taxs1_dd, $taxs1Ap_dd, $priceLevels_dd; //Dropdown
     public $state = [];
+
+    //Not Support Thai
+    // public function exportPDF(){
+    //     return Excel::download(new CustomersExport($this->searchTerm), 'Customers.pdf');
+    // }
+
+    public function exportExcel(){
+        return Excel::download(new CustomersExport($this->searchTerm), 'Customers.xlsx');
+    }
 
     public function sortBy($sortby)
     {

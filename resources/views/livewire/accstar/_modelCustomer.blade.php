@@ -3,13 +3,13 @@
         <form autocomplete="off" wire:submit.prevent="{{ $showEditModal ? 'updateCustomer' : 'createCustomer' }}">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
+                    <div class="modal-title font-weight-bold" id="exampleModalLabel">
                         @if($showEditModal)
-                        แก้ไขข้อมูลลูกค้า #{{$state['customerid']}} ({{$state['name']}})
+                        แก้ไขข้อมูล #{{$state['customerid']}} : {{$state['name']}}
                         @else
                         สร้างข้อมูลลูกค้า
                         @endif
-                    </h5>
+                    </div>
                     <div class="float-right">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
                             <i class="fa fa-times mr-1"></i>Cancel</button>

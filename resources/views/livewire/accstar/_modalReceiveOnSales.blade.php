@@ -12,10 +12,10 @@
                     </h5>
                     <div class="float-right">
                         @if($showEditModal)
-                        <button type="button" class="btn  btn-secondary" wire:click.prevent="showGL">
+                        <button type="button" class="btn btn-secondary" wire:click.prevent="showGL">
                             Gen GL</button>
                         @endif
-                        <button type="button" class="btn  btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn  btn-secondary" data-dismiss="modal" onclick="clearSelect2('customer-dropdown')">
                             <i class="fa fa-times mr-1"></i>Cancel</button>
                         <button type="submit" class="btn  btn-primary">
                             <i class="fa fa-save mr-1"></i>
@@ -50,14 +50,14 @@
                                     </div>
                                     <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
                                         <div wire:ignore>
-                                            <select id="customer-dropdown" class="form-control" style="width: 100%;" required wire:model.defer="bankHeader.customerid">
-                                                <option value=''>--- โปรดเลือก ---</option>
+                                            <x-select2 wire:model="bankHeader.customerid" id="customer-dropdown">
+                                                <option value=" ">---โปรดเลือก---</option>
                                                 @foreach($customers_dd as $row)
                                                 <option value='{{ $row->customerid }}'>
                                                     {{ $row->customerid . ': ' . $row->name }}
                                                 </option>
                                                 @endforeach
-                                            </select>
+                                            </x-select2>
                                         </div>
                                     </div>
                                 </div>
@@ -332,32 +332,16 @@
     </div>
 </div>
 
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-@endpush
-
 @push('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<script>
-    $(document).ready(function() {
-        $('#customer-dropdown').select2({
-            placeholder: "--- โปรดเลือก ---"
+    <script>
+        window.addEventListener('show-receiveOnSalesForm', event => {
+            $('#receiveOnSalesForm').modal('show');
         });
-        $('#customer-dropdown').on('change', function(e) {
-            let data = $(this).val();
-            @this.set('bankHeader.customerid', data);
+
+        window.addEventListener('hide-receiveOnSalesForm', event => {
+            $('#receiveOnSalesForm').modal('hide');
         });
-    });
-</script>
+    </script>
 
-<script>
-    window.addEventListener('show-receiveOnSalesForm', event => {
-        $('#receiveOnSalesForm').modal('show');
-    });
-
-    window.addEventListener('hide-receiveOnSalesForm', event => {
-        $('#receiveOnSalesForm').modal('hide');
-    });
-</script>
 @endpush

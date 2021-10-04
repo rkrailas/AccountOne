@@ -9,13 +9,7 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h3 class="m-0 text-dark">ข้อมูลลูกค้า</h3>
-                </div><!-- /.col -->
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item">AccStar</li>
-                        <li class="breadcrumb-item active">ข้อมูลลูกค้า</li>
-                    </ol>
+                    <h1 class="m-0 text-dark">ข้อมูลลูกค้า</h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -27,9 +21,12 @@
             <div class="row mb-2">
                 <div class="col">
                     <div class="d-flex justify-content-between mb-2">
-                        <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
-                                mr-1></i>
-                            สร้างลูกค้า</button>
+                        <div>
+                            <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle mr-1"></i>
+                                สร้างลูกค้า</button>
+                            <button wire:click.prevent="exportExcel" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i>
+                                Excel</button>
+                        </div>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
@@ -45,34 +42,44 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover">
+                    <table class="table table-hover table-bordered">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">รหัส
-                                    <a href="" wire:click.prevent="sortBy('customer.customerid')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                <th scope="col">
+                                    รหัสลูกค้า
+                                    <span wire:click="sortBy('customer.customerid')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customer.customerid' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customer.customerid' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
-                                <th scope="col">ชื่อ
-                                    <a href="" wire:click.prevent="sortBy('customer.name')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                <th scope="col">
+                                    ชื่อลูกค้า
+                                    <span wire:click="sortBy('customer.name')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customer.name' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customer.name' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
-                                <th scope="col">ผู้ติดต่อ
-                                    <a href="" wire:click.prevent="sortBy('customer.contact1')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                <th scope="col">
+                                    ผู้ติดต่อ
+                                    <span wire:click="sortBy('customer.contact1')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customer.contact1' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customer.contact1' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
-                                <th scope="col">โทรศัพท์
-                                    <a href="" wire:click.prevent="sortBy('customer.phone1')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                <th scope="col">
+                                    โทรศัพท์
+                                    <span wire:click="sortBy('customer.phone1')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customer.phone1' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customer.phone1' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
-                                <th scope="col">เลขที่ผู้เสียภาษี
-                                    <a href="" wire:click.prevent="sortBy('customer.taxid')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                <th scope="col">
+                                    เลขที่ผู้เสียภาษี
+                                    <span wire:click="sortBy('customer.taxid')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customer.taxid' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customer.taxid' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">ลูกหนี้</th>
                                 <th scope="col">เจ้าหนี้</th>
@@ -128,5 +135,4 @@
     <!-- /.List Customer -->
 
     @include('livewire.accstar._modelCustomer')
-    @include('livewire.accstar._mycss')
 </div>
