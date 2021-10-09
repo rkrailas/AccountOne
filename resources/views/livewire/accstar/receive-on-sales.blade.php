@@ -31,7 +31,7 @@
                                 mr-1></i>
                             สร้างข้อมูลใหม่</button>                        
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
-                            <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
+                            <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -50,26 +50,29 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">เลขที่ใบสำคัญรับ
-                                    <a href="" wire:click.prevent="sortJR('gltran')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('gltran')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'gltran' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'gltran' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">วันที่ใบสำคัญรับ
-                                    <a href="" wire:click.prevent="sortJR('gjournaldt')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('gjournaldt')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'gjournaldt' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'gjournaldt' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">ผู้ซื้อ
-                                    <a href="" wire:click.prevent="sortJR('customername')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('customername')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customername' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customername' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
-                                    
                                 <th scope="col">ยอดเงิน
-                                    <a href="" wire:click.prevent="sortJR('amount')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
-                                </th>                                    
+                                    <span wire:click="sortBy('amount')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'amount' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'amount' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -99,7 +102,7 @@
                 <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $recieptJournals->links() }} <span
                         class="ml-2">จำนวน {{ number_format($recieptJournals->Total(),0) }} รายการ</span>
                     <div class="col">
-                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                        <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
@@ -113,5 +116,4 @@
 
     @include('livewire.accstar._modalReceiveOnSales')
     @include('livewire.accstar._modalGenGL')
-    @include('livewire.accstar._mypopup')
 </div>

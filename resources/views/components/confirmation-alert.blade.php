@@ -26,3 +26,6 @@
     })
 </script>
 @endpush
+
+{{-- วิธีใช้งาน
+protected $listeners = ['deleteConfirmed' => 'ชื่อ Function ที่ทำการลบ']; --}}

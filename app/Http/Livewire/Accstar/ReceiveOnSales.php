@@ -12,6 +12,8 @@ class ReceiveOnSales extends Component
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
+    protected $listeners = ['deleteConfirmed' => 'delete'];
+
     public $sortDirection = "desc";
     public $sortBy = "gjournaldt";
     public $numberOfPage = 10;
@@ -19,7 +21,7 @@ class ReceiveOnSales extends Component
     
     public $showEditModal = null;
     public $customers_dd, $taxTypes_dd, $accountNos_dd; //Dropdown
-    public $sNumberDelete, $modelMessage;
+    public $sNumberDelete;
     public $bankHeader = []; //gltran,gjournaldt,documentref,customerid,customername,addressl1,addressl2,addressl3,amount,findiscount,fincharge,feeamt,payby
                             //,journal,bookid,account,accountcus,accounttax,accountcharge,accountdis,accountfee,taxscheme,witholdamt,witholdtax,witholdtaxrate
                             //,taxscheme1,witholdamt1,witholdtax1,witholdtaxrate1,taxtype,taxrunningno,posted,department,notes  
@@ -470,7 +472,7 @@ class ReceiveOnSales extends Component
         // }  
     }
 
-    public function sortJR($sortby)
+    public function sortBy($sortby)
     {
         $this->sortBy = $sortby;
         if ($this->sortDirection == "asc"){
@@ -582,22 +584,16 @@ class ReceiveOnSales extends Component
 
     public function confirmDelete($gltran) //แสดง Modal ยืนยันการลบ
     {
-        $this->modelMessage = "คุณต้องการลบใบสำคัญรับเงินเลขที่: " . $gltran;
         $this->sNumberDelete = $gltran;
-        $this->dispatchBrowserEvent('show-delete-modal');
+        $this->dispatchBrowserEvent('delete-confirmation');
     }
 
     public function delete() //กดปุ่ม Delete ที่ List รายการ
     {   
-        // $this->dispatchBrowserEvent('hide-delete-modal');
-        // $this->modelMessage = "555555555";
-        // $this->dispatchBrowserEvent('show-infor-modal');
-
         DB::transaction(function() 
         {
             DB::table('bank')->where('gltran', $this->sNumberDelete)->delete();
             DB::table('bankdetail')->where('gltran', $this->sNumberDelete)->delete();
-            $this->dispatchBrowserEvent('hide-delete-modal', ['message' => 'Deleted successfully!']);
         });
     }
     

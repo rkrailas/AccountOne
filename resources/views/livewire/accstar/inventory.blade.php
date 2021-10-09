@@ -30,7 +30,7 @@
                                 Excel</button>
                         </div>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
-                            <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
+                            <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -44,11 +44,11 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">
+                                <th scope="col">                                    
                                     รหัสสินค้า
                                     <span wire:click="sortBy('inventory.itemid')" class="float-right text-sm"
                                         style="cursor: pointer;">
@@ -108,6 +108,7 @@
                                             class="fa fa-arrow-down {{ $sortBy === 'inventory.salesprice' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
+                                <th scope="col">รูปสินค้า</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -116,12 +117,21 @@
                             @foreach ($inventorys as $inventory)
                             <tr>
                                 <td scope="col">{{ $loop->iteration + $inventorys->firstitem()-1  }}</td>
-                                <td scope="col">{{ $inventory->itemid }} </td>
+                                <td scope="col">
+                                    {{ $inventory->itemid }}                                    
+                                </td>
                                 <td scope="col">{{ $inventory->description }} </td>
                                 <td scope="col">{{ $inventory->stocktype }} </td>
                                 <td scope="col">{{ $inventory->category }} </td>
                                 <td scope="col" class="text-right">{{ number_format($inventory->instock, 2) }} </td>
                                 <td scope="col" class="text-right">{{ number_format($inventory->salesprice, 2) }} </td>
+                                <td scope="col">
+                                    @if($inventory->ram_inventory_image)
+                                    <a href="#" wire:click.prevent="showImage('{{ url('storage/inventory_images/'.$inventory->ram_inventory_image) }}')">
+                                        <img src="{{url('storage/inventory_images/'.$inventory->ram_inventory_image)}}" style="width: 50px;" class="ml-2">
+                                    </a>
+                                @endif
+                                </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $inventory->id }}')">
                                         <i class="fa fa-edit mr-2"></i>
@@ -138,7 +148,7 @@
                 <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $inventorys->links() }} <span
                         class="ml-2">จำนวน {{ number_format($inventorys->Total(),0) }} รายการ</span>
                     <div class="col">
-                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                        <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
@@ -148,4 +158,6 @@
             </div>
         </div>
     </div>
+
+    @include('livewire.accstar._modalInventory')
 </div>

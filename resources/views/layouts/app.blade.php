@@ -26,7 +26,6 @@
         href="{{ asset('backend/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
 
-
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
     <!-- iCheck -->
@@ -49,19 +48,19 @@
             white-space: nowrap;
         }
 
-        /* table {
-            font-size: 14px;
+        .myGridTB :is(td,th) {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 2px;
+            padding-left: 2px;
+            margin: 0;
         }
 
-        tr {
-        line-height: 15px;
+        .myGridTB input{
+            padding-right: 0;
         }
 
-        .pagination .page-link {
-            line-height: 10px;
-        }
-
-        .font14 {
+        /* .font14 {
             font-size: 14px;
         }
 
@@ -94,38 +93,6 @@
         } */
     </style>
 
-    <!-- For Thai PDF -->
-    {{-- <style>
-        @font-face {
-            font-family: 'THSarabunNew';
-            font-style: normal;
-            font-weight: normal;
-            src: url("{{ asset('fonts/THSarabunNew.ttf') }}") format('truetype');
-        }
-        @font-face {
-            font-family: 'THSarabunNew';
-            font-style: normal;
-            font-weight: bold;
-            src: url("{{ asset('fonts/THSarabunNew Bold.ttf') }}") format('truetype');
-        }
-        @font-face {
-            font-family: 'THSarabunNew';
-            font-style: italic;
-            font-weight: normal;
-            src: url("{{ asset('fonts/THSarabunNew Italic.ttf') }}") format('truetype');
-        }
-        @font-face {
-            font-family: 'THSarabunNew';
-            font-style: italic;
-            font-weight: bold;
-            src: url("{{ asset('fonts/THSarabunNew BoldItalic.ttf') }}") format('truetype');
-        }
-
-        body {
-            font-family: "THSarabunNew";
-        }
-    </style> --}}
-    
     @stack('styles')
     <livewire:styles />
     
@@ -187,27 +154,25 @@
         integrity="sha512-HWlJyU4ut5HkEj0QsK/IxBCY55n5ZpskyjVlAoV9Z7XQwwkqXoYdCIC93/htL3Gu5H3R4an/S0h2NXfbZk3g7w=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+    <!-- sweetalert2 -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <x-popup-alert></x-popup-alert>
+    <x-delete-confirmation></x-delete-confirmation>
+    <x-popup-image></x-popup-image>
+
+
     <script>
         $(document).ready(function() {
             toastr.options = {
                 "positionClass": "toast-bottom-right",
                 "progressBar": true,
             }
-
         });
 
         window.addEventListener('alert', event => {
             toastr.success(event.detail.message, 'success!');
         })
     </script>
-
-    <!-- for test select2 -->
-    <script>
-        window.addEventListener('destroy-Select2', event => {
-            $('#customer-dropdown').select2('destroy');
-        })
-    </script>
-    <!-- for test select2 -->
 
     @stack('js')
     <livewire:scripts />

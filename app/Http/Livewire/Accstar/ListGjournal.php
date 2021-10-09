@@ -76,7 +76,8 @@ class ListGjournal extends Component
         $this->gltranNo2 = $gltranNo;
         $this->gjournal2 = $this->journalDetails[0]['gjournal'];
         $this->department2 = $this->journalDetails[0]['department'];
-        $this->gjournaldt2 = \Carbon\Carbon::parse($this->journalDetails[0]['gjournaldt'])->format('d-m-Y');
+        //$this->gjournaldt2 = \Carbon\Carbon::parse($this->journalDetails[0]['gjournaldt'])->format('d-m-Y');
+        $this->gjournaldt2 = $this->journalDetails[0]['gjournaldt'];
         $this->gldescription2 = $this->journalDetails[0]['gldescription'];
         // /.เชื่อมกับ Dropdown ใน Form Model
 
@@ -90,11 +91,7 @@ class ListGjournal extends Component
     }
 
     public function createUpdateJournal()
-    {        
-        $this->journalDetails = collect($this->journalDetails);
-        
-        //เปลี่ยนค่าใน Collection
-
+    {    
         for($i=0; $i<count($this->journalDetails);$i++)
         {
             $this->journalDetails[$i]['gltran'] = $this->gltranNo2;
@@ -107,7 +104,7 @@ class ListGjournal extends Component
         //Delete แล้ว Insert ใหม่
         DB::transaction(function () {
             DB::table('gltran')->where('gltran', '=', $this->gltranNo2)->delete();
-            DB::table('gltran')->insert($this->journalDetails->all()); //จะ Insert ได้ $journalDetails ต้องเป็น Array
+            DB::table('gltran')->insert($this->journalDetails); //จะ Insert ได้ $journalDetails ต้องเป็น Array
         });
         
         $this->dispatchBrowserEvent('hide-formJournal', ['message' => 'Updated Successfully!']);

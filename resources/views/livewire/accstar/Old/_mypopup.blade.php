@@ -18,9 +18,19 @@
         </div>
     </div>
 </div>
-<!-- /.Model Form Delete -->
 
-<!-- /.Model Form Information -->
+<script>
+    window.addEventListener('show-confirmationModal', event => {
+        $('#confirmationModal').modal('show');
+    });
+
+    window.addEventListener('hide-confirmationModal', event => {
+        $('#confirmationModal').modal('hide');
+        toastr.success(event.detail.message, 'Success!');
+    });
+</script>
+
+<!-- .Model Form Information -->
 <div class="modal fade" id="informationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog" role="document">
@@ -38,4 +48,10 @@
         </div>
     </div>
 </div>
-<!-- /.Model Form Information -->
+
+<script>
+    window.addEventListener('show-informationModal', event => {
+        $('#informationModal').modal('show');
+    });
+</script>
+

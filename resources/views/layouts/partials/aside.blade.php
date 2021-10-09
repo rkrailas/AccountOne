@@ -40,13 +40,13 @@
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ลูกหนี้</p>
+                <p>_ลูกหนี้</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>เจ้าหนี้</p>
+                <p>_เจ้าหนี้</p>
               </a>
             </li>
           </ul>
@@ -70,7 +70,8 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('accstar.adjustinventory') }}" 
+                class="nav-link {{ request()->is('accstar/adjustinventory') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>ปรับปรุงสินค้า</p>
               </a>
@@ -78,7 +79,7 @@
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>อายุสินค้า</p>
+                <p>_อายุสินค้า</p>
               </a>
             </li>
           </ul>
@@ -97,25 +98,25 @@
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon" aria-hidden="true"></i>
-                <p>รับสินค้าพร้อมใบกำกับ</p>
+                <p>_รับสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ใบสั่งซื้อ</p>
+                <p>_ใบสั่งซื้อ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>รับสินค้าเท่านั้น</p>
+                <p>_รับสินค้าเท่านั้น</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ใบกำกับของสินค้าที่รับแล้ว</p>
+                <p>_ใบกำกับของสินค้าที่รับแล้ว</p>
               </a>
             </li>
           </ul>
@@ -141,19 +142,19 @@
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ใบสั่งขาย</p>
+                <p>_ใบสั่งขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ส่งสินค้าเท่านั้น</p>
+                <p>_ส่งสินค้าเท่านั้น</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ใบกำกับของสินค้าที่ส่งแล้ว</p>
+                <p>_ใบกำกับของสินค้าที่ส่งแล้ว</p>
               </a>
             </li>
           </ul>
@@ -179,7 +180,7 @@
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>ใบแจ้งหนี้/ใบวางบิล</p>
+                <p>_ใบแจ้งหนี้/ใบวางบิล</p>
               </a>
             </li>
           </ul>
@@ -194,18 +195,17 @@
               <i class="right fas fa-angle-left"></i>
             </p>
           </a>
-          <ul class="nav nav-treeview">            
+          <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="{{ route('accstar.receiveonsales') }}"
-                class="nav-link {{ request()->is('accstar/receiveonsales') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i></i>
-                <p>จ่ายชำระเงิน</p>
+              <a href="#" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>_จ่ายชำระเงิน</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>รับใบแจ้งหนี้</p>
+                <p>_รับใบแจ้งหนี้</p>
               </a>
             </li>
           </ul>

@@ -28,7 +28,7 @@
                 <div class="col">
                     <div class="d-flex justify-content-end mb-2">
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
-                            <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
+                            <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
                                 <div class="la-ball-clip-rotate la-dark la-sm">

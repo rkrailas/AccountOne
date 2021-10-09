@@ -5,7 +5,6 @@ use App\Http\Livewire\ContactSearchBar;
 use App\Http\Livewire\AccStar\ListGjournal;
 use App\Http\Livewire\AccStar\Customer;
 use App\Http\Livewire\AccStar\CustomerForm;
-use App\Http\Livewire\AccStar\Accounting;
 use App\Http\Livewire\AccStar\SoDeliveryTax;
 use App\Http\Livewire\AccStar\ReceiveOnSales;
 use App\Http\Livewire\AccStar\PostJournal;
@@ -13,6 +12,7 @@ use App\Http\Livewire\AccStar\CancelPostJournal;
 use App\Http\Livewire\AccStar\TrialBalance;
 use App\Http\Livewire\AccStar\Inventory;
 use App\Http\Livewire\AccStar\ListCoa;
+use App\Http\Livewire\AccStar\AdjustInventory;
 
 use App\Http\Livewire\Test1CustomerForm;
 use App\Http\Livewire\Test2Sumgrouparray;
@@ -47,6 +47,7 @@ Route::get('accstar/cancelpostjournal', CancelPostJournal::class)->name('accstar
 Route::get('accstar/trialbalance', TrialBalance::class)->name('accstar.trialbalance');
 Route::get('accstar/inventory', Inventory::class)->name('accstar.inventory');
 Route::get('accstar/listcoa', ListCoa::class)->name('accstar.listcoa');
+Route::get('accstar/adjustinventory', AdjustInventory::class)->name('accstar.adjustinventory');
 
 
 Route::get('test1', Test1CustomerForm::class);
@@ -55,4 +56,3 @@ Route::get('test3', Test3::class);
 Route::get('test4', Test4DataTable::class);
 Route::get('test5', Test5::class);
 Route::get('test6', Test6Invoice::class);
-Route::get('accstar/accounting', Accounting::class); //Not Used

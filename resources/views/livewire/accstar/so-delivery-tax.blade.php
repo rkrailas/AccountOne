@@ -29,9 +29,9 @@
                     <div class="d-flex justify-content-between mb-2">
                         <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
-                            สร้างข้อมูลใหม่</button>                        
+                            สร้างข้อมูลใหม่</button>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
-                            <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
+                            <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -50,25 +50,28 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">เลขที่ใบสั่งขาย
-                                    <a href="" wire:click.prevent="sortBy('sales.snumber')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('sales.snumber')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.snumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.snumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">วันที่ใบสั่งขาย
-                                    <a href="" wire:click.prevent="sortBy('sales.sodate')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('sales.sodate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.sodate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.sodate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">ผู้ซื้อ
-                                    <a href="" wire:click.prevent="sortBy('customer.name')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
-                                </th>
-                                    
+                                    <span wire:click="sortBy('customer.name')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'customer.name' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'customer.name' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>                                    
                                 <th scope="col">ยอดเงิน
-                                    <a href="" wire:click.prevent="sortBy('sales.sototal')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('sales.sototal')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.sototal' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.sototal' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>                                    
                                 <th scope="col">Action</th>
                             </tr>
@@ -99,7 +102,7 @@
                 <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $salesOrders->links() }} <span
                         class="ml-2">จำนวน {{ number_format($salesOrders->Total(),0) }} รายการ</span>
                     <div class="col">
-                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                        <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
@@ -112,5 +115,4 @@
     <!-- /.List Sales Order -->
     @include('livewire.accstar._modalSalesOrder')
     @include('livewire.accstar._modalGenGL')
-    @include('livewire.accstar._mypopup')
 </div>

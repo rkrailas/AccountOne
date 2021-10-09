@@ -28,7 +28,7 @@
                                 Excel</button>
                         </div>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
-                            <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
+                            <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -42,7 +42,7 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -122,7 +122,7 @@
                 <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $customers->links() }} <span
                         class="ml-2">จำนวน {{ number_format($customers->Total(),0) }} รายการ</span>
                     <div class="col">
-                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                        <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
                             <option value="50">50</option>
                             <option value="100">100</option>

@@ -26,17 +26,17 @@
     <div class="content">
         <div class="container">
             <div class="row mb-2">
-                <div class="col">
+                <div class="col-3">
                     <label class="mb-0">เลขที่ใบสำคัญ:</label>
-                    <input type="text" class="form-control" wire:model.defer="journalNoFrom">
+                    <input type="text" class="form-control form-control-sm" wire:model.defer="journalNoFrom">
                 </div>
-                <div class="col">
+                <div class="col-3">
                     <label class="mb-0">ถึง:</label>
-                    <input type="text" class="form-control" wire:model.defer="journalNoTo">
+                    <input type="text" class="form-control form-control-sm" wire:model.defer="journalNoTo">
                 </div>
             </div>
             <div class="row mb-2">
-                <div class="col">
+                <div class="col-3">
                     <label class="mb-0">วันที่ใบกำกับ:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
@@ -48,7 +48,7 @@
                             id="journalDateFrom" :error="'date'" required />
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-3">
                     <label class="mb-0">ถึง:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
@@ -61,7 +61,7 @@
                 </div>
             </div>
             <div class="row mb-2">
-                <div class="col">
+                <div class="col-3">
                     <label class="mb-0">วันที่ผ่านรายการ:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
@@ -73,7 +73,7 @@
                             id="postDateFrom" :error="'date'" required />
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-3">
                     <label class="mb-0">ถึง:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">

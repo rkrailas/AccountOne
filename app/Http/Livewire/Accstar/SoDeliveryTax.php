@@ -13,6 +13,8 @@ class SoDeliveryTax extends Component
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
+    protected $listeners = ['deleteConfirmed' => 'delete'];
+
     public $sortDirection = "desc";
     public $sortBy = "sales.snumber";
     public $numberOfPage = 10;
@@ -24,15 +26,10 @@ class SoDeliveryTax extends Component
     public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
     public $sumQuantity, $sumAmount = 0;
     public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
-    public $sNumberDelete, $modelMessage;
+    public $sNumberDelete;
     public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
                         //, allcated, currencyid, posted, bookid, employee_id, transactiondate
     public $sumDebit, $sumCredit = 0;
-
-    public function closeSOModal()
-    {
-        $this->dispatchBrowserEvent('destroy-Select2'); //แสดง Model Form
-    }
 
     public function updatingNumberOfPage()
     {
@@ -482,7 +479,10 @@ class SoDeliveryTax extends Component
                         COALESCE(city1,'') || ' ' || COALESCE(state1,'') || ' ' || COALESCE(zipcode1,'') as full_address")
             ->where('customerid', $this->soHeader['customerid'])
             ->get();
-            $this->soHeader['full_address'] = $data[0]->full_address;
+            if(count($data) > 0){
+                $this->soHeader['full_address'] = $data[0]->full_address;
+            }
+            
         }
 
         //ตรวจสอบว่าเป็นการแก้ไขข้อมูลที่ Grid หรือไม่
@@ -560,22 +560,16 @@ class SoDeliveryTax extends Component
 
     public function confirmDelete($snumber) //แสดง Modal ยืนยันการลบใบสั่งขาย
     {
-        $this->modelMessage = "คุณต้องการลบใบสั่งขายเลขที่: " . $snumber;
         $this->sNumberDelete = $snumber;
-        $this->dispatchBrowserEvent('show-delete-modal');
+        $this->dispatchBrowserEvent('delete-confirmation');
     }
 
     public function delete() //กดปุ่ม Delete ที่ List รายการ
     {   
-        // $this->dispatchBrowserEvent('hide-delete-modal');
-        // $this->modelMessage = "555555555";
-        // $this->dispatchBrowserEvent('show-infor-modal');
-
         DB::transaction(function() 
         {
             DB::table('sales')->where('snumber', $this->sNumberDelete)->delete();
             DB::table('salesdetail')->where('snumber', $this->sNumberDelete)->delete();
-            $this->dispatchBrowserEvent('hide-delete-modal', ['message' => 'Deleted successfully!']);
         });
     }
 

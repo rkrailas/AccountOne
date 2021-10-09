@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\CustomersExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Carbon;
 
 class Customer extends Component
 {
@@ -48,9 +49,9 @@ class Customer extends Component
         $this->state = [
                 'customerid'=>'','name'=>'','names'=>'','name1'=>'','taxid'=>'','branchno'=>'','debtor'=>FALSE,'creditor'=>FALSE,'corporate'=>FALSE
                 ,'address11'=>'','address12'=>'','city1'=>'','state1'=>'','zipcode1'=>'','phone1'=>'','fax1'=>'','email1'=>'','contact1'=>'','notes1'=>''
-                ,'creditlimit'=>0,'discountday'=>0,'discount'=>0,'dueday'=>0,'generaldiscount'=>0,'termdiscount'=>0,'account'=>''
+                ,'creditlimit'=>0,'discountday'=>0,'discount'=>0,'dueday'=>0,'generaldiscount'=>0,'termdiscount'=>'','account'=>''
                 ,'tax'=>'','tax1'=>'','pricelevel'=>''
-                ,'creditlimit_ap'=>0,'discountday_ap'=>0,'discount_ap'=>0,'dueday_ap'=>0,'generaldiscount_ap'=>0,'termdiscount_ap'=>0,'account_ap'=>''
+                ,'creditlimit_ap'=>0,'discountday_ap'=>0,'discount_ap'=>0,'dueday_ap'=>0,'generaldiscount_ap'=>0,'termdiscount_ap'=>'','account_ap'=>''
                 ,'tax_ap'=>'','tax1_ap'=>'','pricelevel_ap'=>'','discountontotal_ap'=>FALSE,'exclusivetax_ap'=>FALSE
         ];
         $this->dispatchBrowserEvent('show-customerForm');
@@ -64,26 +65,27 @@ class Customer extends Component
          
         DB::transaction(function () {
                 DB::statement("INSERT INTO customer(customerid,name,names,name1,taxid,branchno,debtor,creditor,corporate
-                ,address11,address12,city1,state1,zipcode1,phone1,fax1,email1,contact1,notes1)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                ,address11,address12,city1,state1,zipcode1,phone1,fax1,email1,contact1,notes1,employee_id,transactiondate)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 ,[$this->state['customerid'],$this->state['name'],$this->state['names'],$this->state['name1'],$this->state['taxid'],$this->state['branchno']
                 ,$this->state['debtor'],$this->state['creditor'],$this->state['corporate'],$this->state['address11']
                 ,$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1'],$this->state['phone1']
-                ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1']]);
+                ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1'],'Admin', Carbon::now()]);
         
-                DB::statement("INSERT INTO buyer(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount,account,tax,tax1,pricelevel)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?)" 
+                DB::statement("INSERT INTO buyer(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount
+                ,account,tax,tax1,pricelevel,employee_id,transactiondate)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)" 
                 ,[$this->state['customerid'],$this->state['creditlimit'],$this->state['discountday'],$this->state['discount'],$this->state['dueday']
                 ,$this->state['generaldiscount'],$this->state['termdiscount'],$this->state['account'],$this->state['tax'],$this->state['tax1']
-                ,$this->state['pricelevel']]);
+                ,$this->state['pricelevel'],'Admin', Carbon::now()]);
 
                 DB::statement("INSERT INTO vendor(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount,account
-                ,tax,tax1,pricelevel,discountontotal,exclusivetax)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)" 
+                ,tax,tax1,pricelevel,discountontotal,exclusivetax,employee_id,transactiondate)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" 
                 ,[$this->state['customerid'],$this->state['creditlimit_ap'],$this->state['discountday_ap'],$this->state['discount_ap']
                 ,$this->state['dueday_ap'],$this->state['generaldiscount_ap'],$this->state['termdiscount_ap'],$this->state['account_ap']
                 ,$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap'],$this->state['discountontotal_ap']
-                ,$this->state['exclusivetax_ap']]);
+                ,$this->state['exclusivetax_ap'],'Admin', Carbon::now()]);
         });
 
         $this->dispatchBrowserEvent('hide-customerForm');
@@ -94,23 +96,28 @@ class Customer extends Component
     {       
         DB::transaction(function () {
             DB::statement("UPDATE customer SET name=?, names=?, name1=?, taxid=?, branchno=?, debtor=?, creditor=?, corporate=?
-                ,address11=?, address12=?, city1=?, state1=?, zipcode1=?, phone1=?, fax1=?, email1=?, contact1=?, notes1=?
+                , address11=?, address12=?, city1=?, state1=?, zipcode1=?, phone1=?, fax1=?, email1=?, contact1=?, notes1=?
+                , employee_id=?, transactiondate=?
                 where customerid=?" 
                 ,[$this->state['name'],$this->state['names'],$this->state['name1'],$this->state['taxid'],$this->state['branchno']
                 ,$this->state['debtor'],$this->state['creditor'],$this->state['corporate'],$this->state['address11']
                 ,$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1'],$this->state['phone1']
-                ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1'],$this->state['customerid']]);
+                ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1']
+                ,'Admin', Carbon::now(), $this->state['customerid']]);
             
             DB::statement("UPDATE buyer SET creditlimit=?, discountday=?, discount=?, dueday=?, generaldiscount=?
-                , termdiscount=?, account=?, tax=?, tax1=?, pricelevel=? where customerid=?" 
+                , termdiscount=?, account=?, tax=?, tax1=?, pricelevel=?, employee_id=?, transactiondate=? 
+                where customerid=?" 
                 ,[$this->state['creditlimit'],$this->state['discountday'],$this->state['discount'],$this->state['dueday'],$this->state['generaldiscount']
-                ,$this->state['termdiscount'],$this->state['account'],$this->state['tax'],$this->state['tax1'],$this->state['pricelevel'],$this->state['customerid']]);
+                ,$this->state['termdiscount'],$this->state['account'],$this->state['tax'],$this->state['tax1'],$this->state['pricelevel']
+                ,'Admin', Carbon::now(),$this->state['customerid']]);
 
             DB::statement("UPDATE vendor SET creditlimit=?, discountday=?, discount=?, dueday=?, generaldiscount=?
-                , termdiscount=?, account=?, tax=?, tax1=?, pricelevel=?, discountontotal=?, exclusivetax=? where customerid=?" 
+                , termdiscount=?, account=?, tax=?, tax1=?, pricelevel=?, discountontotal=?, exclusivetax=?, employee_id=?, transactiondate=?
+                where customerid=?" 
                 ,[$this->state['creditlimit_ap'],$this->state['discountday_ap'],$this->state['discount_ap'],$this->state['dueday_ap'],$this->state['generaldiscount_ap']
                 ,$this->state['termdiscount_ap'],$this->state['account_ap'],$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap']
-                ,$this->state['discountontotal_ap'],$this->state['exclusivetax_ap'],$this->state['customerid']]);
+                ,$this->state['discountontotal_ap'],$this->state['exclusivetax_ap'], 'Admin', Carbon::now(),$this->state['customerid']]);
         });
 
         $this->dispatchBrowserEvent('hide-customerForm');

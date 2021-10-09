@@ -57,7 +57,7 @@
                             </button>
                         </div>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
-                            <input wire:model.lazy="searchTerm" type="text" class="form-control border-0"
+                            <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -76,24 +76,28 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">เลขที่ใบสำคัญ
-                                    <a href="" wire:click.prevent="sortBy('gltran.gltran')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('gltran.gltran')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'gltran.gltran' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'gltran.gltran' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">วันที่
-                                    <a href="" wire:click.prevent="sortBy('gltran.gjournaldt')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('gltran.gjournaldt')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'gltran.gjournaldt' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'gltran.gjournaldt' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">คำอธิบาย
-                                    <a href="" wire:click.prevent="sortBy('gltran.gldescription')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('gltran.gldescription')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'gltran.gldescription' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'gltran.gldescription' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">สมุดรายวัน
-                                    <a href="" wire:click.prevent="sortBy('misctable.other')">
-                                        <i class="fa fa-sort" aria-hidden="true"></i>
-                                    </a>
+                                    <span wire:click="sortBy('misctable.other')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'misctable.other' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'misctable.other' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                                 <th scope="col">Action</th>
                             </tr>
@@ -123,7 +127,7 @@
                 <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $gltrans->links() }} <span
                         class="ml-2">จำนวน {{ number_format($gltrans->Total(),0) }} รายการ</span>
                     <div class="col">
-                        <select class="form-control" style="width: 80px;" wire:model.lazy="numberOfPage">
+                        <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
