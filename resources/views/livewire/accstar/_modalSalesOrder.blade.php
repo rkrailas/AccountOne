@@ -15,7 +15,7 @@
                         <button type="button" class="btn btn-secondary" wire:click.prevent="showGL">
                             Gen GL</button>
                         @endif
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clearSelect2('customer-select2')">
                             <i class="fa fa-times mr-1"></i>Cancel</button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fa fa-save mr-1"></i>
@@ -171,6 +171,14 @@
                                                 </option>
                                                 @endforeach
                                             </select>
+                                            {{-- <x-select2 id="item-select2" wire:model.lazy="soDetails.{{$index}}.itemid" required>
+                                                <option value=" ">---โปรดเลือก---</option>
+                                                @foreach($itemNos_dd as $itemNo_dd)
+                                                <option value="{{ $itemNo_dd->itemid }}">{{ $itemNo_dd->itemid }}:
+                                                    {{ $itemNo_dd->description }}
+                                                </option>
+                                                @endforeach
+                                            </x-select2> --}}
                                         </td>
                                         <td>
                                             <input type="text" class="form-control form-control-sm" wire:model.defer="soDetails.{{$index}}.description">

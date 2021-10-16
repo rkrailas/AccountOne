@@ -258,6 +258,41 @@
             </li>
           </ul>
         </li>
+
+        <!-- ระบบภาษี -->
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+              ระบบภาษี
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">            
+            <li class="nav-item">
+              <a href="{{ route('accstar.salestax') }}"
+                class="nav-link {{ request()->is('accstar/salestax') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>ภาษีขาย</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.purchasetax') }}"
+                class="nav-link {{ request()->is('accstar/purchasetax') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>ภาษีซื้อ</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.withholdingtax') }}"
+                class="nav-link {{ request()->is('accstar/withholdingtax') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>ภาษีหัก ณ ที่จ่าย</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

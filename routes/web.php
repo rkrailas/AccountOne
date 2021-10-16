@@ -13,6 +13,9 @@ use App\Http\Livewire\AccStar\TrialBalance;
 use App\Http\Livewire\AccStar\Inventory;
 use App\Http\Livewire\AccStar\ListCoa;
 use App\Http\Livewire\AccStar\AdjustInventory;
+use App\Http\Livewire\AccStar\SalesTax;
+use App\Http\Livewire\AccStar\PurchaseTax;
+use App\Http\Livewire\AccStar\Withholdingtax;
 
 use App\Http\Livewire\Test1CustomerForm;
 use App\Http\Livewire\Test2Sumgrouparray;
@@ -48,7 +51,9 @@ Route::get('accstar/trialbalance', TrialBalance::class)->name('accstar.trialbala
 Route::get('accstar/inventory', Inventory::class)->name('accstar.inventory');
 Route::get('accstar/listcoa', ListCoa::class)->name('accstar.listcoa');
 Route::get('accstar/adjustinventory', AdjustInventory::class)->name('accstar.adjustinventory');
-
+Route::get('accstar/salestax', SalesTax::class)->name('accstar.salestax');
+Route::get('accstar/purchasetax', PurchaseTax::class)->name('accstar.purchasetax');
+Route::get('accstar/withholdingtax', Withholdingtax::class)->name('accstar.withholdingtax');
 
 Route::get('test1', Test1CustomerForm::class);
 Route::get('test2', Test2Sumgrouparray::class);
