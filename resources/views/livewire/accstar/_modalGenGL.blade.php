@@ -9,7 +9,7 @@
             <div class="modal-body">
                 <table class="table table-hover">
                     <thead>
-                        <tr">
+                        <tr>
                             <th scope="col">#</th>
                             <th scope="col">รหัสบัญชี</th>
                             <th scope="col">ชื่อบัญชี</th>

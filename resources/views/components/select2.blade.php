@@ -1,7 +1,7 @@
-@props(['placeholder' => 'Select Options', 'id'])
+@props(['id'])
 
 <div wire:ignore>
-    <select id="{{ $id }}" data-placeholder="{{ $placeholder }}" style="width: 100%">
+    <select id="{{ $id }}" style="width: 100%">
         {{ $slot }}
     </select>
 </div>

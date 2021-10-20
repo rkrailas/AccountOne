@@ -1,21 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\ContactSearchBar;
-use App\Http\Livewire\AccStar\ListGjournal;
-use App\Http\Livewire\AccStar\Customer;
-use App\Http\Livewire\AccStar\CustomerForm;
-use App\Http\Livewire\AccStar\SoDeliveryTax;
-use App\Http\Livewire\AccStar\ReceiveOnSales;
-use App\Http\Livewire\AccStar\PostJournal;
-use App\Http\Livewire\AccStar\CancelPostJournal;
-use App\Http\Livewire\AccStar\TrialBalance;
-use App\Http\Livewire\AccStar\Inventory;
-use App\Http\Livewire\AccStar\ListCoa;
-use App\Http\Livewire\AccStar\AdjustInventory;
-use App\Http\Livewire\AccStar\SalesTax;
-use App\Http\Livewire\AccStar\PurchaseTax;
-use App\Http\Livewire\AccStar\Withholdingtax;
+
+use App\Http\Livewire\AccStar\Customer\Customer;
+use App\Http\Livewire\AccStar\Inventory\Inventory;
+use App\Http\Livewire\AccStar\Inventory\AdjustInventory;
+use App\Http\Livewire\AccStar\Sales\SoDeliveryTax;
+use App\Http\Livewire\AccStar\Sales\SalesOrder;
+use App\Http\Livewire\AccStar\Sales\SoDelivery;
+use App\Http\Livewire\AccStar\Sales\SoTax;
+use App\Http\Livewire\AccStar\Sales\CancelSalesOrder;
+use App\Http\Livewire\AccStar\Sales\CancelSoDelivery;
+use App\Http\Livewire\AccStar\Finance\ReceiveOnSales;
+use App\Http\Livewire\AccStar\Account\ListGjournal;
+use App\Http\Livewire\AccStar\Account\PostJournal;
+use App\Http\Livewire\AccStar\Account\CancelPostJournal;
+use App\Http\Livewire\AccStar\Account\TrialBalance;
+use App\Http\Livewire\AccStar\Account\ListCoa;
+use App\Http\Livewire\AccStar\Tax\SalesTax;
+use App\Http\Livewire\AccStar\Tax\PurchaseTax;
+use App\Http\Livewire\AccStar\Tax\Withholdingtax;
 
 use App\Http\Livewire\Test1CustomerForm;
 use App\Http\Livewire\Test2Sumgrouparray;
@@ -35,26 +39,40 @@ use App\Http\Livewire\Test6Invoice;
 |
 */
 
+//======== Customer ========
+Route::get('accstar/customer/customer', Customer::class)->name('accstar.customer.customer');
+
+//======== Inventory ========
+Route::get('accstar/inventory/inventory', Inventory::class)->name('accstar.inventory.inventory');
+Route::get('accstar/inventory/adjustinventory', AdjustInventory::class)->name('accstar.inventory.adjustinventory');
+
+//======== Sales ========
+Route::get('accstar/sales/sodeliverytax', SoDeliveryTax::class)->name('accstar.sales.sodeliverytax');
+Route::get('accstar/sales/salesorder', SalesOrder::class)->name('accstar.sales.salesorder');
+Route::get('accstar/sales/sodelivery', SoDelivery::class)->name('accstar.sales.sodelivery');
+Route::get('accstar/sales/sotax', SoTax::class)->name('accstar.sales.sotax');
+Route::get('accstar/sales/cancelsalesorder', CancelSalesOrder::class)->name('accstar.sales.cancelsalesorder');
+Route::get('accstar/sales/cancelsodelivery', CancelSoDelivery::class)->name('accstar.sales.cancelsodelivery');
+
+//======== Finance ========
+Route::get('accstar/finance/receiveonsales', ReceiveOnSales::class)->name('accstar.finance.receiveonsales');
+
+//======== Account ========
+Route::get('accstar/account/gjournal', ListGjournal::class)->name('accstar.account.gljournal');
+Route::get('accstar/account/postjournal', PostJournal::class)->name('accstar.account.postjournal');
+Route::get('accstar/account/cancelpostjournal', CancelPostJournal::class)->name('accstar.account.cancelpostjournal');
+Route::get('accstar/account/trialbalance', TrialBalance::class)->name('accstar.account.trialbalance');
+Route::get('accstar/account/listcoa', ListCoa::class)->name('accstar.account.listcoa');
+
+//======== Tax ========
+Route::get('accstar/tax/salestax', SalesTax::class)->name('accstar.tax.salestax');
+Route::get('accstar/tax/purchasetax', PurchaseTax::class)->name('accstar.tax.purchasetax');
+Route::get('accstar/tax/withholdingtax', Withholdingtax::class)->name('accstar.tax.withholdingtax');
+
+//======== Test ========
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('contactsearch', ContactSearchBar::class);
-Route::get('accstar/gjournal', ListGjournal::class)->name('accstar.gljournal');
-Route::get('accstar/customer', Customer::class)->name('accstar.customer');
-Route::get('accstar/customer/{customer_id}/edit', CustomerForm::class)->name('accstar.customer.form');
-Route::get('accstar/sodeliverytax', SoDeliveryTax::class)->name('accstar.sodeliverytax');
-Route::get('accstar/receiveonsales', ReceiveOnSales::class)->name('accstar.receiveonsales');
-Route::get('accstar/postjournal', PostJournal::class)->name('accstar.postjournal');
-Route::get('accstar/cancelpostjournal', CancelPostJournal::class)->name('accstar.cancelpostjournal');
-Route::get('accstar/trialbalance', TrialBalance::class)->name('accstar.trialbalance');
-Route::get('accstar/inventory', Inventory::class)->name('accstar.inventory');
-Route::get('accstar/listcoa', ListCoa::class)->name('accstar.listcoa');
-Route::get('accstar/adjustinventory', AdjustInventory::class)->name('accstar.adjustinventory');
-Route::get('accstar/salestax', SalesTax::class)->name('accstar.salestax');
-Route::get('accstar/purchasetax', PurchaseTax::class)->name('accstar.purchasetax');
-Route::get('accstar/withholdingtax', Withholdingtax::class)->name('accstar.withholdingtax');
-
 Route::get('test1', Test1CustomerForm::class);
 Route::get('test2', Test2Sumgrouparray::class);
 Route::get('test3', Test3::class);
