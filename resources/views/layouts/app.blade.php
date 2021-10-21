@@ -174,6 +174,13 @@
         })
     </script>
 
+    <!-- toastr Message -->
+    <script>
+        window.addEventListener('display-Message', event => {
+            toastr.success(event.detail.message, 'Success!');
+        })
+    </script>
+
     @stack('js')
     <livewire:scripts />
 

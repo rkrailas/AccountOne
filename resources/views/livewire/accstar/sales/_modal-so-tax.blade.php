@@ -39,19 +39,8 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label class="">เลขที่ใบกำกับ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
                         </div>
-                        <div class="col">
-                            <label class="">วันที่ใบกำกับ:</label>
-                            <div class="input-group mb-1">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-calendar"></i>
-                                    </span>
-                                </div>
-                                <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoicedate" :error="'date'" required />
-                            </div>
+                        <div class="col">                            
                         </div>
                     </div>
                     <div class="row">
@@ -71,8 +60,19 @@
                             </div>
                         </div>
                         <div class="col">
+                            <label class="">เลขที่ใบกำกับ:</label>
+                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
                         </div>
                         <div class="col">
+                            <label class="">วันที่ใบกำกับ:</label>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calendar"></i>
+                                    </span>
+                                </div>
+                                <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoicedate" :error="'date'" required />
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -113,6 +113,7 @@
                                 <thead>
                                     <tr class="text-center">
                                         <th scope="col"></th>
+                                        <th scope="col">ใบส่งสินค้า</th>
                                         <th scope="col">รหัส</th>
                                         <th scope="col" style="width: 25%;">รายละเอียด</th>
                                         <th scope="col" style="width: 7%;">จำนวน</th>
@@ -130,6 +131,9 @@
                                     <tr>
                                         <td scope="row" class="align-middle text-center">
                                             {{ $loop->iteration }}
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.deliveryno">
                                         </td>
                                         <td>
                                             <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.itemid">
@@ -169,8 +173,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr style="text-align: right; color: blue; font-weight: bold;">
-                                        <td></td>
-                                        <td></td>
+                                        <td colspan="3"></td>
                                         <td>ยอดรวม</td>
                                         <td>{{ number_format($sumQuantity,2) }}</td>
                                         <td></td>

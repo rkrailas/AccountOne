@@ -10,13 +10,13 @@ class CancelSalesOrder extends Component
 {
     protected $listeners = ['deleteConfirmed' => 'delete'];
     
-    public $sNumber;
+    public $deleteNumber;
     public $soHeader =[];
     public $soDetails =[];
     public $sumQuantity, $sumAmount = 0;
     public $btnDelete;
 
-    public function searchSO()
+    public function searchDoc()
     {
         $strsql = "select snumber,to_char(sodate,'YYYY-MM-DD') as sodate, deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate
                 , to_char(expirydate,'YYYY-MM-DD') as expirydate, refno, payby
@@ -27,7 +27,7 @@ class CancelSalesOrder extends Component
                 , to_char(duedate,'YYYY-MM-DD') as dueydate
                 from sales 
                 left join customer on sales.customerid=customer.customerid 
-                where sales.snumber='" . $this->sNumber . "'";
+                where sales.snumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) {
@@ -39,18 +39,18 @@ class CancelSalesOrder extends Component
 
             $data2 = DB::table('salesdetail')
                 ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac')
-                ->where('snumber', $this->sNumber)
+                ->where('snumber', $this->deleteNumber)
                 ->get();
             $this->soDetails = json_decode(json_encode($data2), true);
     
             $this->reCalculateInGrid();
 
-            //Check if the item has been delivered or not.
-            $strsql = "select snumber from salesdetail where snumber='" . $this->sNumber . "' and quantityord <> quantitybac";
+            //ตรวจสอบว่า่มีการส่งสินค้าหรือยัง
+            $strsql = "select snumber from salesdetail where snumber='" . $this->deleteNumber . "' and quantityord <> quantitybac";
             $data2 =  DB::select($strsql);
-            if (count($data2)){ //Has been delivered
+            if (count($data2)){ //มีส่งสินค้าแล้ว
                 $this->dispatchBrowserEvent('popup-alert', [
-                    'title' => 'ไม่สามารถลบได้เพราะมีการส่งสินค้าแล้ว !',
+                    'title' => 'ไม่สามารถยกเลิกได้ เพราะมีการส่งสินค้าแล้ว !',
                 ]);
             }else{
                 $this->btnDelete = true;
@@ -60,17 +60,13 @@ class CancelSalesOrder extends Component
             $this->dispatchBrowserEvent('popup-alert', [
                 'title' => 'ไม่พบใบสั่งขาย !',
             ]);
+
+            $this->resetPara();            
         }
     }
 
     public function pressCancel()
     {
-        $this->resetPara();
-    }
-
-    public function deleteSO()
-    {
-        
         $this->resetPara();
     }
 
@@ -83,16 +79,17 @@ class CancelSalesOrder extends Component
     {   
         DB::transaction(function() 
         {
-            DB::table('sales')->where('snumber', $this->sNumber)->delete();
-            DB::table('salesdetail')->where('snumber', $this->sNumber)->delete();
+            DB::table('sales')->where('snumber', $this->deleteNumber)->delete();
+            DB::table('salesdetail')->where('snumber', $this->deleteNumber)->delete();
 
             $this->resetPara();
+            $this->dispatchBrowserEvent('display-Message',['message' => 'Cancel Successfully!']);
         });        
     }
 
     public function resetPara()
     {
-        $this->sNumber = "";
+        $this->deleteNumber = "";
         $this->soHeader =[];
         $this->soDetails =[];
         $this->btnDelete = false;

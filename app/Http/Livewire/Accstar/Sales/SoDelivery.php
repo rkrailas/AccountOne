@@ -54,300 +54,73 @@ class SoDelivery extends Component
         $this->dispatchBrowserEvent('show-myModal2'); //Display Model
     }
 
-    public function generateGl($xgltran = '')
-    {
-        // .Concept
-            //---Periodic---
-            //Dr.ลูกหนี้การค้า
-            //  Cr.ขายสินค้า
-            //  Cr.ภาษีขาย
-
-            //---Perpetual---
-            //Dr.ต้นทุนขาย
-            //  Cr.สินค้าคงเหลือ
-        // /.Concept
-        
-        $this->genGLs = [];
-        $this->sumDebit = 0;
-        $this->sumCredit = 0;
-
-        // .Dr.ลูกหนี้การค้า //account = buyer.account or controldef.account where id='AR' //gldebit = $soHeader['sototal']
-        $buyAcc = "";
-        $buyAccName = "";
-
-        $data = DB::table('buyer')
-        ->select("account")
-        ->where('customerid', $this->soHeader['customerid'])
-        ->get();
-        if ($data->count() > 0) {
-            $buyAcc = $data[0]->account;
-        }         
-
-        if ($buyAcc == ""){
-            $data = DB::table('controldef')
-            ->select("account")
-            ->where('id', 'AR')
-            ->get();            
-            if ($data->count() > 0) {
-                $buyAcc = $data[0]->account;
-            } 
-        }
-
-        if ($buyAcc != ""){          
-            $data = DB::table('account')
-                ->select("accnameother")
-                ->where('account', $buyAcc)
-                ->where('detail', true)
-                ->get();            
-            if ($data->count() > 0) {
-                $buyAccName = $data[0]->accnameother;
-            } 
-        }
-
-        $this->genGLs[] = ([
-            'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
-            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$this->soHeader['sototal'], 'glcredit'=>0, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-            , 'transactiondate'=>Carbon::now()
-        ]);
-        // /.Dr.ลูกหนี้การค้า 
-
-
-        // .Cr.ขายสินค้า //glcredit = $soDetails['netamount'] //glaccount = salesdetail.salesac or controldef.account where id='SA'
-        $salesAcc = "";
-        $salesAccName = "";
-
-        for($i=0; $i<count($this->soDetails);$i++)
-        {
-            $data = DB::table('salesdetail')
-            ->select("salesac")
-            ->where('id', $this->soDetails[$i]['id'])
-            ->get();            
-            if ($data->count() > 0) {
-                $salesAcc = $data[0]->salesac;
-            } 
-    
-            if ($salesAcc == ""){
-                $data = DB::table('controldef')
-                ->select("account")
-                ->where('id', 'SA')
-                ->get();                
-                if ($data->count() > 0) {
-                    $salesAcc = $data[0]->account;
-                }  
-            }
-    
-            if ($salesAcc != ""){
-                $data = DB::table('account')
-                    ->select("accnameother")
-                    ->where('account', $salesAcc)
-                    ->where('detail', true)
-                    ->get();                
-                if ($data->count() > 0) {
-                    $salesAccName = $data[0]->accnameother;
-                }  
-            }
-    
-            $this->genGLs[] = ([
-                'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$salesAcc, 'glaccname'=>$salesAccName
-                , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0
-                , 'glcredit'=>$this->soDetails[$i]['netamount']-$this->soDetails[$i]['taxamount']
-                , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-                , 'transactiondate'=>Carbon::now()
-            ]);            
-        }
-        // /.Cr.ขายสินค้า
-  
-        // .Cr.ภาษีขาย // glcredit = $soHeader['salestax'] // glaccount = controldef.account where id='ST';     
-        $taxAcc = "";
-        $taxAccName = "";
-        
-        $data = DB::table('controldef')
-        ->select("account")
-        ->where('id', 'ST')
-        ->get();
-        if ($data->count() > 0) {
-            $taxAcc = $data[0]->account;
-        }          
-
-        if ($taxAcc != ""){          
-            $data = DB::table('account')
-                ->select("accnameother")
-                ->where('account', $taxAcc)
-                ->where('detail', true)
-                ->get();
-            if ($data->count() > 0) {
-                $taxAccName = $data[0]->accnameother;
-            }            
-        }
-
-        $this->genGLs[] = ([
-            'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
-            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$this->soHeader['salestax'], 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-            , 'transactiondate'=>Carbon::now()
-        ]);
-        // /.Cr.ภาษีขาย
-
-        // .Perpetual 
-        $data = DB::table('company')
-            ->select('perpetual')
-            ->limit(1)
-            ->get();
-
-        if($data[0]->perpetual){ 
-            // .Cr.สินค้าคงเหลือ // select salesdetail.inventoryac Or inventory.inventoryac
-            $totalCostAmt = 0;
-
-            for($i=0; $i<count($this->soDetails);$i++)
-            {
-                $invAcc = "";
-                $invAccName = "";
-
-                $invAcc = $this->soDetails[$i]['inventoryac'];
-
-                if ($invAcc == ""){
-                    $data = DB::table('inventory')
-                    ->select("inventoryac")
-                    ->where('itemid', $this->soDetails[$i]['itemid'])
-                    ->get();
-                    if ($data->count() > 0) {
-                        $invAcc = $data[0]->inventoryac;
-                    }                    
-                }
-        
-                if ($invAcc != ""){
-                    $data = DB::table('account')
-                        ->select("accnameother")
-                        ->where('account', $invAcc)
-                        ->where('detail', true)
-                        ->get();
-                    if ($data->count() > 0) {
-                        $invAccName = $data[0]->accnameother;
-                    }
-                }
-
-                // หาต้นทุนสินค้า
-                $data = DB::table('inventory')
-                ->select("averagecost")
-                ->where('itemid', $this->soDetails[$i]['itemid'])
-                ->get();
-                if ($data->count() > 0) {
-                    $costAmt = round($this->soDetails[$i]['quantity'] * $data[0]->averagecost, 2);
-                }else{
-                    $costAmt = 0;
-                }                
-                $totalCostAmt = $totalCostAmt + $costAmt;
-        
-                $this->genGLs[] = ([
-                    'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
-                    , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$costAmt
-                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-                    , 'transactiondate'=>Carbon::now()
-                ]);  
-            }
-            // /.Cr.สินค้าคงเหลือ
-
-            // .Dr.ต้นทุนขาย controldef.account where id='CG'
-            $costAcc = "";
-            $costAccName = "";
-
-            $data = DB::table('controldef')
-            ->select("account")
-            ->where('id', 'CG')
-            ->get();
-            if ($data->count() > 0) {
-                $costAcc = $data[0]->account;
-            }              
-    
-            if ($costAcc != ""){          
-                $data = DB::table('account')
-                    ->select("accnameother")
-                    ->where('account', $costAcc)
-                    ->where('detail', true)
-                    ->get();
-                if ($data->count() > 0) {
-                    $costAccName = $data[0]->accnameother;
-                }                  
-            }
-    
-            $this->genGLs[] = ([
-                'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
-                , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$totalCostAmt, 'glcredit'=>0, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-                , 'transactiondate'=>Carbon::now()
-            ]);
-            // /.Dr.ต้นทุนขาย 
-        }
-        // /.Perpetual 
-
-        // Summary Debit & Credit
-        for($i=0; $i<count($this->genGLs);$i++)
-        {
-            $this->sumDebit = $this->sumDebit + $this->genGLs[$i]['gldebit'];
-            $this->sumCredit = $this->sumCredit + $this->genGLs[$i]['glcredit'];
-        }        
-    }
-
     public function createUpdateSalesOrder() //Save Button 
     {   
         if ($this->showEditModal == true){
             DB::transaction(function () {
-                // Update Sales (I think that shouldn't change)
-                // DB::statement("UPDATE sales SET sototal=?, salestax=?, employee_id=?, transactiondate=?
-                // where snumber=?" 
-                // , [$this->soHeader['sototal'], $this->soHeader['salestax'], 'Admin', Carbon::now()
-                // , $this->soHeader['snumber']]);
+                // Sales
+                if($this->closed == true){ //ถ้าปิดรายการให้ Reset deliveryno, deliverydate ให้ว่าง
+                    DB::statement("UPDATE sales SET deliveryno=?, deliverydate=?, employee_id=?, transactiondate=?
+                    where snumber=?" 
+                    , [null, null, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
+                }else{
+                    DB::statement("UPDATE sales SET deliveryno=?, deliverydate=?, employee_id=?, transactiondate=?
+                    where snumber=?" 
+                    , [$this->soHeader['deliveryno'], $this->soHeader['deliverydate'], 'Admin', Carbon::now()
+                    , $this->soHeader['snumber']]);
+                }
         
                 // SalesDetail & SalesDetaillog
                 foreach ($this->soDetails as $soDetails2)
                 {
-                    if ($this->soHeader['exclusivetax'] == true) //แปลงค่าก่อนบันทึก
-                    {
+                    if ($this->soHeader['exclusivetax'] == true){ //แปลงค่าก่อนบันทึก
                         $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
                     }
 
                     //ปิดรายการ
                     if($this->closed == true){
-                        $xquantity = $soDetails2['quantitybac'] - $soDetails2['quantity'];
-                        $xquantitydel = $soDetails2['quantitydel'] + $soDetails2['quantity'];
-                        $quantitybac = $soDetails2['quantityord'] - $xquantitydel;
-                        
-                        //Updaate SalesDetail
-                        DB::statement("UPDATE salesdetail SET quantity=?, quantitydel=?, quantitybac=?, employee_id=?, transactiondate=?
-                            where id=?" 
-                            , [$xquantity, $xquantitydel, $quantitybac, 'Admin', Carbon::now(), $soDetails2['id']]);
+                        if ($soDetails2['quantity'] > 0) { //รายการที่ส่งสินค้า
+                            $xquantity = $soDetails2['quantitybac'] - $soDetails2['quantity'];
+                            $xquantitydel = $soDetails2['quantitydel'] + $soDetails2['quantity'];
+                            $quantitybac = $soDetails2['quantityord'] - $xquantitydel;
+                            
+                            //SalesDetail
+                            DB::statement("UPDATE salesdetail SET quantity=?, quantitydel=?, quantitybac=?, employee_id=?, transactiondate=?
+                                where id=?" 
+                                , [$xquantity, $xquantitydel, $quantitybac, 'Admin', Carbon::now(), $soDetails2['id']]);
+    
+                            //Product Cost
+                            $costAmt = 0;
+                            $xinventory = DB::table('inventory')
+                                ->select('instock','instockvalue','averagecost')
+                                ->where('itemid', $soDetails2['itemid'])
+                                ->get();
+                            if ($xinventory->count() > 0) {
+                                $costAmt = round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
+                            }
+    
+                            //SalesDetailLog
+                            DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
+                                , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
+                                , discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, employee_id, transactiondate)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
+                                , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
+                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
+    
+                            //Inventory
+                            $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
+                            $xinstockvalue = $xinventory[0]->instockvalue - round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
+    
+                            DB::statement("UPDATE inventory SET instock=?, instockvalue=?, employee_id=?, transactiondate=?
+                                where itemid=?" 
+                                , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
 
-                        //Insert SalesDetailLog
-                        //Product Cost
-                        $costAmt = 0;
-                        $xinventory = DB::table('inventory')
-                            ->select('instock','instockvalue','averagecost')
-                            ->where('itemid', $soDetails2['itemid'])
-                            ->get();
-                        if ($xinventory->count() > 0) {
-                            $costAmt = round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
-                        }
-
-                        DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
-                            , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
-                            , discountamount, cost, soreturn, journal, posted, employee_id, transactiondate)
-                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                            , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
-                            , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
-                            , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, 'Admin', Carbon::now()]);
-
-                        // Update Inventory
-                        $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
-                        $xinstockvalue = $xinventory[0]->instockvalue - round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
-
-                        DB::statement("UPDATE inventory SET instock=?, instockvalue=?, employee_id=?, transactiondate=?
-                            where itemid=?" 
-                            , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
-
-                        // gltran ไป Insert ตอนใบกำกับภาษีเลย
-                        // $this->generateGl(getGlNunber('SO'));
-                        // DB::table('gltran')->insert($this->genGLs);
+                        }else{ //รายการที่ไม่ได้ส่ง Update SalesDetail Reset quantity ของรายการที่่ไม่ได้ส่งกลับมาให้เท่ากับ quantitybac
+                            DB::statement("UPDATE salesdetail SET quantity=?, employee_id=?, transactiondate=?
+                                where id=?" 
+                                , [$soDetails2['quantitybac'], 'Admin', Carbon::now(), $soDetails2['id']]);
+                        }                        
                     }else{
                         //Update Salesdetail
                         DB::statement("UPDATE salesdetail SET quantity=?, amount=?, taxamount=?, soreturn=?, employee_id=?, transactiondate=?
@@ -357,6 +130,7 @@ class SoDelivery extends Component
                     }
                 }
 
+                $this->closed = false; //Reset ค่า
                 $this->dispatchBrowserEvent('hide-soDeliveryForm',['message' => 'Save Successfully!']);
             });
         }else{
@@ -428,11 +202,12 @@ class SoDelivery extends Component
                 $this->soDetails[$i]['netamount'] = round($this->soDetails[$i]['amount'] + $this->soDetails[$i]['taxamount']
                                                     - $this->soDetails[$i]['discountamount'],2);
                 $this->soDetails[$i]['quantity'] = round($this->soDetails[$i]['quantity'],2);
+                $this->soDetails[$i]['quantitybac'] = round($this->soDetails[$i]['quantitybac'],2);
                 $this->soDetails[$i]['unitprice'] = round($this->soDetails[$i]['unitprice'],2);
                 $this->soDetails[$i]['discountamount'] = round($this->soDetails[$i]['discountamount'],2);
                 $this->soDetails[$i]['taxrate'] = round($this->soDetails[$i]['taxrate'],2);
 
-                //หลังจาก Re-Cal รายบรรทัดเสร็จ มันจะไปเข้า function reCalculateSummary ที่ render                        
+                //หลังจาก Re-Cal รายบรรทัดเสร็จ มันจะไปเข้า function reCalculateSummary ที่ render
             } catch (\Throwable $th) {
                 return false;
             }          
@@ -456,8 +231,17 @@ class SoDelivery extends Component
 
     public function confirmDelete($snumber) //แสดง Modal ยืนยันการลบใบสั่งขาย
     {
-        $this->sNumberDelete = $snumber;
-        $this->dispatchBrowserEvent('delete-confirmation');
+        //??? ตรวจสอบว่า quantitybac <> quantityord
+        $strsql = "select * from salesdetail where snumber='" . $snumber . "' and quantitybac <> quantityord";
+        $data = DB::select($strsql);
+        if (count($data)){
+            $this->dispatchBrowserEvent('popup-alert', [
+                'title' => 'ไม่สามารถลบได้ เพราะมีการส่งสินค้าแล้ว !',
+            ]);
+        }else{
+            $this->sNumberDelete = $snumber;
+            $this->dispatchBrowserEvent('delete-confirmation');
+        }
     }
 
     public function delete() //กดปุ่ม Delete ที่ List รายการ
@@ -498,6 +282,7 @@ class SoDelivery extends Component
             ->select('itemid','description','quantity','quantitybac','quantitydel','quantityord','salesac','unitprice'
                     ,'discountamount','taxrate','taxamount','id','inventoryac')
             ->where('snumber', $sNumber)
+            ->where('quantitybac', '>', 0)
             ->whereIn('soreturn', ['N','G'])
             ->get();
         $this->soDetails = json_decode(json_encode($data2), true); 

@@ -42,15 +42,16 @@ class PostJournal extends Component
 
             // หาใบสำคัญที่ผ่านรายการไม่ได้
             $strsql = "select gltran from 
-                        (select gltran
-                        from gltran
-                        where glaccount not in (select account from account)
-                        or gjournaldt not between (select min(startdate) from perioddetail) 
-                                                and (select max(enddate) from perioddetail)"
-                . " and " . $xWhere
-                . " union all
-                       select gltran from gltran where " . $xWhere . " group by gltran having sum(gldebit) <> sum(glcredit) ) a
-                    group by a.gltran";
+                            (select gltran
+                                from gltran
+                                where (glaccount not in (select account from account)
+                                        or gjournaldt not between (select min(startdate) from perioddetail) 
+                                                            and (select max(enddate) from perioddetail)
+                                       )
+                                       and " . $xWhere
+                            . " union all
+                            select gltran from gltran where " . $xWhere . " group by gltran having sum(gldebit) <> sum(glcredit) ) a
+                        group by a.gltran";
             $this->listFailed = DB::select($strsql);
             $this->listFailed = json_decode(json_encode($this->listFailed), true);
 
@@ -67,7 +68,7 @@ class PostJournal extends Component
                 $xWhere = $xWhere . " and gltran not in (" . $exceptGL . ")";
             }
 
-            // ผ่านรายการ GL ผ่านรายการ GL ที่ผ่านการตรวจสอบ
+            // ผ่านรายการ GL ที่ผ่านการตรวจสอบ
             $gltran = DB::table('gltran')
                 ->select('gltran.*', 'account.acctype', 'perioddetail.period')
                 ->whereRaw($xWhere)
@@ -80,6 +81,8 @@ class PostJournal extends Component
                 ->get();
             $gltran = json_decode(json_encode($gltran), true);
 
+
+            //ปรับยอดในงบทดลอง
             $account = DB::table('account')
                 ->select('*')
                 ->where('detail', true)
@@ -143,7 +146,7 @@ class PostJournal extends Component
                 DB::table('glmast')->insert($chunk->toArray());
             }
 
-            // delete data ingltran
+            // delete data in gltran
             $deleteGLTran = "";
 
             for ($i = 0; $i < count($gltran); $i++) {
@@ -154,11 +157,13 @@ class PostJournal extends Component
                 }
             }
 
-            $deleteGLTran = explode(",", $deleteGLTran);
+            if ($deleteGLTran != "") {
+                $deleteGLTran = explode(",", $deleteGLTran);
 
-            DB::table('gltran')
-                ->whereIn('id', $deleteGLTran)
-                ->delete();
+                DB::table('gltran')
+                    ->whereIn('id', $deleteGLTran)
+                    ->delete();
+            }
 
             // update data in account
             foreach ($account as $item) {

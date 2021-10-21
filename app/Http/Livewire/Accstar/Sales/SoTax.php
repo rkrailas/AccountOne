@@ -430,15 +430,16 @@ class SoTax extends Component
 
         //soHeader
         $data = DB::table('sales')
-            ->selectRaw("snumber,to_char(sodate,'YYYY-MM-DD') as sodate, invoiceno, to_char(invoicedate,'YYYY-MM-DD') as invoicedate
-                        , to_char(duedate,'YYYY-MM-DD') as duedate, customer.name
+            ->selectRaw("sales.snumber,to_char(sales.sodate,'YYYY-MM-DD') as sodate, sales.invoiceno, to_char(sales.invoicedate,'YYYY-MM-DD') as invoicedate
+                        , to_char(sales.duedate,'YYYY-MM-DD') as duedate, customer.name, customer.customerid
                         , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
-                        , to_char(journaldate,'YYYY-MM-DD') as journaldate, exclusivetax
-                        , taxontotal, taxrate, salestax, discountamount, sototal, customer.customerid, shipcost")
+                        , to_char(sales.journaldate,'YYYY-MM-DD') as journaldate, sales.exclusivetax, sales.taxontotal, sales.taxrate, sales.salestax
+                        , sales.discountamount, sales.sototal, sales.shipcost")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
-            ->where('snumber', $sNumber)
-            ->where('soreturn', 'N')
+            ->where('sales.snumber', $sNumber)
+            ->where('sales.soreturn', 'N')
             ->get();
+
         $this->soHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
         $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
         $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
@@ -451,7 +452,7 @@ class SoTax extends Component
         
         //soDetails
         $data2 = DB::table('salesdetaillog')
-            ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac')
+            ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac','deliveryno')
             ->where('snumber', $sNumber)
             ->where('soreturn', 'G')
             ->get();
@@ -518,7 +519,8 @@ class SoTax extends Component
                     $query->where('sales.snumber', 'like', '%'.$this->searchTerm.'%')
                         ->orWhere('sales.sodate', 'like', '%'.$this->searchTerm.'%')
                         ->orWhere('customer.name', 'like', '%'.$this->searchTerm.'%')
-                        ->orWhere('sales.sototal', 'like', '%'.$this->searchTerm.'%');
+                        ->orWhere('sales.sototal', 'like', '%'.$this->searchTerm.'%')
+                        ->orWhere('salesdetaillog.deliveryno', 'like', '%'.$this->searchTerm.'%');
                 })
             ->groupBy('sales.id','sales.snumber','sales.sodate','customer.name','sales.sototal')
             ->orderBy($this->sortBy,$this->sortDirection)

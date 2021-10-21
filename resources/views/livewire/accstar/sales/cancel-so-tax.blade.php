@@ -9,13 +9,13 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">ยกเลิกใบสั่งขาย</h1>
+                    <h1 class="m-0 text-dark">ยกเลิกใบกำกับภาษีของสินค้าที่ส่งแล้ว</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">ระบบขาย</li>
                         <li class="breadcrumb-item">ยกเลิก</li>
-                        <li class="breadcrumb-item active">ยกเลิกใบสั่งขาย</li>
+                        <li class="breadcrumb-item active">ยกเลิกใบกำกับภาษีของสินค้าที่ส่งแล้ว</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -26,8 +26,9 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col">
-                    <button type="button" class="btn btn-danger" {{ $btnDelete ? '' : 'disabled' }} wire:click="confirmDelete">
-                        <i class="fas fa-trash-alt mr-1"></i>ลบใบสั่งขาย</button>
+                    <button type="button" class="btn btn-danger" {{ $btnDelete ? '' : 'disabled' }} 
+                        wire:click="confirmDelete">
+                        <i class="fas fa-trash-alt mr-1"></i>ลบใบกำกับภาษี</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" wire:click="pressCancel">
                         <i class="fa fa-times mr-1"></i>ยกเลิก</button>
                 </div>
@@ -35,17 +36,32 @@
 
             <div class="row mb-2">
                 <div class="col">
-                    <label class="">เลขที่ใบสั่งขาย</label>
+                    <label class="">เลขที่ใบกำกับภาษี</label>
                     <div class="input-group">
-                        <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="deleteNumber"
-                            wire:keydown.enter="searchDoc('{{ $deleteNumber }}')"
-                            placeholder="ค้นหา">
+                        <input type="text" class="form-control form-control-sm mb-1" placeholder="ค้นหา"
+                            wire:model.defer="deleteNumber" wire:keydown.enter="searchDoc('{{ $deleteNumber }}')">
                         <div class="input-group-append">
                           <button class="btn btn-primary form-control-sm" type="button" wire:click.prevent="searchDoc('{{ $deleteNumber }}')">
                             <i class="fas fa-search"></i>
                           </button>
                         </div>
-                      </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <label class="">วันที่ใบกำกับภาษี</label>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fas fa-calendar"></i>
+                            </span>
+                        </div>
+                        <x-datepicker wire:model.defer="soHeader.taxdate" id="taxdate" :error="'date'"
+                        disabled />
+                    </div>
+                </div>
+                <div class="col">
+                    <label class="">เลขที่ใบสั่งขาย</label>
+                    <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.snumber" readonly>
                 </div>
                 <div class="col">
                     <label class="">วันที่ใบสั่งขาย</label>
@@ -58,16 +74,12 @@
                         <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'" disabled />
                     </div>
                 </div>
+            </div>
+
+            <div class="row mb-2">
                 <div class="col">
-                    <label class="">ใช้ได้จนถึง</label>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="fas fa-calendar"></i>
-                            </span>
-                        </div>
-                        <x-datepicker wire:model.defer="soHeader.expirydate" id="expiryDate" :error="'date'" disabled />
-                    </div>
+                    <label class="">เลขที่ใบส่งสินค้า</label>
+                    <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.deliveryno" readonly>
                 </div>
                 <div class="col">
                     <label class="">วันที่ส่งสินค้า</label>
@@ -79,25 +91,7 @@
                         </div>
                         <x-datepicker wire:model.defer="soHeader.deliverydate" id="deliverydate" :error="'date'"
                         disabled />
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col">
-                    <label class="">วันที่ครบกำหนดชำระ</label>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="fas fa-calendar"></i>
-                            </span>
-                        </div>
-                        <x-datepicker wire:model.defer="soHeader.duedate" id="duedatedate" :error="'date'" disabled />
-                    </div>
-                </div>
-                <div class="col">
-                    <label class="">เลขที่ใบสั่งซื้อลูกค้า</label>
-                    <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.refno" readonly>
+                    </div>                
                 </div>
                 <div class="col">
                 </div>
@@ -144,6 +138,7 @@
                                 <th scope="col" style="width: 5%;">%ภาษี</th>
                                 <th scope="col">ภาษี</th>
                                 <th scope="col">สุทธิ</th>
+                                <th scope="col">ใบกำกับ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,6 +183,10 @@
                                     <input type="number" step="0.01" class="form-control form-control-sm" readonly
                                         style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
                                 </td>
+                                <td class="align-middle text-center">
+                                    @if ($soDetails[$index]['soreturn'])
+                                        <i class="fas fa-check"></i>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

@@ -161,36 +161,26 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-times"></i>
-                <p>
-                  ยกเลิก
-                  <i class="right fas fa-angle-left"></i>
-                </p>
+              <a href="{{ route('accstar.sales.cancelsalesorder') }}"
+                class="nav-link {{ request()->is('accstar/sales/cancelsalesorder') ? 'active' : '' }}">
+                <i class="nav-icon far fa-times-circle"></i>
+                <p>ยกเลิกใบสั่งขาย</p>
               </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="{{ route('accstar.sales.cancelsalesorder') }}"
-                    class="nav-link {{ request()->is('accstar/sales/cancelsalesorder') ? 'active' : '' }}">
-                    <i class="nav-icon far fa-times-circle"></i>
-                    <p>ยกเลิกใบสั่งขาย</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="{{ route('accstar.sales.cancelsodelivery') }}"
-                    class="nav-link {{ request()->is('accstar/sales/cancelsodelivery') ? 'active' : '' }}">
-                    <i class="nav-icon far fa-times-circle"></i>
-                    <p>ยกเลิกใบส่งสินค้า</p>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#"
-                    class="nav-link {{ request()->is('accstar/sales/sodeliverytax') ? 'active' : '' }}">
-                    <i class="nav-icon far fa-times-circle"></i>
-                    <p>_ยกเลิกใบกำกับภาษี - รับคืนสินค้า</p>
-                  </a>
-                </li>
-              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.cancelsodelivery') }}"
+                class="nav-link {{ request()->is('accstar/sales/cancelsodelivery') ? 'active' : '' }}">
+                <i class="nav-icon far fa-times-circle"></i>
+                <p>ยกเลิกใบส่งสินค้า</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.cancelsotax') }}"
+                class="nav-link {{ request()->is('accstar/sales/cancelsotax') ? 'active' : '' }}">
+                <i class="nav-icon far fa-times-circle"></i>
+                <p>ยกเลิกใบกำกับภาษี - รับคืนสินค้า</p>
+              </a>
+            </li>
           </ul>
         </li>
 

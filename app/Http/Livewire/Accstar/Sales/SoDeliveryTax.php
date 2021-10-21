@@ -395,11 +395,11 @@ class SoDeliveryTax extends Component
                         //Copy salesdetail to salesdetaillog
                         DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
                             , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
-                            , discountamount, cost, soreturn, journal, posted, employee_id, transactiondate)
+                            , discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, employee_id, transactiondate)
                             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                             , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
                             , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
-                            , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, 'Admin', Carbon::now()]);
+                            , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
 
                         // Update Inventory
                         $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
@@ -423,13 +423,13 @@ class SoDeliveryTax extends Component
                 //Insert Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate
                             , deliveryno, deliverydate, payby, duedate, journaldate, exclusivetax, taxontotal
-                            , salesaccount, expirydate, sototal, salestax, closed, employee_id, transactiondate, posted)
+                            , salesaccount, expirydate, sototal, salestax, closed, employee_id, transactiondate, posted, ram_sodeliverytax) 
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , [$this->soHeader['snumber'], $this->soHeader['sonumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
                 , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
                 , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
-                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted']]);
+                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted'],true]); //ram_sodeliverytax > แยก Type ของ SO
 
                 //Insert Taxdata
                 if ($this->soHeader['posted']){
@@ -488,11 +488,11 @@ class SoDeliveryTax extends Component
                             //Copy salesdetail to salesdetaillog
                             DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
                                 , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
-                                , discountamount, cost, soreturn, journal, posted, employee_id, transactiondate)
+                                , discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, employee_id, transactiondate)
                                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
                                 , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, 'Admin', Carbon::now()]);
+                                , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
 
                             // Update Inventory
                             $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];

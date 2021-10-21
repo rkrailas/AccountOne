@@ -40,7 +40,7 @@
                         </div>
                         <div class="col">
                             <label class="">เลขที่ใบส่งสินค้า</label>
-                            <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.deliveryno">
+                            <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.deliveryno" required>
                         </div>
                         <div class="col">
                             <label class="">วันที่ส่งสินค้า</label>
@@ -120,6 +120,7 @@
                                         <th scope="col">รหัส</th>
                                         <th scope="col" style="width: 25%;">รายละเอียด</th>
                                         <th scope="col" style="width: 7%;">จำนวน</th>
+                                        <th scope="col" style="width: 7%;">ค้างส่ง</th>
                                         <th scope="col">ต่อหน่วย</th>
                                         <th scope="col">รวม</th>
                                         <th scope="col">ส่วนลด</th>
@@ -142,6 +143,9 @@
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantitybac">
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
@@ -171,6 +175,7 @@
                                         <td></td>
                                         <td>ยอดรวม</td>
                                         <td>{{ number_format($sumQuantity,2) }}</td>
+                                        <td></td>
                                         <td></td>
                                         <td>{{ number_format($sumAmount,2) }}</td>
                                         <td>{{ number_format($soHeader['discountamount'],2) }}</td>

@@ -6,7 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class CancelSoDelivery extends Component
+class CancelSoTax extends Component
 {
     protected $listeners = ['deleteConfirmed' => 'delete'];
     
@@ -22,14 +22,16 @@ class CancelSoDelivery extends Component
                 , to_char(sales.expirydate,'YYYY-MM-DD') as expirydate, sales.refno, sales.payby
                 , CONCAT(customer.customerid,': ', customer.name) as shipname
                 , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
-                , to_char(sales.duedate,'YYYY-MM-DD') as duedate, to_char(sales.journaldate,'YYYY-MM-DD') as journaldate, sales.exclusivetax
+                , to_char(sales.duedate,'YYYY-MM-DD') as duedate, sales.exclusivetax
                 , sales.taxontotal, sales.posted, sales.salesaccount, sales.taxrate, sales.salestax, sales.discountamount, sales.sototal
-                , customer.customerid, sales.shipcost, sales.closed
-                , to_char(sales.duedate,'YYYY-MM-DD') as dueydate
+                , customer.customerid, sales.shipcost, sales.closed, to_char(sales.duedate,'YYYY-MM-DD') as dueydate
+                , to_char(taxdata.journaldate,'YYYY-MM-DD') as taxdate, taxdata.gltran
                 from sales 
                 left join customer on sales.customerid=customer.customerid
                 join salesdetaillog on sales.snumber=salesdetaillog.snumber
-                where salesdetaillog.deliveryno='" . $this->deleteNumber . "'";
+                join taxdata on salesdetaillog.taxnumber = taxdata.taxnumber and taxdata.iscancelled=false
+                where sales.ram_sodeliverytax=false
+                and salesdetaillog.taxnumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) { //ถ้าพบ SO
@@ -42,26 +44,17 @@ class CancelSoDelivery extends Component
             $data2 = DB::table('salesdetaillog')
                 ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount'
                         ,'id','inventoryac','soreturn','ram_salesdetail_id','cost') //cost > per unit
-                ->where('deliveryno', $this->deleteNumber)
+                ->where('taxnumber', $this->deleteNumber)
                 ->get();
             $this->soDetails = json_decode(json_encode($data2), true);
     
             $this->reCalculateInGrid();
 
-            //ตรวจสอบว่ามีการรับใบกำกับหรือยัง
-            $strsql = "select deliveryno from salesdetaillog where deliveryno='" . $this->deleteNumber . "' and soreturn='N'";
-            $data2 =  DB::select($strsql);
-            if (count($data2)){ //มีการรับใบกำกับแล้ว
-                $this->dispatchBrowserEvent('popup-alert', [
-                    'title' => 'ไม่สามารถยกเลิกได้ เพราะมีการรับใบกำกับภาษีแล้ว !',
-                ]);
-            }else{
-                $this->btnDelete = true;
-            }
+            $this->btnDelete = true;
 
         }else{
             $this->dispatchBrowserEvent('popup-alert', [
-                'title' => 'ไม่พบใบส่งสินค้า !',
+                'title' => 'ไม่พบใบกำกับภาษี !',
             ]);
 
             $this->resetPara();
@@ -82,43 +75,43 @@ class CancelSoDelivery extends Component
     {   
         DB::transaction(function() 
         {
-            // 1. Update salesdetaillog.soreturn=C
-            DB::statement("UPDATE salesdetaillog SET soreturn=?, employee_id=?, transactiondate=? 
-                where snumber=? and deliveryno=? and soreturn='G' " 
-                , ['C', 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
+            // 1. Update taxdata.iscancelled=true
+            DB::statement("UPDATE taxdata SET iscancelled=?, employee_id=?, transactiondate=? 
+                where reference=? and taxnumber=? " 
+                , [true, 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
 
-            
-            foreach ($this->soDetails as $soDetails2){
-                // 2. Update salesdetail (soreturn=N, quantitydel,quantitybac>คืนจำนวน)
-                $strsql = "select quantitydel, quantitybac from salesdetail where id=" . $soDetails2['ram_salesdetail_id'];
+            //2. Update salesdetaillog.soreturn=G and taxnumber=''
+            DB::statement("UPDATE salesdetaillog SET soreturn=?, taxnumber=?, employee_id=?, transactiondate=? 
+                where snumber=? and taxnumber=? " 
+                , ['G', '', 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
+
+            //3. ตรวจสอบว่า post gl หรือยัง
+            $strsql = "select * from gltran where gltran='" . $this->soHeader['gltran'] . "'";
+            $data =  DB::select($strsql);
+            if(count($data)){
+                DB::statement("DELETE FROM gltran where gltran=? " 
+                , [$this->soHeader['gltran']]);
+            }else{
+                $strsql = "select * from glmast where gltran='" . $this->soHeader['gltran'] . "'";
                 $data =  DB::select($strsql);
-                if (count($data)){
-                    $newQuantityDel = $data[0]->quantitydel - $soDetails2['quantity'];
-                    $newQuantityBac = $data[0]->quantitybac + $soDetails2['quantity'];
-
-                    DB::statement("UPDATE salesdetail SET quantitydel=?,quantitybac=?,soreturn=?,employee_id=?,transactiondate=? where id=?" 
-                    ,[
-                        $newQuantityDel,$newQuantityBac,'N','Admin',Carbon::now(),$soDetails2['ram_salesdetail_id']
-                    ]);
-                }
-
-                // 3. Update Inventory (instock, instockvalue)
-                $strsql = "select instock, instockvalue from inventory where itemid='" . $soDetails2['itemid'] . "'";
-                $data =  DB::select($strsql);
-                if (count($data)){
-                    $newInstock = $data[0]->instock + $soDetails2['quantity'];
-                    $newInstockValue = $data[0]->instockvalue + ($soDetails2['quantity'] * $soDetails2['cost']);
-
-                    DB::statement("UPDATE inventory SET instock=?,instockvalue=?,employee_id=?,transactiondate=? where itemid=?" 
-                    ,[
-                        $newInstock,$newInstockValue,'Admin',Carbon::now(),$soDetails2['itemid']
-                    ]);
+                if(count($data)){
+                    $data2 = json_decode(json_encode($data), true);
+                    $genGL = [];
+                    for($i=0; $i<count($data2);$i++){
+                        //สลับ gldebit กับ glcredit
+                        DB::statement("INSERT INTO gltran(gjournal,gltran,gjournaldt,glaccount,gldebit,glcredit
+                            ,gldescription,department,jobid,employee_id,transactiondate)
+                            VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+                            , [$data2[$i]['gjournal'],  $data2[0]['gltran'] . "R", Carbon::now()->format('Y-m-d'), $data2[$i]['glaccount']
+                            , $data2[$i]['glcredit'], $data2[$i]['gldebit'], "ยกเลิก-" . $data2[$i]['gldescription']
+                            , $data2[$i]['department'], $data2[$i]['jobid'], 'Admin', Carbon::now()]);
+                    }
                 }
             }
-
+            
             $this->resetPara();
             $this->dispatchBrowserEvent('display-Message',['message' => 'Cancel Successfully!']);
-        });
+        });        
     }
 
     public function resetPara()
@@ -182,6 +175,6 @@ class CancelSoDelivery extends Component
 
     public function render()
     {
-        return view('livewire.accstar.sales.cancel-so-delivery');
+        return view('livewire.accstar.sales.cancel-so-tax');
     }
 }
