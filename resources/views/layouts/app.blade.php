@@ -60,6 +60,11 @@
             padding-right: 0;
         }
 
+        .nav-icon-submenu{
+            font-size: 1em;
+            margin-left: 1em;
+        }
+
         /* .font14 {
             font-size: 14px;
         }

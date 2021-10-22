@@ -337,7 +337,7 @@ class SoDeliveryTax extends Component
                 , $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax'], $this->soHeader['taxontotal']
                 , $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $this->soHeader['posted'], $this->soHeader['snumber']]);
 
-                //Insert Taxdata
+                //Insert Taxdata & GLTran
                 if ($this->soHeader['posted']){
                     DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
                             ,description,amountcur,amount,taxamount,duedate,purchase,posted
@@ -347,6 +347,10 @@ class SoDeliveryTax extends Component
                     , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['customerid'].'-'.$this->soHeader['snumber']
                     , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
                     , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
+
+                    //gltran
+                    $this->generateGl($this->soHeader['deliveryno']);
+                    DB::table('gltran')->insert($this->genGLs);
                 }
 
                 //SalesDetail
@@ -375,7 +379,8 @@ class SoDeliveryTax extends Component
                     , quantity, quantityord, quantitydel, quantitybac
                     , taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
                     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                    , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice'], $soDetails2['amount']
+                    , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
+                    , $soDetails2['unitprice'], $soDetails2['amount']
                     , $xquantity, $xquantityord, $xquantitydel, $xquantitybac
                     , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
                     , $soDetails2['salesac'], 'Admin', Carbon::now()]);
@@ -392,14 +397,16 @@ class SoDeliveryTax extends Component
                             $costAmt = round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
                         }
                         
-                        //Copy salesdetail to salesdetaillog
+                        //Insert Salesdetaillog
                         DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
-                            , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
+                            , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount, taxnumber
                             , discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, employee_id, transactiondate)
-                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                            , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
-                            , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
-                            , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
+                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                            , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
+                            , $soDetails2['description'], $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount']
+                            , $soDetails2['quantity'] , $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
+                            , $this->soHeader['invoiceno'], $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['id']
+                            , 'Admin', Carbon::now()]);
 
                         // Update Inventory
                         $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
@@ -411,39 +418,40 @@ class SoDeliveryTax extends Component
                     }
                 }
 
-                //gltran
-                $this->generateGl(getGlNunber('SO'));
-                DB::table('gltran')->insert($this->genGLs);
-  
                 $this->dispatchBrowserEvent('hide-soDeliveryTaxForm',['message' => 'Save Successfully!']);
             });
         }else{
-            //New
+            //New 
             DB::transaction(function () {
                 //Insert Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate
                             , deliveryno, deliverydate, payby, duedate, journaldate, exclusivetax, taxontotal
                             , salesaccount, expirydate, sototal, salestax, closed, employee_id, transactiondate, posted, ram_sodeliverytax) 
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , [$this->soHeader['snumber'], $this->soHeader['sonumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
                 , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
                 , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
                 , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted'],true]); //ram_sodeliverytax > แยก Type ของ SO
 
-                //Insert Taxdata
-                if ($this->soHeader['posted']){
-                    DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
-                            ,description,amountcur,amount,taxamount,duedate,purchase,posted
-                            ,isinputtax,totalamount,employee_id,transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                    , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
-                    , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['customerid'].'-'.$this->soHeader['snumber']
-                    , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
-                    , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
-                }
+                //Insert Taxdata & GLTran ***ถ้า New จะไม่สามารถปิดรายการได้ทันที***
+                // if ($this->soHeader['posted']){
+                //     //Taxdata
+                //     DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
+                //             ,description,amountcur,amount,taxamount,duedate,purchase,posted
+                //             ,isinputtax,totalamount,employee_id,transactiondate)
+                //     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                //     , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
+                //     , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['customerid'].'-'.$this->soHeader['snumber']
+                //     , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
+                //     , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
 
-                //SalesDetail
+                //     //gltran
+                //     $this->generateGl($this->soHeader['deliveryno']);
+                //     DB::table('gltran')->insert($this->genGLs);
+                // }
+
+                //SalesDetail & SalesDetailLog
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
                 foreach ($this->soDetails as $soDetails2)
                 {
@@ -452,12 +460,11 @@ class SoDeliveryTax extends Component
                         $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
                     }
 
-                    //Posted = True (update salesdetail > quantitydel=quantityord, quantity=0, quantitybac=0)
-                    if($this->soHeader['posted'] == true){
-                        $xquantity = 0;
-                        $xquantityord = $soDetails2['quantity'];
-                        $xquantitydel = $soDetails2['quantity'];
-                        $xquantitybac = 0;
+                    if($this->soHeader['posted'] == true){ //***ถ้า New จะไม่สามารถปิดรายการได้ทันที***
+                        // $xquantity = 0;
+                        // $xquantityord = $soDetails2['quantity'];
+                        // $xquantitydel = $soDetails2['quantity'];
+                        // $xquantitybac = 0;
                     }else{
                         $xquantity = $soDetails2['quantity'];
                         $xquantityord = $soDetails2['quantity'];
@@ -469,39 +476,42 @@ class SoDeliveryTax extends Component
                     , quantity, quantityord, quantitydel, quantitybac
                     , taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
                     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                    , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice'], $soDetails2['amount']
+                    , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid']
+                    , $soDetails2['description'], $soDetails2['unitprice'], $soDetails2['amount']
                     , $xquantity, $xquantityord, $xquantitydel, $xquantitybac
                     , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
                     , $soDetails2['salesac'], 'Admin', Carbon::now()]);
 
-                    if($this->soHeader['posted'] == true){
-                            // หาต้นทุนสินค้า
-                            $costAmt = 0;
-                            $xinventory = DB::table('inventory')
-                                ->select('instock','instockvalue','averagecost')
-                                ->where('itemid', $soDetails2['itemid'])
-                                ->get();
-                            if ($xinventory->count() > 0) {
-                                $costAmt = round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
-                            }
+                    //***ถ้า New จะไม่สามารถปิดรายการได้ทันที***
+                    // if($this->soHeader['posted'] == true){
+                    //         // หาต้นทุนสินค้า
+                    //         $costAmt = 0;
+                    //         $xinventory = DB::table('inventory')
+                    //             ->select('instock','instockvalue','averagecost')
+                    //             ->where('itemid', $soDetails2['itemid'])
+                    //             ->get();
+                    //         if ($xinventory->count() > 0) {
+                    //             $costAmt = round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
+                    //         }
                             
-                            //Copy salesdetail to salesdetaillog
-                            DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
-                                , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
-                                , discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, employee_id, transactiondate)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                                , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
-                                , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
+                    //         //Insert salesdetaillog
+                    //         DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
+                    //             , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
+                    //             , discountamount, cost, soreturn, journal, posted, employee_id, transactiondate)
+                    //             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                    //             , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
+                    //             , $soDetails2['description'], $xquantityord, $soDetails2['unitprice'], $soDetails2['amount']
+                    //             , $xquantityord, $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
+                    //             , $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, 'Admin', Carbon::now()]); //$soDetails2['id'] กรณี Insert จะยังไม่มีค่า
 
-                            // Update Inventory
-                            $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
-                            $xinstockvalue = $xinventory[0]->instockvalue - round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
+                    //         // Update Inventory
+                    //         $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
+                    //         $xinstockvalue = $xinventory[0]->instockvalue - round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
 
-                            DB::statement("UPDATE inventory SET instock=?, instockvalue=?, employee_id=?, transactiondate=?
-                                where itemid=?" 
-                                , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
-                    }
+                    //         DB::statement("UPDATE inventory SET instock=?, instockvalue=?, employee_id=?, transactiondate=?
+                    //             where itemid=?" 
+                    //             , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
+                    // }
                 }
 
                 $this->dispatchBrowserEvent('hide-soDeliveryTaxForm',['message' => 'Save Successfully!']);

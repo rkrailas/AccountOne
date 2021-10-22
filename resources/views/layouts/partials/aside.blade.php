@@ -33,19 +33,19 @@
             <li class="nav-item">
               <a href="{{ route('accstar.customer.customer') }}"
                 class="nav-link {{ request()->is('accstar/customer/customer') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ลูกค้า/ผู้ขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_ลูกหนี้</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_เจ้าหนี้</p>
               </a>
             </li>
@@ -65,20 +65,20 @@
             <li class="nav-item">
               <a href="{{ route('accstar.inventory.inventory') }}"
                 class="nav-link {{ request()->is('accstar/inventory/inventory') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon" aria-hidden="true"></i>
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>ข้อมูลสินค้า</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.inventory.adjustinventory') }}" 
                 class="nav-link {{ request()->is('accstar/inventory/adjustinventory') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ปรับปรุงสินค้า</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_อายุสินค้า</p>
               </a>
             </li>
@@ -97,25 +97,25 @@
           <ul class="nav nav-treeview">            
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon" aria-hidden="true"></i>
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>_รับสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_ใบสั่งซื้อ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_รับสินค้าเท่านั้น</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_ใบกำกับของสินค้าที่รับแล้ว</p>
               </a>
             </li>
@@ -135,49 +135,57 @@
             <li class="nav-item">
               <a href="{{ route('accstar.sales.sodeliverytax') }}"
                 class="nav-link {{ request()->is('accstar/sales/sodeliverytax') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ส่งสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.salesorder') }}"
                 class="nav-link {{ request()->is('accstar/sales/salesorder') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ใบสั่งขาย</p>
               </a>
             </li>            
             <li class="nav-item">
               <a href="{{ route('accstar.sales.sodelivery') }}"
                 class="nav-link {{ request()->is('accstar/sales/sodelivery') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ส่งสินค้าเท่านั้น</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.sotax') }}"
                 class="nav-link {{ request()->is('accstar/sales/sotax') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ใบกำกับของสินค้าที่ส่งแล้ว</p>
+              </a>
+            </li>
+            {{-- <hr style="height:2px;border-width:0;color:gray;background-color:gray"> --}}
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.cancelsodeliverytax') }}"
+                class="nav-link {{ request()->is('accstar/sales/cancelsodeliverytax') ? 'active' : '' }}">
+                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <p>ยกเลิกส่งสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsalesorder') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsalesorder') ? 'active' : '' }}">
-                <i class="nav-icon far fa-times-circle"></i>
+                <i class="nav-icon-submenu far fa-times-circle"></i>
                 <p>ยกเลิกใบสั่งขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsodelivery') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsodelivery') ? 'active' : '' }}">
-                <i class="nav-icon far fa-times-circle"></i>
+                <i class="nav-icon-submenu far fa-times-circle"></i>
                 <p>ยกเลิกใบส่งสินค้า</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsotax') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsotax') ? 'active' : '' }}">
-                <i class="nav-icon far fa-times-circle"></i>
+                <i class="nav-icon-submenu far fa-times-circle"></i>
                 <p>ยกเลิกใบกำกับภาษี - รับคืนสินค้า</p>
               </a>
             </li>
@@ -197,13 +205,13 @@
             <li class="nav-item">
               <a href="{{ route('accstar.finance.receiveonsales') }}"
                 class="nav-link {{ request()->is('accstar/finance/receiveonsales') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i></i>
+                <i class="far fa-circle nav-icon-submenu"></i></i>
                 <p>รับชำระเงิน</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_ใบแจ้งหนี้/ใบวางบิล</p>
               </a>
             </li>
@@ -222,13 +230,13 @@
           <ul class="nav nav-treeview">
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_จ่ายชำระเงิน</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>_รับใบแจ้งหนี้</p>
               </a>
             </li>
@@ -248,35 +256,35 @@
             <li class="nav-item">
               <a href="{{ route('accstar.account.gljournal') }}"
                 class="nav-link {{ request()->is('accstar/account/gjournal') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ใบสำคัญ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.account.trialbalance') }}"
                 class="nav-link {{ request()->is('accstar/account/trialbalance') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon" aria-hidden="true"></i>
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>งบทดลอง</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.account.postjournal') }}"
                 class="nav-link {{ request()->is('accstar/account/postjournal') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon" aria-hidden="true"></i>
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>ผ่านรายการบัญชี</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.account.cancelpostjournal') }}"
                 class="nav-link {{ request()->is('accstar/account/cancelpostjournal') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon" aria-hidden="true"></i>
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>ยกเลิกผ่านรายการบัญชี</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.account.listcoa') }}"
                 class="nav-link {{ request()->is('accstar/account/listcoa') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon" aria-hidden="true"></i>
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>ผังบัญชี</p>
               </a>
             </li>
@@ -286,7 +294,7 @@
         <!-- ระบบภาษี -->
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-table"></i>
+            <i class="nav-icon fas fa-coins"></i>
             <p>
               ระบบภาษี
               <i class="right fas fa-angle-left"></i>
@@ -296,21 +304,21 @@
             <li class="nav-item">
               <a href="{{ route('accstar.tax.salestax') }}"
                 class="nav-link {{ request()->is('accstar/tax/salestax') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ภาษีขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.tax.purchasetax') }}"
                 class="nav-link {{ request()->is('accstar/tax/purchasetax') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ภาษีซื้อ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.tax.withholdingtax') }}"
                 class="nav-link {{ request()->is('accstar/tax/withholdingtax') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-circle nav-icon-submenu"></i>
                 <p>ภาษีหัก ณ ที่จ่าย</p>
               </a>
             </li>

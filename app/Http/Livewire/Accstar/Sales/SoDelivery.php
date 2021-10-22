@@ -100,17 +100,17 @@ class SoDelivery extends Component
                             }
     
                             //SalesDetailLog
-                            DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description
-                                , quantity, unitprice, amount, quantityord, quantitydel, quantitybac, taxrate, taxamount
-                                , discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, employee_id, transactiondate)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                            DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description, quantity, unitprice
+                                , amount, taxrate, taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id
+                                , employee_id, transactiondate)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
-                                , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'],0 , 0, 0, $soDetails2['taxrate'], $soDetails2['taxamount']
+                                , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'], $soDetails2['taxrate'], $soDetails2['taxamount']
                                 , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
     
                             //Inventory
                             $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
-                            $xinstockvalue = $xinventory[0]->instockvalue - round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
+                            $xinstockvalue = $xinventory[0]->instockvalue - $costAmt;
     
                             DB::statement("UPDATE inventory SET instock=?, instockvalue=?, employee_id=?, transactiondate=?
                                 where itemid=?" 

@@ -83,7 +83,7 @@ class SalesOrder extends Component
     {   
         if ($this->showEditModal == true){
             DB::transaction(function () {
-                // .Table "Sales"
+                //Updaate Sales
                 DB::statement("UPDATE sales SET sodate=?, deliverydate=?, expirydate=?, refno=?, sototal=?, salestax=?
                 , exclusivetax=?, taxontotal=?, salesaccount=?, employee_id=?, transactiondate=?, closed=?, duedate=?
                 where snumber=?" 
@@ -92,8 +92,8 @@ class SalesOrder extends Component
                 , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount']
                 , 'Admin', Carbon::now(), $this->soHeader['closed'], $this->soHeader['duedate'], $this->soHeader['snumber']]);
             
-                // Table "SalesDetail" 
-                DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
+                //SalesDetail 
+                DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete(); //ลบออกไปก่อน
                 foreach ($this->soDetails as $soDetails2)
                 {
                     if ($this->soHeader['exclusivetax'] == true) //แปลงค่าก่อนบันทึก
@@ -123,7 +123,7 @@ class SalesOrder extends Component
             $this->soHeader['sonumber'] = $this->soHeader['snumber'];
 
             DB::transaction(function () {
-                // Table "Sales"
+                //Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, expirydate, deliverydate, refno
                             , exclusivetax, taxontotal, salesaccount, sototal, salestax, closed, duedate, employee_id, transactiondate)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
@@ -133,7 +133,7 @@ class SalesOrder extends Component
                 , $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['closed'], $this->soHeader['duedate']
                 , 'Admin', Carbon::now()]);
 
-                // Table "SalesDetail"
+                //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
 
                 foreach ($this->soDetails as $soDetails2)

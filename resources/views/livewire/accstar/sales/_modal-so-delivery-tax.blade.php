@@ -123,7 +123,8 @@
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.posted">
+                                <input class="form-check-input" type="checkbox" {{ $showEditModal ? '' : 'disabled' }}
+                                    wire:model.defer="soHeader.posted">
                                 <label class="form-check-label" for="posted">ปิดรายการ</label>
                             </div>
                         </div>
