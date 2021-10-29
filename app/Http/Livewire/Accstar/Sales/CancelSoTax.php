@@ -25,38 +25,46 @@ class CancelSoTax extends Component
                 , to_char(sales.duedate,'YYYY-MM-DD') as duedate, sales.exclusivetax
                 , sales.taxontotal, sales.posted, sales.salesaccount, sales.taxrate, sales.salestax, sales.discountamount, sales.sototal
                 , customer.customerid, sales.shipcost, sales.closed, to_char(sales.duedate,'YYYY-MM-DD') as dueydate
-                , to_char(taxdata.journaldate,'YYYY-MM-DD') as taxdate, taxdata.gltran
+                , to_char(taxdata.journaldate,'YYYY-MM-DD') as taxdate, taxdata.gltran, taxdata.paidamount
                 from sales 
                 left join customer on sales.customerid=customer.customerid
                 join salesdetaillog on sales.snumber=salesdetaillog.snumber
                 join taxdata on salesdetaillog.taxnumber = taxdata.taxnumber and taxdata.iscancelled=false
-                where sales.ram_sodeliverytax=false
+                where salesdetaillog.soreturn='N' and sales.ram_sodeliverytax=false
                 and salesdetaillog.taxnumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) { //ถ้าพบ SO
             $this->soHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
-            $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
-            $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
-            $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
-            $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
 
-            $data2 = DB::table('salesdetaillog')
-                ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount'
-                        ,'id','inventoryac','soreturn','ram_salesdetail_id','cost') //cost > per unit
-                ->where('taxnumber', $this->deleteNumber)
-                ->get();
-            $this->soDetails = json_decode(json_encode($data2), true);
+            if($this->soHeader['paidamount'] != 0){
+                $this->dispatchBrowserEvent('popup-alert', [
+                    'title' => 'ใบกำกับนี้มีการรับชำระแล้ว !',
+                ]);
+                $this->resetPara();
+            }else{                
+                $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
+                $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
+                $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
+                $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
     
-            $this->reCalculateInGrid();
+                $data2 = DB::table('salesdetaillog')
+                    ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount'
+                            ,'id','inventoryac','soreturn','ram_salesdetail_id','cost') //cost > per unit
+                    ->where('taxnumber', $this->deleteNumber)
+                    ->get();
+                $this->soDetails = json_decode(json_encode($data2), true);
+        
+                $this->reCalculateInGrid();
+    
+                $this->btnDelete = true;
+            }
 
-            $this->btnDelete = true;
 
         }else{
             $this->dispatchBrowserEvent('popup-alert', [
                 'title' => 'ไม่พบใบกำกับภาษี !',
             ]);
-
             $this->resetPara();
         }
     }
@@ -162,6 +170,16 @@ class CancelSoTax extends Component
         }
     }
 
+    public function reCalculateSummary()
+    {
+        // Summary Gird
+        $this->sumQuantity = array_sum(array_column($this->soDetails,'quantity'));
+        $this->sumAmount = array_sum(array_column($this->soDetails,'amount'));
+        $this->soHeader['discountamount'] = array_sum(array_column($this->soDetails,'discountamount'));
+        $this->soHeader['sototal'] = array_sum(array_column($this->soDetails,'netamount'));
+        $this->soHeader['salestax'] = round(array_sum(array_column($this->soDetails,'taxamount')),2);
+    }
+
     public function mount()
     {
         $this->sumQuantity = 0;
@@ -175,6 +193,13 @@ class CancelSoTax extends Component
 
     public function render()
     {
+        // Summary grid     
+        if($this->soDetails != Null)
+        {            
+            $this->reCalculateSummary();
+        }else{
+        }
+
         return view('livewire.accstar.sales.cancel-so-tax');
     }
 }

@@ -160,33 +160,61 @@
                 <p>ใบกำกับของสินค้าที่ส่งแล้ว</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.adjustsodeliverytax') }}"
+                class="nav-link {{ request()->is('accstar/sales/adjustsodeliverytax') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu"></i>
+                <p>ปรับปรุงราคาขาย</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.returngoods') }}"
+                class="nav-link {{ request()->is('accstar/sales/returngoods') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu"></i>
+                <p>รับคืนสินค้า</p>
+              </a>
+            </li>
             {{-- <hr style="height:2px;border-width:0;color:gray;background-color:gray"> --}}
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsodeliverytax') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsodeliverytax') ? 'active' : '' }}">
                 <i class="nav-icon-submenu far fa-times-circle"></i>
-                <p>ยกเลิกส่งสินค้าพร้อมใบกำกับ</p>
+                <p>ยกเลิก-ส่งสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsalesorder') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsalesorder') ? 'active' : '' }}">
                 <i class="nav-icon-submenu far fa-times-circle"></i>
-                <p>ยกเลิกใบสั่งขาย</p>
+                <p>ยกเลิก-ใบสั่งขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsodelivery') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsodelivery') ? 'active' : '' }}">
                 <i class="nav-icon-submenu far fa-times-circle"></i>
-                <p>ยกเลิกใบส่งสินค้า</p>
+                <p>ยกเลิก-ใบส่งสินค้า</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsotax') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsotax') ? 'active' : '' }}">
                 <i class="nav-icon-submenu far fa-times-circle"></i>
-                <p>ยกเลิกใบกำกับภาษี - รับคืนสินค้า</p>
+                <p>ยกเลิก-ใบกำกับของสินค้าที่ส่งแล้ว</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.canceladjustsodeliverytax') }}"
+                class="nav-link {{ request()->is('accstar/sales/canceladjustsodeliverytax') ? 'active' : '' }}">
+                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <p>ยกเลิก-ปรับปรุงราคาขาย</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.cancelreturngoods') }}"
+                class="nav-link {{ request()->is('accstar/sales/cancelreturngoods') ? 'active' : '' }}">
+                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <p>ยกเลิก-รับคืนสินค้า</p>
               </a>
             </li>
           </ul>

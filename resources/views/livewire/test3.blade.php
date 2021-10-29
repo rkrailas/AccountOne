@@ -3,15 +3,15 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Select Team Members</label>
-                    <x-select2 wire:model="myOption" placeholder="Select My Options" id="myOption">
-                        <option value=" ">---โปรดเลือก---</option>
-                        <option>Option1</option>
-                        <option>Option2</option>
-                        <option>Option3</option>
-                        <option>Option4</option>
-                        <option>Option5</option>
-                    </x-select2>
+                    <label>Select myOption</label>
+                        <x-select2 wire:model="myOption" placeholder="Select My Options" id="myOption">
+                            <option value=" ">---โปรดเลือก---</option>
+                            <option value="Option1">Option1</option>
+                            <option value="Option2">Option2</option>
+                            <option value="Option3">Option3</option>
+                            <option value="Option4">Option4</option>
+                            <option value=" Option5 ">Option5</option>
+                        </x-select2>
                 </div>
             </div>
         </div>
@@ -33,8 +33,17 @@
         <div class="row">
             <div class="col-md-6">
                 <button class="btn btn-primary" wire:click="display">Display Value</button>
-                <button class="btn btn-danger" onclick="clearSelect2('myOption');">Clear Value</button>
+                <button class="btn btn-danger" wire:click="clearValue">Clear Value</button>
             </div>
         </div>
     </div>
 </div>
+
+@push('js')
+<script>
+
+    window.addEventListener('clear-select2', event => {
+        clearSelect2('myOption');
+    })
+</script>
+@endpush

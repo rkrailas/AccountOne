@@ -27,7 +27,7 @@ class CancelSalesOrder extends Component
                 , to_char(duedate,'YYYY-MM-DD') as dueydate
                 from sales 
                 left join customer on sales.customerid=customer.customerid 
-                where sales.snumber='" . $this->deleteNumber . "'";
+                where soreturn='N' and sales.snumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) {
@@ -61,7 +61,7 @@ class CancelSalesOrder extends Component
                 'title' => 'ไม่พบใบสั่งขาย !',
             ]);
 
-            $this->resetPara();            
+            $this->resetPara();
         }
     }
 
@@ -135,6 +135,16 @@ class CancelSalesOrder extends Component
         }
     }
 
+    public function reCalculateSummary()
+    {
+        // Summary Gird
+        $this->sumQuantity = array_sum(array_column($this->soDetails,'quantity'));
+        $this->sumAmount = array_sum(array_column($this->soDetails,'amount'));
+        $this->soHeader['discountamount'] = array_sum(array_column($this->soDetails,'discountamount'));
+        $this->soHeader['sototal'] = array_sum(array_column($this->soDetails,'netamount'));
+        $this->soHeader['salestax'] = round(array_sum(array_column($this->soDetails,'taxamount')),2);
+    }
+    
     public function mount()
     {
         $this->sumQuantity = 0;
@@ -148,6 +158,13 @@ class CancelSalesOrder extends Component
 
     public function render()
     {
+        // Summary grid     
+        if($this->soDetails != Null)
+        {            
+            $this->reCalculateSummary();
+        }else{
+        }
+
         return view('livewire.accstar.sales.cancel-sales-order');
     }
 }

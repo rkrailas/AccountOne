@@ -343,7 +343,7 @@ class SoDelivery extends Component
 
         // .getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','snumber','sodate','name','sototal')
+            ->select('sales.id','snumber','sodate','name','sototal','refno')
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', FALSE)
             ->where('soreturn','N')

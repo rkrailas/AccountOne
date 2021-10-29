@@ -63,7 +63,13 @@
                                         <i class="fa fa-arrow-up {{ $sortBy === 'customer.name' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'customer.name' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
-                                </th>                                    
+                                </th>
+                                <th scope="col">ใบสั่งซื้อผู้ซื้อ
+                                    <span wire:click="sortBy('sales.refno')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.refno' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.refno' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
                                 <th scope="col">ยอดเงิน
                                     <span wire:click="sortBy('sales.sototal')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.sototal' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
@@ -80,6 +86,7 @@
                                 <td scope="col">{{ $salesOrder->snumber }} </td>
                                 <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->sodate)->format('Y-m-d') }} </td>
                                 <td scope="col">{{ $salesOrder->name }} </td>
+                                <td scope="col">{{ $salesOrder->refno }} </td>
                                 <td scope="col">{{ number_format($salesOrder->sototal,2) }} </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $salesOrder->snumber }}')">

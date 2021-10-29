@@ -111,8 +111,8 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <label for="city1">อำเภอ {{$state['city1']}}</label>
-                                            <x-select2 id="city1-select2" wire:model="state.city1">
+                                            <label for="city1">อำเภอ</label>
+                                            <x-select2 id="city1-select2" wire:model.defer="state.city1">
                                                 <option value=" ">---โปรดเลือก---</option>
                                                 @foreach($citys_dd as $row)
                                                 <option value='{{ $row->city }}'>

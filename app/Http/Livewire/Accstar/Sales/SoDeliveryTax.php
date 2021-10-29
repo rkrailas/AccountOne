@@ -54,22 +54,18 @@ class SoDeliveryTax extends Component
 
     public function generateGl($xgltran = '')
     {
-        // .Concept
-            //---Periodic---
+        // Concept
             //Dr.ลูกหนี้การค้า
             //  Cr.ขายสินค้า
             //  Cr.ภาษีขาย
-
-            //---Perpetual---
-            //Dr.ต้นทุนขาย
-            //  Cr.สินค้าคงเหลือ
-        // /.Concept
+            //Dr.ต้นทุนขาย (Perpetual)
+            //  Cr.สินค้าคงเหลือ (Perpetual)
         
         $this->genGLs = [];
         $this->sumDebit = 0;
         $this->sumCredit = 0;
 
-        // .Dr.ลูกหนี้การค้า //account = buyer.account or controldef.account where id='AR' //gldebit = $soHeader['sototal']
+        // 1.Dr.ลูกหนี้การค้า //account = buyer.account or controldef.account where id='AR' //gldebit = $soHeader['sototal']
         $buyAcc = "";
         $buyAccName = "";
 
@@ -102,61 +98,67 @@ class SoDeliveryTax extends Component
             } 
         }
 
+        //ตรวจสอบว่า gldebit ว่าติดลบหรือไม่
+        if ($this->soHeader['sototal'] >= 0){
+            $xGLDebit = $this->soHeader['sototal'];
+            $xGLCredit = 0;
+        }else{
+            $xGLDebit = 0;
+            $xGLCredit = $this->soHeader['sototal'] * -1;
+        }
+
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
-            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$this->soHeader['sototal'], 'glcredit'=>0, 'jobid'=>''
+            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
             , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
-        // /.Dr.ลูกหนี้การค้า 
 
-
-        // .Cr.ขายสินค้า //glcredit = $soDetails['netamount'] //glaccount = salesdetail.salesac or controldef.account where id='SA'
+        // 2.Cr.ขายสินค้า //glcredit = $soDetails['netamount'] //glaccount = salesdetail.salesac or controldef.account where id='SA'
         $salesAcc = "";
         $salesAccName = "";
 
-        for($i=0; $i<count($this->soDetails);$i++)
-        {
-            $data = DB::table('salesdetail')
-            ->select("salesac")
-            ->where('id', $this->soDetails[$i]['id'])
-            ->get();            
-            if ($data->count() > 0) {
-                $salesAcc = $data[0]->salesac;
-            } 
-    
-            if ($salesAcc == ""){
+        for ($i = 0; $i < count($this->soDetails); $i++) {
+            if ($this->soDetails[$i]['salesac']) {
+                $salesAcc = $this->soDetails[$i]['salesac'];
+            }
+
+            if ($salesAcc == "") {
                 $data = DB::table('controldef')
-                ->select("account")
-                ->where('id', 'SA')
-                ->get();                
+                    ->select("account")
+                    ->where('id', 'SA')
+                    ->get();
                 if ($data->count() > 0) {
                     $salesAcc = $data[0]->account;
-                }  
+                }
             }
-    
-            if ($salesAcc != ""){
+
+            if ($salesAcc != "") {
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $salesAcc)
                     ->where('detail', true)
-                    ->get();                
+                    ->get();
                 if ($data->count() > 0) {
                     $salesAccName = $data[0]->accnameother;
-                }  
+                }
             }
-    
+
+            //ตรวจสอบว่า glcredit ว่าติดลบหรือไม่
+            if ($this->soDetails[$i]['netamount'] - $this->soDetails[$i]['taxamount'] >= 0) {
+                $xGLDebit = 0;
+                $xGLCredit = $this->soDetails[$i]['netamount'] - $this->soDetails[$i]['taxamount'];
+            } else {
+                $xGLDebit = ($this->soDetails[$i]['netamount'] - $this->soDetails[$i]['taxamount']) * -1;
+                $xGLCredit = 0;
+            }
+
             $this->genGLs[] = ([
-                'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$salesAcc, 'glaccname'=>$salesAccName
-                , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0
-                , 'glcredit'=>$this->soDetails[$i]['netamount']-$this->soDetails[$i]['taxamount']
-                , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-                , 'transactiondate'=>Carbon::now()
-            ]);            
+                'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName, 'gldescription' => 'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => '', 'transactiondate' => Carbon::now()
+            ]);
         }
-        // /.Cr.ขายสินค้า
   
-        // .Cr.ภาษีขาย // glcredit = $soHeader['salestax'] // glaccount = controldef.account where id='ST';     
+        // 3.Cr.ภาษีขาย // glcredit = $soHeader['salestax'] // glaccount = controldef.account where id='ST';     
         $taxAcc = "";
         $taxAccName = "";
         
@@ -179,13 +181,22 @@ class SoDeliveryTax extends Component
             }            
         }
 
+        //ตรวจสอบว่า glcredit ว่าติดลบหรือไม่
+        if ($this->soHeader['salestax'] >= 0){
+            $xGLDebit = 0;
+            $xGLCredit = $this->soHeader['salestax'];
+        }else{
+            $xGLDebit = $this->soHeader['salestax'] * -1;
+            $xGLCredit = 0;
+        }
+
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
-            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$this->soHeader['salestax'], 'jobid'=>''
+            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
             , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
-        // /.Cr.ภาษีขาย
+
 
         // .Perpetual 
         $data = DB::table('company')
@@ -194,7 +205,7 @@ class SoDeliveryTax extends Component
             ->get();
 
         if($data[0]->perpetual){ 
-            // .Cr.สินค้าคงเหลือ // select salesdetail.inventoryac Or inventory.inventoryac
+            // 4.Cr.สินค้าคงเหลือ // select salesdetail.inventoryac Or inventory.inventoryac
             $totalCostAmt = 0;
 
             for($i=0; $i<count($this->soDetails);$i++)
@@ -236,17 +247,25 @@ class SoDeliveryTax extends Component
                     $costAmt = 0;
                 }                
                 $totalCostAmt = $totalCostAmt + $costAmt;
+
+                //ตรวจสอบว่า glcredit ว่าติดลบหรือไม่
+                if ($costAmt >= 0){
+                    $xGLDebit = 0;
+                    $xGLCredit = $costAmt;
+                }else{
+                    $xGLDebit = $costAmt * -1;
+                    $xGLCredit = 0;
+                }
         
                 $this->genGLs[] = ([
                     'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
-                    , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>0, 'glcredit'=>$costAmt
+                    , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit
                     , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                     , 'transactiondate'=>Carbon::now()
                 ]);  
             }
-            // /.Cr.สินค้าคงเหลือ
 
-            // .Dr.ต้นทุนขาย controldef.account where id='CG'
+            // 5.Dr.ต้นทุนขาย controldef.account where id='CG'
             $costAcc = "";
             $costAccName = "";
 
@@ -268,16 +287,23 @@ class SoDeliveryTax extends Component
                     $costAccName = $data[0]->accnameother;
                 }                  
             }
+
+            //ตรวจสอบว่า gldebit ว่าติดลบหรือไม่
+            if ($totalCostAmt >= 0){
+                $xGLDebit = $totalCostAmt;
+                $xGLCredit = 0;
+            }else{
+                $xGLDebit = 0;
+                $xGLCredit = $totalCostAmt * -1;
+            }
     
             $this->genGLs[] = ([
                 'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
-                , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$totalCostAmt, 'glcredit'=>0, 'jobid'=>''
+                , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
                 , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
-            // /.Dr.ต้นทุนขาย 
         }
-        // /.Perpetual 
 
         // Summary Debit & Credit
         for($i=0; $i<count($this->genGLs);$i++)
@@ -297,7 +323,7 @@ class SoDeliveryTax extends Component
             , 'invoiceno'=>getTaxNunber("SO"), 'invoicedate'=>Carbon::now()->format('Y-m-d')
             , 'deliveryno'=>getGlNunber("SO"), 'journaldate'=>Carbon::now()->format('Y-m-d'), 'deliverydate'=>Carbon::now()->addMonth()->format('Y-m-d')
             ,'payby'=>'0', 'duedate'=>Carbon::now()->addMonth()->format('Y-m-d')
-            , 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>7
+            , 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>getTaxRate()
             , 'salestax'=>0, 'discountamount'=>0, 'sototal'=>0, 'customerid'=>'', 'shipcost'=>0, 'shipname'=>'', 'posted'=>false
         ]); //เป็น Array 1 มิติ 
         //ใบสำคัญ > deliveryno / journaldate
@@ -319,7 +345,7 @@ class SoDeliveryTax extends Component
         //สร้าง Row ว่างๆ ใน Gird
         $this->soDetails[] = ([
             'itemid'=>'','description'=>'','quantity'=>0,'salesac'=>'','unitprice'=>0
-            ,'amount'=>0,'discountamount'=>0,'netamount'=>0, 'taxamount'=>0, 'taxrate'=>$this->soHeader['taxrate']
+            ,'amount'=>0,'discountamount'=>0,'netamount'=>0, 'taxamount'=>0, 'taxrate'=>getTaxRate()
         ]);
     }
 

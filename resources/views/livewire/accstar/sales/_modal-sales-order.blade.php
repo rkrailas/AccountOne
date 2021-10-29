@@ -87,8 +87,8 @@
                                 <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.shipname">
                             </div>
                             <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
-                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid">
-                                    <option value=" ">---โปรดเลือก---</option>
+                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid" required :error="'customerid'">
+                                    {{-- <option value=" ">---โปรดเลือก---</option> --}}
                                     @foreach($customers_dd as $row)
                                     <option value='{{ $row->customerid }}'>
                                         {{ $row->customerid . ': ' . $row->name }}
@@ -109,7 +109,8 @@
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.closed">
+                                <input class="form-check-input" type="checkbox" {{ $showEditModal ? '' : 'disabled' }} 
+                                    wire:model.defer="soHeader.closed">
                                 <label class="form-check-label" for="closed">ปิดรายการ</label>
                             </div>
                         </div>

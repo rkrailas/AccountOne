@@ -13,6 +13,10 @@ use App\Http\Livewire\AccStar\Sales\CancelSalesOrder;
 use App\Http\Livewire\AccStar\Sales\CancelSoDelivery;
 use App\Http\Livewire\AccStar\Sales\CancelSoTax;
 use App\Http\Livewire\AccStar\Sales\CancelSoDeliveryTax;
+use App\Http\Livewire\AccStar\Sales\AdjustSoDeliveryTax;
+use App\Http\Livewire\AccStar\Sales\CancelAdjustSoDeliveryTax;
+use App\Http\Livewire\AccStar\Sales\ReturnGoods;
+use App\Http\Livewire\AccStar\Sales\CancelReturnGoods;
 use App\Http\Livewire\AccStar\Finance\ReceiveOnSales;
 use App\Http\Livewire\AccStar\Account\ListGjournal;
 use App\Http\Livewire\AccStar\Account\PostJournal;
@@ -57,6 +61,10 @@ Route::get('accstar/sales/cancelsalesorder', CancelSalesOrder::class)->name('acc
 Route::get('accstar/sales/cancelsodelivery', CancelSoDelivery::class)->name('accstar.sales.cancelsodelivery');
 Route::get('accstar/sales/cancelsotax', CancelSoTax::class)->name('accstar.sales.cancelsotax');
 Route::get('accstar/sales/cancelsodeliverytax', CancelSoDeliveryTax::class)->name('accstar.sales.cancelsodeliverytax');
+Route::get('accstar/sales/adjustsodeliverytax', AdjustSoDeliveryTax::class)->name('accstar.sales.adjustsodeliverytax');
+Route::get('accstar/sales/canceladjustsodeliverytax', CancelAdjustSoDeliveryTax::class)->name('accstar.sales.canceladjustsodeliverytax');
+Route::get('accstar/sales/returngoods', ReturnGoods::class)->name('accstar.sales.returngoods');
+Route::get('accstar/sales/cancelreturngoods', CancelReturnGoods::class)->name('accstar.sales.cancelreturngoods');
 
 //======== Finance ========
 Route::get('accstar/finance/receiveonsales', ReceiveOnSales::class)->name('accstar.finance.receiveonsales');

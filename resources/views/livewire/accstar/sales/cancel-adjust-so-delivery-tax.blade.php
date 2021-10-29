@@ -9,13 +9,13 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">ยกเลิกใบสั่งขาย</h1>
+                    <h1 class="m-0 text-dark">ยกเลิกปรับปรุงราคาขาย</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">ระบบขาย</li>
                         <li class="breadcrumb-item">ยกเลิก</li>
-                        <li class="breadcrumb-item active">ยกเลิกใบสั่งขาย</li>
+                        <li class="breadcrumb-item active">ยกเลิกปรับปรุงราคาขาย</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -26,16 +26,16 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col">
-                    <button type="button" class="btn btn-danger" {{ $btnDelete ? '' : 'disabled' }} wire:click="confirmDelete">
+                    <button type="button" class="btn btn-danger" {{ $btnDelete ? '' : 'disabled' }} 
+                        wire:click="confirmDelete">
                         <i class="fas fa-trash-alt mr-1"></i>ยกเลิกเอกสาร</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" wire:click="pressCancel">
                         <i class="fa fa-times mr-1"></i>ยกเลิก</button>
                 </div>
             </div>
-
             <div class="row mb-2">
                 <div class="col">
-                    <label class="">เลขที่ใบสั่งขาย</label>
+                    <label class="">เลขที่ปรับปรุง:</label>
                     <div class="input-group">
                         <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="deleteNumber"
                             wire:keydown.enter="searchDoc('{{ $deleteNumber }}')"
@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <label class="">วันที่ใบสั่งขาย</label>
+                    <label class="">วันที่ปรับปรุง:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
@@ -59,70 +59,60 @@
                     </div>
                 </div>
                 <div class="col">
-                    <label class="">ใช้ได้จนถึง</label>
-                    <div class="input-group mb-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="fas fa-calendar"></i>
-                            </span>
-                        </div>
-                        <x-datepicker wire:model.defer="soHeader.expirydate" id="expiryDate" :error="'date'" disabled />
-                    </div>
+                    <label class="">เลขที่ใบสำคัญ:</label>
+                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.deliveryno">
                 </div>
                 <div class="col">
-                    <label class="">วันที่ส่งสินค้า</label>
+                    <label class="">วันที่ใบสำคัญ:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
                                 <i class="fas fa-calendar"></i>
                             </span>
                         </div>
-                        <x-datepicker wire:model.defer="soHeader.deliverydate" id="deliverydate" :error="'date'"
-                        disabled />
+                        <x-datepicker wire:model.defer="soHeader.deliverydate" id="deliverydate" :error="'date'" disabled />
                     </div>
                 </div>
             </div>
-
             <div class="row mb-2">
                 <div class="col">
-                    <label class="">วันที่ครบกำหนดชำระ</label>
+                    <label class="">เลขที่ใบกำกับ:</label>
+                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.refno">
+                </div>
+                <div class="col">
+                    <label class="">เลขที่ใบกำกับใหม่:</label>
+                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.invoiceno">
+                </div>
+                <div class="col">
+                    <label class="">วันที่ใบกำกับใหม่:</label>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
                                 <i class="fas fa-calendar"></i>
                             </span>
                         </div>
-                        <x-datepicker wire:model.defer="soHeader.duedate" id="duedatedate" :error="'date'" disabled />
+                        <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoicedate" :error="'date'" disabled />
                     </div>
                 </div>
                 <div class="col">
-                    <label class="">เลขที่ใบสั่งซื้อลูกค้า</label>
-                    <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.refno" readonly>
-                </div>
-                <div class="col">
-                </div>
-                <div class="col">
+                    <label for="account">บัญชีขาย</label>
+                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.salesaccount">
                 </div>
             </div>
-
             <div class="row mb-2">
                 <div class="col-6">
-                    <label class="">ชื่อ</label>
-                    <input type="text" class="form-control form-control-sm mb-1" readonly
-                        wire:model.defer="soHeader.shipname">
+                    <label class="">ชื่อ:</label>
+                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.shipname">
                 </div>
                 <div class="col">
-                    <label class="">ที่อยู่</label>
-                    <textarea class="form-control form-control-sm mb-1" rows="2" readonly
-                        wire:model.defer="soHeader.full_address"></textarea>
+                    <label class="">ที่อยู่:</label>
+                    <textarea class="form-control form-control-sm mb-1" rows="2" readonly wire:model.defer="soHeader.full_address"></textarea>
                 </div>
             </div>
-
-            <div class="row mb-2">
+            <div class="row mb-3">
                 <div class="col">
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.exclusivetax" disabled
-                            wire:change="checkExclusiveTax">
+                        <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.exclusivetax" wire:change="checkExclusiveTax" disabled>
                         <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
                     </div>
                 </div>
@@ -131,7 +121,7 @@
             <!-- .Grid -->
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-striped myGridTB" id="table">
+                    <table class="table table-striped myGridTB">
                         <thead>
                             <tr class="text-center">
                                 <th scope="col">#</th>
@@ -139,8 +129,7 @@
                                 <th scope="col" style="width: 25%;">รายละเอียด</th>
                                 <th scope="col" style="width: 7%;">จำนวน</th>
                                 <th scope="col">ต่อหน่วย</th>
-                                <th scope="col">รวม</th>
-                                <th scope="col">ส่วนลด</th>
+                                <th scope="col">ต่อหน่วยใหม่</th>
                                 <th scope="col" style="width: 5%;">%ภาษี</th>
                                 <th scope="col">ภาษี</th>
                                 <th scope="col">สุทธิ</th>
@@ -153,43 +142,31 @@
                                     {{ $loop->iteration }}
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" readonly
-                                        wire:model.defer="soDetails.{{$index}}.itemid">
+                                    <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.itemid">
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" readonly
-                                        wire:model.defer="soDetails.{{$index}}.description">
+                                    <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.description">
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        readonly style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
+                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.cost">
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.discountamount">
+                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
+                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
                                 </td>
                                 <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
-                                </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
                                 </td>
                                 </td>
-                            </tr>
+                            </tr>                                    
                             @endforeach
                         </tbody>
                         <tfoot>
@@ -199,8 +176,7 @@
                                 <td>ยอดรวม</td>
                                 <td>{{ number_format($sumQuantity,2) }}</td>
                                 <td></td>
-                                <td>{{ number_format($sumAmount,2) }}</td>
-                                <td>{{ number_format($soHeader['discountamount'],2) }}</td>
+                                <td></td>
                                 <td></td>
                                 <td>{{ number_format($soHeader['salestax'],2) }}</td>
                                 <td>{{ number_format($soHeader['sototal'],2) }}</td>

@@ -28,7 +28,7 @@
                 <div class="col">
                     <button type="button" class="btn btn-danger" {{ $btnDelete ? '' : 'disabled' }} 
                         wire:click="confirmDelete">
-                        <i class="fas fa-trash-alt mr-1"></i>ลบใบส่งสินค้า</button>
+                        <i class="fas fa-trash-alt mr-1"></i>ยกเลิกเอกสาร</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" wire:click="pressCancel">
                         <i class="fa fa-times mr-1"></i>ยกเลิก</button>
                 </div>
@@ -137,7 +137,6 @@
                                 <th scope="col" style="width: 5%;">%ภาษี</th>
                                 <th scope="col">ภาษี</th>
                                 <th scope="col">สุทธิ</th>
-                                <th scope="col">ใบกำกับ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -182,11 +181,6 @@
                                     <input type="number" step="0.01" class="form-control form-control-sm" readonly
                                         style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
                                 </td>
-                                <td class="align-middle text-center">
-                                    @if ($soDetails[$index]['soreturn'])
-                                        <i class="fas fa-check"></i>
-                                    @endif
-                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -202,7 +196,6 @@
                                 <td></td>
                                 <td>{{ number_format($soHeader['salestax'],2) }}</td>
                                 <td>{{ number_format($soHeader['sototal'],2) }}</td>
-                                <td></td>
                             <tr>
                         </tfoot>
                     </table>

@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\DB;
 
 class Test3 extends Component
 {
-    public $myOption, $myOption2 = "";
+    public $myOption = "Option4", $myOption2 = "";
 
     public function display()
     {
-        dd($this->myOption . " | " . $this->myOption2);
+        dd($this->myOption);
     }
 
     public function clearValue()
     {
-        $this->myOption = "";
+        $this->dispatchBrowserEvent('clear-select2');
     }
     
     public function render()

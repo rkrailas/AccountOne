@@ -2,6 +2,11 @@
 
     use Illuminate\Support\Facades\DB;
 
+    function getTaxRate()
+    {
+        return 7;
+    }
+
     function getGlNunber($bookid)
     {
         $newGlNo = "";

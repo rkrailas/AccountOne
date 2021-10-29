@@ -149,7 +149,7 @@ class Customer extends Component
                 -> get();
         
         //Convert เป็น Arrat 1 มิติ
-        $this->state = json_decode(json_encode($data[0]), true);       
+        $this->state = json_decode(json_encode($data[0]), true);
 
         $this->dispatchBrowserEvent('show-customerForm');
         $this->dispatchBrowserEvent('clear-select2');
@@ -191,6 +191,7 @@ class Customer extends Component
                 -> orderBy('acctype')
                 -> orderBy('account')
                 -> get();
+                
         $this->accountNosAp_dd = DB::table('account')
                 -> select('account','accname')
                 -> where('detail',TRUE)

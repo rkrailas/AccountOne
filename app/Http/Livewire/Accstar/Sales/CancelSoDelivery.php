@@ -29,7 +29,7 @@ class CancelSoDelivery extends Component
                 from sales 
                 left join customer on sales.customerid=customer.customerid
                 join salesdetaillog on sales.snumber=salesdetaillog.snumber
-                where salesdetaillog.deliveryno='" . $this->deleteNumber . "'";
+                where salesdetaillog.soreturn='G' and salesdetaillog.deliveryno='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) { //ถ้าพบ SO
@@ -169,6 +169,16 @@ class CancelSoDelivery extends Component
         }
     }
 
+    public function reCalculateSummary()
+    {
+        // Summary Gird
+        $this->sumQuantity = array_sum(array_column($this->soDetails,'quantity'));
+        $this->sumAmount = array_sum(array_column($this->soDetails,'amount'));
+        $this->soHeader['discountamount'] = array_sum(array_column($this->soDetails,'discountamount'));
+        $this->soHeader['sototal'] = array_sum(array_column($this->soDetails,'netamount'));
+        $this->soHeader['salestax'] = round(array_sum(array_column($this->soDetails,'taxamount')),2);
+    }
+
     public function mount()
     {
         $this->sumQuantity = 0;
@@ -182,6 +192,13 @@ class CancelSoDelivery extends Component
 
     public function render()
     {
+        // Summary grid     
+        if($this->soDetails != Null)
+        {            
+            $this->reCalculateSummary();
+        }else{
+        }
+
         return view('livewire.accstar.sales.cancel-so-delivery');
     }
 }

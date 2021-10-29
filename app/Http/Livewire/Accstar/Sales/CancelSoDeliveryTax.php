@@ -18,17 +18,15 @@ class CancelSoDeliveryTax extends Component
 
     public function searchDoc()
     {
-        $strsql = "select to_char(taxdata.journaldate,'YYYY-MM-DD') as taxdate
-                , taxdata.gltran, to_char(taxdata.journaldate,'YYYY-MM-DD') as journaldate
-                , sales.snumber, to_char(sales.sodate,'YYYY-MM-DD') as sodate
-                , CONCAT(customer.customerid,': ', customer.name) as shipname
+        $strsql = "select to_char(taxdata.journaldate,'YYYY-MM-DD') as taxdate, taxdata.gltran, to_char(taxdata.journaldate,'YYYY-MM-DD') as journaldate
+                , sales.snumber, to_char(sales.sodate,'YYYY-MM-DD') as sodate, CONCAT(customer.customerid,': ', customer.name) as shipname
                 , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
-                , to_char(sales.duedate,'YYYY-MM-DD') as duedate, sales.exclusivetax
-                , sales.taxontotal, sales.taxrate, sales.salestax, sales.discountamount, sales.sototal
+                , to_char(sales.duedate,'YYYY-MM-DD') as duedate, sales.exclusivetax, sales.taxontotal, sales.taxrate, sales.salestax
+                , sales.discountamount, sales.sototal
                 from sales 
                 left join customer on sales.customerid=customer.customerid
                 join taxdata on sales.snumber = taxdata.reference and taxdata.iscancelled=false
-                where sales.ram_sodeliverytax=true and sales.posted=true
+                where sales.ram_sodeliverytax=true and sales.soreturn='N' and sales.posted=true
                 and taxdata.taxnumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
@@ -74,7 +72,6 @@ class CancelSoDeliveryTax extends Component
     {   
         DB::transaction(function() 
         {
-            //???
             // 1. Update taxdata.iscancelled=true
             DB::statement("UPDATE taxdata SET iscancelled=?, employee_id=?, transactiondate=? 
                 where reference=? and taxnumber=? " 
@@ -187,6 +184,16 @@ class CancelSoDeliveryTax extends Component
         }
     }
 
+    public function reCalculateSummary()
+    {
+        // Summary Gird
+        $this->sumQuantity = array_sum(array_column($this->soDetails,'quantity'));
+        $this->sumAmount = array_sum(array_column($this->soDetails,'amount'));
+        $this->soHeader['discountamount'] = array_sum(array_column($this->soDetails,'discountamount'));
+        $this->soHeader['sototal'] = array_sum(array_column($this->soDetails,'netamount'));
+        $this->soHeader['salestax'] = round(array_sum(array_column($this->soDetails,'taxamount')),2);
+    }
+
     public function mount()
     {
         $this->sumQuantity = 0;
@@ -200,6 +207,13 @@ class CancelSoDeliveryTax extends Component
 
     public function render()
     {
+        // Summary grid     
+        if($this->soDetails != Null)
+        {            
+            $this->reCalculateSummary();
+        }else{
+        }
+
         return view('livewire.accstar.sales.cancel-so-delivery-tax');
     }
 }

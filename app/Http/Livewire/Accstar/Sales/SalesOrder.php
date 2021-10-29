@@ -6,12 +6,13 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 class SalesOrder extends Component
 {
-    use WithPagination; // .Require for Pagination
-    protected $paginationTheme = 'bootstrap'; // .Require for Pagination
+    use WithPagination; // Require for Pagination
+    protected $paginationTheme = 'bootstrap'; // Require for Pagination
 
     protected $listeners = ['deleteConfirmed' => 'delete'];
 
@@ -21,11 +22,10 @@ class SalesOrder extends Component
     public $searchTerm = null;
     
     public $showEditModal = null;
-    public $soHeader = []; //snumber,sonumber,sodate,expirydate,deliverydate,refno,exclusivetax
-                           //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,full_address,shipcost,posted
-    public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
+    public $soHeader = [];
+    public $soDetails = [];
     public $sumQuantity, $sumAmount = 0;
-    public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
+    public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd;
     public $sNumberDelete;
 
     public function updatingNumberOfPage()
@@ -45,19 +45,18 @@ class SalesOrder extends Component
 
     public function addNew()
     {
-        getGlNunber("SO");
-
         $this->showEditModal = FALSE;
         $this->soHeader = [];
         $this->soHeader = ([
             'snumber'=>'', 'sonumber'=>'', 'sodate'=>Carbon::now()->format('Y-m-d'), 'expirydate'=>Carbon::now()->addMonth()->format('Y-m-d')
             , 'deliveryno'=>'', 'deliverydate'=>Carbon::now()->addMonth()->format('Y-m-d'), 'refno'=>'', 'payby'=>'0'
-            , 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>7
-            , 'salestax'=>0, 'discountamount'=>0, 'sototal'=>0, 'customerid'=>'', 'shipcost'=>0, 'shipname'=>'', 'closed'=>false
-            , 'duedate'=>Carbon::now()->addMonth()->format('Y-m-d')
+            , 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>getTaxRate()
+            , 'salestax'=>0, 'discountamount'=>0, 'sototal'=>0, 'customerid'=>'', 'shipcost'=>0, 'shipname'=>'','full_address'=>''
+            , 'closed'=>false, 'duedate'=>Carbon::now()->addMonth()->format('Y-m-d')
         ]);
-        $this->soHeader['snumber'] = getDocNunber("SO");
-        $this->soHeader['sonumber'] = getDocNunber("SO");
+        $xNumber = getDocNunber("SO");
+        $this->soHeader['snumber'] = $xNumber;
+        $this->soHeader['sonumber'] = $xNumber;
 
         $this->soDetails =[];
         $this->addRowInGrid();
@@ -75,13 +74,14 @@ class SalesOrder extends Component
         //สร้าง Row ว่างๆ ใน Gird
         $this->soDetails[] = ([
             'itemid'=>'','description'=>'','quantity'=>0,'salesac'=>'','unitprice'=>0
-            ,'amount'=>0,'discountamount'=>0,'netamount'=>0, 'taxamount'=>0, 'taxrate'=>$this->soHeader['taxrate']
+            ,'amount'=>0,'discountamount'=>0,'netamount'=>0, 'taxamount'=>0, 'taxrate'=>getTaxRate()
         ]);
     }
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {   
         if ($this->showEditModal == true){
+            //===Edit===
             DB::transaction(function () {
                 //Updaate Sales
                 DB::statement("UPDATE sales SET sodate=?, deliverydate=?, expirydate=?, refno=?, sototal=?, salestax=?
@@ -119,9 +119,7 @@ class SalesOrder extends Component
                 $this->dispatchBrowserEvent('hide-SalesOrderForm',['message' => 'Save Successfully!']);
             });
         }else{
-            $this->soHeader['snumber'] = getDocNunber('SO');
-            $this->soHeader['sonumber'] = $this->soHeader['snumber'];
-
+            //===New===
             DB::transaction(function () {
                 //Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, expirydate, deliverydate, refno
@@ -177,7 +175,6 @@ class SalesOrder extends Component
             if(count($data) > 0){
                 $this->soHeader['full_address'] = $data[0]->full_address;
             }
-            
         }
 
         //ตรวจสอบว่าเป็นการแก้ไขข้อมูลที่ Grid หรือไม่
@@ -202,7 +199,7 @@ class SalesOrder extends Component
                 {
                     $this->reCalculateInGrid();    
                 }
-        }        
+        }
     }
 
     public function reCalculateInGrid()
@@ -314,7 +311,7 @@ class SalesOrder extends Component
 
     public function render()
     {
-        // .Summary grid     
+        // Summary grid     
         if($this->soDetails != Null)
         {            
             $this->reCalculateSummary();
@@ -326,9 +323,8 @@ class SalesOrder extends Component
             $this->soHeader['sototal'] = 0;
             $this->soHeader['customerid'] = "";
         }
-        // ./Summary grid 
         
-        // .Bind Data to Dropdown
+        // Bind Data to Dropdown
         $this->itemNos_dd = DB::table('inventory')
         ->select('itemid','description')
         ->orderby('itemid')
@@ -351,26 +347,25 @@ class SalesOrder extends Component
         ->where('debtor',true)
         ->orderBy('customerid')
         ->get();
-        // ./Bind Data to Dropdown
 
-        // .getSalesOrder
+        // getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','snumber','sodate','deliverydate','name','sototal')
+            ->select('sales.id','snumber','sodate','deliverydate','name','sototal','refno')
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
-            ->where('posted', FALSE)
+            ->where('posted', false)
             ->where('soreturn','N')
-            ->where('closed',FALSE)
+            ->where('closed',false)
             ->where('expirydate', '>', Carbon::now()->addDays(-1))
             ->Where(function($query) 
                 {
-                    $query->where('snumber', 'like', '%'.$this->searchTerm.'%')
-                        ->orWhere('sodate', 'like', '%'.$this->searchTerm.'%')
-                        ->orWhere('name', 'like', '%'.$this->searchTerm.'%')
-                        ->orWhere('sototal', 'like', '%'.$this->searchTerm.'%');
+                    $query->where('snumber', 'ilike', '%'.$this->searchTerm.'%')
+                        ->orWhere('sodate', 'ilike', '%'.$this->searchTerm.'%')
+                        ->orWhere('deliverydate', 'ilike', '%'.$this->searchTerm.'%')
+                        ->orWhere('name', 'ilike', '%'.$this->searchTerm.'%')
+                        ->orWhere('sototal', 'ilike', '%'.$this->searchTerm.'%');
                 })
             ->orderBy($this->sortBy,$this->sortDirection)
             ->paginate($this->numberOfPage);
-        // /.getSalesOrder
 
         return view('livewire.accstar.sales.sales-order',[
             'salesOrders' => $salesOrders
