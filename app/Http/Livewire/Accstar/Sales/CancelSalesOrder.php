@@ -26,8 +26,8 @@ class CancelSalesOrder extends Component
                 , taxontotal, posted, salesaccount, taxrate, salestax, discountamount, sototal, customer.customerid, shipcost, closed
                 , to_char(duedate,'YYYY-MM-DD') as dueydate
                 from sales 
-                left join customer on sales.customerid=customer.customerid 
-                where soreturn='N' and sales.snumber='" . $this->deleteNumber . "'";
+                join customer on sales.customerid=customer.customerid 
+                where soreturn='N' and closed=true and sales.snumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) {

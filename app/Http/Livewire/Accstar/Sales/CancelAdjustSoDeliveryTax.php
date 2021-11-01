@@ -24,8 +24,8 @@ class CancelAdjustSoDeliveryTax extends Component
                 , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
                 , exclusivetax, taxontotal, posted, salesaccount, taxrate, salestax, discountamount, sototal, customer.customerid, shipcost, closed
                 from sales 
-                left join customer on sales.customerid=customer.customerid
-                where soreturn='D' and sales.sonumber='" . $this->deleteNumber . "'";
+                join customer on sales.customerid=customer.customerid
+                where soreturn='D' and closed=true and sales.sonumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) { //ถ้าพบ SO

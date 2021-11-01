@@ -33,8 +33,6 @@
                     <label class="mb-0">ถึง:</label>
                     <input type="text" class="form-control form-control-sm"" wire:model.defer="journalNoTo">
                 </div>
-            </div>
-            <div class="row mb-2">
                 <div class="col-3">
                     <label class="mb-0">วันที่ใบกำกับ:</label>
                     <div class="input-group mb-1">
@@ -61,15 +59,38 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <button type="button" class="btn btn-primary" wire:click.prevent="postJournal">
+                    <button type="button" class="btn btn-primary" wire:click.prevent="getJournal">
+                        ดึงข้อมูล</button>
+                    <button type="button" class="btn btn-secondary" wire:click.prevent="reSetPage">
+                        ยกเลิก</button>
+                    <button type="button" class="btn btn-success" {{ $enableBtnPost ? '' : 'disabled'}}
+                        wire:click.prevent="postJournal">
                         ผ่านรายการบัญชี</button>
                 </div>
             </div>
-            <div class="row mt-5">
+            <div class="row mb-2">
                 <div class="col">
+                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    @if ($listPass)
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <strong><i class="fa fa-check-circle mr-1"></i> รายการใบสำคัญ </strong>
+                        <ul>
+                            @foreach ($listPass as $item)
+                            <li> {{ $item['gltran'] }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @endif
                     @if ($listFailed)
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong><i class="fa fa-check-circle mr-1"></i> ใบสำคัญที่ Post ไม่ได้ </strong>
+                        <strong><i class="far fa-times-circle mr-1"></i> รายการใบสำคัญที่มีปัญหา </strong>
                         <ul>
                             @foreach ($listFailed as $item)
                             <li> {{ $item['gltran'] }}</li>
@@ -82,7 +103,7 @@
                     @endif
                     @if ($countPostPass)
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa fa-check-circle mr-1"></i> จำนวนรายการที่ Post ได้ {{ $countPostPass }} รายการ
+                        <i class="fa fa-check-circle mr-1"></i> จำนวนรายการที่ Post {{ $countPostPass }} รายการ
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

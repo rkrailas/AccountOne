@@ -88,12 +88,13 @@ class ReturnGoods extends Component
                 $this->soHeader['shipcost'] = round($this->soHeader['shipcost'], 2);
                 $this->soHeader['salestax'] = round($this->soHeader['salestax'], 2);
                 $this->soHeader['sototal'] = round($this->soHeader['sototal'], 2);
-                $this->soHeader['sonumber'] = "";
-                $this->soHeader['snumber'] = "";
+                $xCnDoc = getCnDocNunber('SO');
+                $this->soHeader['sonumber'] = $xCnDoc;
+                $this->soHeader['snumber'] = $xCnDoc;
                 $this->soHeader['sodate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['deliveryno'] = "";
+                $this->soHeader['deliveryno'] = getGlNunber('SO');
                 $this->soHeader['deliverydate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['invoiceno'] = "";
+                $this->soHeader['invoiceno'] = getCnTaxNunber('SO');
                 $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
                 $this->soHeader['closed'] = false;
                 $this->soHeader['sonote'] = "รับคืนสินค้าจากใบกำกับ " . $this->taxNumber;

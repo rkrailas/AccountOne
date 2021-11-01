@@ -131,7 +131,7 @@
                                 </div>
                                 <div class="col form-group">
                                     <label class=" mr-1">ปิดรายการ:</label>
-                                    <input type="checkbox" wire:model.defer="bankHeader.posted">
+                                    <input type="checkbox" wire:model.defer="bankHeader.posted" {{ $showEditModal ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="row">
@@ -328,9 +328,9 @@
             $('#receiveOnSalesForm').modal('hide');
         })
 
-        window.addEventListener('clear-select2', event => {
-            clearSelect2('customer-dropdown');
-        })
+        // window.addEventListener('clear-select2', event => {
+        //     clearSelect2('customer-dropdown');
+        // })
 
     </script>
 

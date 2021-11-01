@@ -30,8 +30,8 @@ class CancelSoTax extends Component
                 left join customer on sales.customerid=customer.customerid
                 join salesdetaillog on sales.snumber=salesdetaillog.snumber
                 join taxdata on salesdetaillog.taxnumber = taxdata.taxnumber and taxdata.iscancelled=false
-                where salesdetaillog.soreturn='N' and sales.ram_sodeliverytax=false
-                and salesdetaillog.taxnumber='" . $this->deleteNumber . "'";
+                where salesdetaillog.soreturn='N' and sales.ram_sodeliverytax=false and sales.posted=true
+                and sales.ram_sodeliverytax=true and salesdetaillog.taxnumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 
         if (count($data)) { //ถ้าพบ SO

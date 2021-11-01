@@ -11,86 +11,67 @@ class PostJournal extends Component
     public $journalNoFrom, $journalNoTo;
     public $journalDateFrom, $journalDateTo;
     public $listFailed = [];
-    public $listPass = [];
     public $countPostPass = 0;
-    public $sqlWhere;
-    public $enableBtnPost = false;
-
-    // จัดการเงื่อนไข และ Query เอาเฉพาะเลขที่ใบสำคัญ (Group By)
-    // Loop แล้วทำตาม Step ด้านล่าง
-    // Update currentbal ต้องตรวจสอบด้วยว่าจะลบหรือบวก (Dr.หมวด 1,5 Cr.หมวด 2,3,4) 
-    // Update debitp1-24 หรือ creditp1-24 ต้องตรวจสอบว่าอยู่ในงวดบัญชีไหน'
-    // Update currentdebit หรือ currentcredit
-
-    public function reSetPage()
-    {
-        $this->reset(['journalNoFrom', 'journalNoTo', 'journalDateFrom','journalDateTo','listFailed','listPass','countPostPass','sqlWhere','enableBtnPost']);
-    }
-
-    public function getJournal()
-    {
-        // จัดการเงื่อนไขการดึงข้อมูล
-        if ($this->journalNoFrom != "" and $this->journalNoTo == "") {
-            $this->journalNoTo = $this->journalNoFrom;
-        }
-
-        if ($this->journalDateFrom != "" and $this->journalDateTo == "") {
-            $this->journalDateTo = $this->journalDateFrom;
-        }
-
-        $this->sqlWhere = "1=1";
-        if ($this->journalNoFrom != "") {
-            $this->sqlWhere = $this->sqlWhere . " and gltran between '" . $this->journalNoFrom . "' and '" . $this->journalNoTo . "'";
-        }
-
-        if ($this->journalDateFrom != "") {
-            $this->sqlWhere = $this->sqlWhere . " and gjournaldt between '" . $this->journalDateFrom . "' and '" . $this->journalDateTo . "'";
-        }
-
-        // หาใบสำคัญที่ผ่านรายการไม่ได้
-        $strsql = "select gltran from 
-                        (select gltran
-                            from gltran
-                            where (glaccount not in (select account from account)
-                                    or gjournaldt not between (select min(startdate) from perioddetail) 
-                                                        and (select max(enddate) from perioddetail)
-                                )
-                                and " . $this->sqlWhere
-                        . " union all
-                        select gltran from gltran where " . $this->sqlWhere . " group by gltran having sum(gldebit) <> sum(glcredit) ) a
-                    group by a.gltran";
-        $this->listFailed = DB::select($strsql);
-        $this->listFailed = json_decode(json_encode($this->listFailed), true);
-
-        // ทำเป็นเงื่อนไขใบสำคัญที่ต้องยกเว้น
-        $exceptGL = "";
-        for ($i = 0; $i < count($this->listFailed); $i++) {
-            $exceptGL = $exceptGL . "'" . $this->listFailed[$i]['gltran'] . "'";
-            if ($i <> count($this->listFailed) - 1) {
-                $exceptGL = $exceptGL . ',';
-            }
-        }
-
-        if ($exceptGL != "") {
-            $this->sqlWhere = $this->sqlWhere . " and gltran not in (" . $exceptGL . ")";
-        }
-
-        // ดึงรายการ GL ที่ผ่านการตรวจสอบ และแสดงจำนวนรายการ ก่อน Post
-        $strsql = "select gltran from gltran where " . $this->sqlWhere . " group by gltran order by gltran";
-        $this->listPass = DB::select($strsql);
-        $this->listPass = json_decode(json_encode($this->listPass), true);
-        if ($this->listPass){
-            $this->enableBtnPost = true;
-        }
-    }
 
     public function postJournal()
     {
+        // จัดการเงื่อนไข และ Query เอาเฉพาะเลขที่ใบสำคัญ (Group By)
+        // Loop แล้วทำตาม Step ด้านล่าง
+        // Update currentbal ต้องตรวจสอบด้วยว่าจะลบหรือบวก (Dr.หมวด 1,5 Cr.หมวด 2,3,4) 
+        // Update debitp1-24 หรือ creditp1-24 ต้องตรวจสอบว่าอยู่ในงวดบัญชีไหน'
+        // Update currentdebit หรือ currentcredit
+
         DB::transaction(function () {
-            // ดึงรายการ GL ที่ผ่านการตรวจสอบ
+            // จัดการเงื่อนไขการดึงข้อมูล
+            if ($this->journalNoFrom != "" and $this->journalNoTo == "") {
+                $this->journalNoTo = $this->journalNoFrom;
+            }
+
+            if ($this->journalDateFrom != "" and $this->journalDateTo == "") {
+                $this->journalDateTo = $this->journalDateFrom;
+            }
+
+            $xWhere = "1=1";
+            if ($this->journalNoFrom != "") {
+                $xWhere = $xWhere . " and gltran between '" . $this->journalNoFrom . "' and '" . $this->journalNoTo . "'";
+            }
+
+            if ($this->journalDateFrom != "") {
+                $xWhere = $xWhere . " and gjournaldt between '" . $this->journalDateFrom . "' and '" . $this->journalDateTo . "'";
+            }
+
+            // หาใบสำคัญที่ผ่านรายการไม่ได้
+            $strsql = "select gltran from 
+                            (select gltran
+                                from gltran
+                                where (glaccount not in (select account from account)
+                                        or gjournaldt not between (select min(startdate) from perioddetail) 
+                                                            and (select max(enddate) from perioddetail)
+                                       )
+                                       and " . $xWhere
+                            . " union all
+                            select gltran from gltran where " . $xWhere . " group by gltran having sum(gldebit) <> sum(glcredit) ) a
+                        group by a.gltran";
+            $this->listFailed = DB::select($strsql);
+            $this->listFailed = json_decode(json_encode($this->listFailed), true);
+
+            // ทำเป็นเงื่อนไขใบสำคัญที่ต้องยกเว้น
+            $exceptGL = "";
+            for ($i = 0; $i < count($this->listFailed); $i++) {
+                $exceptGL = $exceptGL . "'" . $this->listFailed[$i]['gltran'] . "'";
+                if ($i <> count($this->listFailed) - 1) {
+                    $exceptGL = $exceptGL . ',';
+                }
+            }
+
+            if ($exceptGL != "") {
+                $xWhere = $xWhere . " and gltran not in (" . $exceptGL . ")";
+            }
+
+            // ผ่านรายการ GL ที่ผ่านการตรวจสอบ
             $gltran = DB::table('gltran')
                 ->select('gltran.*', 'account.acctype', 'perioddetail.period')
-                ->whereRaw($this->sqlWhere)
+                ->whereRaw($xWhere)
                 ->Join('account', 'gltran.glaccount', '=', 'account.account')
                 ->Join('perioddetail', function ($join) {
                     $join->on('perioddetail.startdate', '<=', 'gltran.gjournaldt');
@@ -101,7 +82,7 @@ class PostJournal extends Component
             $gltran = json_decode(json_encode($gltran), true);
 
 
-            //ดึงยอดในงบทดลอง
+            //ปรับยอดในงบทดลอง
             $account = DB::table('account')
                 ->select('*')
                 ->where('detail', true)

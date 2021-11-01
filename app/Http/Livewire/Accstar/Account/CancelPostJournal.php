@@ -12,40 +12,59 @@ class CancelPostJournal extends Component
     public $journalDateFrom, $journalDateTo;
     public $postDateFrom, $postDateTo;
     public $countCancelPostPass = 0;
+    public $enableBtnCancelPost = false;
+    public $listPass = [];
+    public $sqlWhere;
+
+    public function reSetPage()
+    {
+        $this->reset(['journalNoFrom', 'journalNoTo', 'journalDateFrom','journalDateTo','postDateFrom','postDateTo'
+                    ,'countCancelPostPass','sqlWhere','enableBtnCancelPost','listPass']);
+    }
+
+    public function getJournal()
+    {
+        // จัดการเงื่อนไขการดึงข้อมูล
+        if ($this->journalNoFrom != "" and $this->journalNoTo == "") {
+            $this->journalNoTo = $this->journalNoFrom;
+        }
+
+        if ($this->journalDateFrom != "" and $this->journalDateTo == "") {
+            $this->journalDateTo = $this->journalDateFrom;
+        }
+
+        if ($this->postDateFrom != "" and $this->postDateTo == "") {
+            $this->postDateTo = $this->postDateFrom;
+        }
+
+        $this->sqlWhere = "1=1";
+        if ($this->journalNoFrom != "") {
+            $this->sqlWhere = $this->sqlWhere . " and gltran between '" . $this->journalNoFrom . "' and '" . $this->journalNoTo . "'";
+        }
+
+        if ($this->journalDateFrom != "") {
+            $this->sqlWhere = $this->sqlWhere . " and gjournaldt between '" . $this->journalDateFrom . "' and '" . $this->journalDateTo . "'";
+        }
+
+        if ($this->postDateFrom != "") {
+            $this->sqlWhere = $this->sqlWhere . " and to_char(glmast.transactiondate,'YYYY-MM-DD') between '" . $this->postDateFrom . "' and '" . $this->postDateTo . "'";
+        }
+
+        $strsql = "select gltran from glmast where " . $this->sqlWhere . " group by gltran order by gltran";
+        $this->listPass = DB::select($strsql);
+        $this->listPass = json_decode(json_encode($this->listPass), true);
+        if ($this->listPass){
+            $this->enableBtnCancelPost = true;
+        }
+    }
 
     public function cancelPostJournal()
     {
         DB::transaction(function () {
-            // จัดการเงื่อนไขการดึงข้อมูล
-            if ($this->journalNoFrom != "" and $this->journalNoTo == "") {
-                $this->journalNoTo = $this->journalNoFrom;
-            }
-
-            if ($this->journalDateFrom != "" and $this->journalDateTo == "") {
-                $this->journalDateTo = $this->journalDateFrom;
-            }
-
-            if ($this->postDateFrom != "" and $this->postDateTo == "") {
-                $this->postDateTo = $this->postDateFrom;
-            }
-
-            $xWhere = "1=1";
-            if ($this->journalNoFrom != "") {
-                $xWhere = $xWhere . " and gltran between '" . $this->journalNoFrom . "' and '" . $this->journalNoTo . "'";
-            }
-
-            if ($this->journalDateFrom != "") {
-                $xWhere = $xWhere . " and gjournaldt between '" . $this->journalDateFrom . "' and '" . $this->journalDateTo . "'";
-            }
-
-            if ($this->postDateFrom != "") {
-                $xWhere = $xWhere . " and to_char(glmast.transactiondate,'YYYY-MM-DD') between '" . $this->postDateFrom . "' and '" . $this->postDateTo . "'";
-            }
-
             // ยกเลิกผ่านรายการ GL
             $glmast = DB::table('glmast')
                 ->select('glmast.*', 'account.acctype', 'perioddetail.period')
-                ->whereRaw($xWhere)
+                ->whereRaw($this->sqlWhere)
                 ->Join('account', 'glmast.glaccount', '=', 'account.account')
                 ->Join('perioddetail', function ($join) {
                     $join->on('perioddetail.startdate', '<=', 'glmast.gjournaldt');

@@ -123,7 +123,7 @@ class SoTax extends Component
 
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
-            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
+            , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
             , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
@@ -169,7 +169,9 @@ class SoTax extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName, 'gldescription' => 'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => '', 'transactiondate' => Carbon::now()
+                'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName
+                , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => '', 'department' => ''
+                , 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => '', 'transactiondate' => Carbon::now()
             ]);
         }
   
@@ -207,7 +209,7 @@ class SoTax extends Component
 
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
-            , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
+            , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
             , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
@@ -273,7 +275,7 @@ class SoTax extends Component
         
                 $this->genGLs[] = ([
                     'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
-                    , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit
+                    , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit
                     , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                     , 'transactiondate'=>Carbon::now()
                 ]);  
@@ -313,7 +315,7 @@ class SoTax extends Component
     
             $this->genGLs[] = ([
                 'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
-                , 'gldescription'=>'ขายสินค้า' . '-' . $this->soHeader['snumber'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
+                , 'gldescription'=> $this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
                 , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
@@ -332,8 +334,12 @@ class SoTax extends Component
     {   
         if ($this->showEditModal == true){
             DB::transaction(function () {
+                // Sales
+                DB::statement("UPDATE sales SET sonote=?,posted=?,employee_id=?,transactiondate=?
+                    where snumber=?" 
+                    , [$this->soHeader['sonote'], true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
 
-                //Insert Taxdata
+                // Taxdata
                 DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
                             ,description,amountcur,amount,taxamount,duedate,purchase,posted
                             ,isinputtax,totalamount,employee_id,transactiondate)
@@ -343,11 +349,11 @@ class SoTax extends Component
                     , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
                     , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
 
-                //Update Salesdetaillog 
+                // Salesdetaillog 
                 foreach ($this->soDetails as $soDetails2)
                 {
                     DB::statement("UPDATE salesdetaillog SET taxnumber=?,soreturn=?,employee_id=?,transactiondate=?
-                                where id=?" 
+                        where id=?" 
                         , [$this->soHeader['invoiceno'], 'N', 'Admin', Carbon::now(), $soDetails2['id']]);
                 }
 
@@ -461,7 +467,7 @@ class SoTax extends Component
                         , to_char(sales.duedate,'YYYY-MM-DD') as duedate, customer.name, customer.customerid
                         , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
                         , to_char(sales.journaldate,'YYYY-MM-DD') as journaldate, sales.exclusivetax, sales.taxontotal, sales.taxrate, sales.salestax
-                        , sales.discountamount, sales.sototal, sales.shipcost")
+                        , sales.discountamount, sales.sototal, sales.shipcost, sales.sonote")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('sales.snumber', $sNumber)
             ->where('sales.soreturn', 'N')
@@ -476,6 +482,9 @@ class SoTax extends Component
         $this->soHeader['invoicedate'] = Carbon::now()->addMonth()->format('Y-m-d');
         $this->soHeader['gltran'] = getGlNunber("SO"); //Add New Field
         $this->soHeader['journaldate'] = Carbon::now()->addMonth()->format('Y-m-d');
+        if ($this->soHeader['sonote'] == null) {
+            $this->soHeader['sonote'] = 'ขายสินค้าตามใบกำกับ-' . $this->soHeader['invoiceno'];
+        }
         
         //soDetails
         $data2 = DB::table('salesdetaillog')

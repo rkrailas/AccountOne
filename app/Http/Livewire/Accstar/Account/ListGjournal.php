@@ -18,6 +18,9 @@ class ListGjournal extends Component
     public $numberOfPage = 10;
     public $searchTerm = null;
 
+    protected $listeners = ['deleteConfirmed' => 'delete'];
+    public $sNumberDelete;
+
     public $showEditModal = null;
     public $journalDetails = []; //รายละเอียดของใบสำคัญนั้น ๆ
     public $allocations,$accountNos,$journals; //ตัวแปร Dropdown
@@ -59,6 +62,19 @@ class ListGjournal extends Component
         $this->showEditModal = FALSE;
         $this->addRow();
         $this->dispatchBrowserEvent('show-formJournal'); //แสดง Model Form
+    }
+
+    public function confirmDelete($snumber) //แสดง Modal ยืนยันการลบใบสั่งขาย
+    {
+        $this->sNumberDelete = $snumber;
+        $this->dispatchBrowserEvent('delete-confirmation');
+    }
+
+    public function delete() //กดปุ่ม Delete ที่ List รายการ
+    {
+        DB::transaction(function () {
+            DB::table('gltran')->where('gltran', $this->sNumberDelete)->delete();
+        });
     }
 
     public function edit($gltranNo) //จากการกดปุ่ม Edit ที่ List รายการ

@@ -24,9 +24,9 @@ class CancelSoDeliveryTax extends Component
                 , to_char(sales.duedate,'YYYY-MM-DD') as duedate, sales.exclusivetax, sales.taxontotal, sales.taxrate, sales.salestax
                 , sales.discountamount, sales.sototal
                 from sales 
-                left join customer on sales.customerid=customer.customerid
+                join customer on sales.customerid=customer.customerid
                 join taxdata on sales.snumber = taxdata.reference and taxdata.iscancelled=false
-                where sales.ram_sodeliverytax=true and sales.soreturn='N' and sales.posted=true
+                where sales.soreturn='N' and sales.posted=true
                 and taxdata.taxnumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 

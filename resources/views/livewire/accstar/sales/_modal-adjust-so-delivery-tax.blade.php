@@ -163,22 +163,22 @@
                                             <input type="text" class="form-control form-control-sm" wire:model.defer="soDetails.{{$index}}.description">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.quantity">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.unitprice">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.cost">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.cost">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.taxrate">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
                                         </td>
                                         </td>
                                         <td class="align-middle text-center">

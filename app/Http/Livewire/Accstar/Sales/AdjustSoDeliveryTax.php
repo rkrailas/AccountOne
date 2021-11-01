@@ -88,11 +88,11 @@ class AdjustSoDeliveryTax extends Component
                 $this->soHeader['shipcost'] = round($this->soHeader['shipcost'], 2);
                 $this->soHeader['salestax'] = round($this->soHeader['salestax'], 2);
                 $this->soHeader['sototal'] = round($this->soHeader['sototal'], 2);
-                $this->soHeader['sonumber'] = "";
+                $this->soHeader['sonumber'] = getCnDocNunber('SO');
                 $this->soHeader['sodate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['deliveryno'] = "";
+                $this->soHeader['deliveryno'] = getGlNunber('SO');
                 $this->soHeader['deliverydate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['invoiceno'] = "";
+                $this->soHeader['invoiceno'] = getCnTaxNunber('SO');
                 $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
                 $this->soHeader['closed'] = false;
                 $this->soHeader['sonote'] = "ปรับปรุงราคาขายใบกำกับ " . $this->taxNumber;

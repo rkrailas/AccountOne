@@ -22,13 +22,10 @@ class ReceiveOnSales extends Component
     public $showEditModal = null;
     public $customers_dd, $taxTypes_dd, $accountNos_dd; //Dropdown
     public $sNumberDelete;
-    public $bankHeader = []; //gltran,gjournaldt,documentref,customerid,customername,addressl1,addressl2,addressl3,amount,findiscount,fincharge,feeamt,payby
-                            //,journal,bookid,account,accountcus,accounttax,accountcharge,accountdis,accountfee,taxscheme,witholdamt,witholdtax,witholdtaxrate
-                            //,taxscheme1,witholdamt1,witholdtax1,witholdtaxrate1,taxtype,taxrunningno,posted,department,notes  
-    public $bankDetails = []; //gltran,description,balance,findiscount,amount,journal(B1),taxref,tax,taxdate,bookid(R1),taxdataid,totalamount
+    public $bankHeader = [];
+    public $bankDetails = [];
     public $sumPlus, $sumDeduct, $sumBalance, $sumAR = 0;
-    public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
-                        //, allcated, currencyid, posted, bookid, employee_id, transactiondate
+    public $genGLs = []; 
     public $sumDebit, $sumCredit = 0;
 
     public function getBalance($index)
@@ -57,7 +54,7 @@ class ReceiveOnSales extends Component
         $this->sumDebit = 0;
         $this->sumCredit = 0;
 
-        // .Dr เงินสดหรือเงินฝากธนาคาร 
+        // 1.Dr เงินสดหรือเงินฝากธนาคาร 
         if ($this->bankHeader['amount']) {
             $accountCode = "";
             $accountName = "";
@@ -84,9 +81,8 @@ class ReceiveOnSales extends Component
                 , 'bookid'=>'', 'employee_id'=>'Admin', 'transactiondate'=>Carbon::now()
             ]);
         }        
-        // /.Dr เงินสดหรือเงินฝากธนาคาร 
 
-        // .Dr.ภาษีถูกหัก ณ ที่จ่าย 
+        // 2.Dr.ภาษีถูกหัก ณ ที่จ่าย 
         if ($this->bankHeader['witholdtax']) {
             $accountCode = "";
             $accountName = "";
@@ -113,9 +109,8 @@ class ReceiveOnSales extends Component
                 , 'bookid'=>'', 'employee_id'=>'Admin', 'transactiondate'=>Carbon::now()
             ]);
         }        
-        // /.Dr.ภาษีถูกหัก ณ ที่จ่าย 
 
-        // .Dr.ส่วนลดจ่าย
+        // 3.Dr.ส่วนลดจ่าย
         if ($this->bankHeader['findiscount']) {
             $accountCode = "";
             $accountName = "";
@@ -142,9 +137,8 @@ class ReceiveOnSales extends Component
                 , 'bookid'=>'', 'employee_id'=>'Admin', 'transactiondate'=>Carbon::now()
             ]);
         }        
-        // /.Dr.ส่วนลดจ่าย
 
-        // .Dr.ค่าธรรมเนียม
+        // 4.Dr.ค่าธรรมเนียม
         if ($this->bankHeader['feeamt']) {
             $accountCode = "";
             $accountName = "";
@@ -171,9 +165,8 @@ class ReceiveOnSales extends Component
                 , 'bookid'=>'', 'employee_id'=>'Admin', 'transactiondate'=>Carbon::now()
             ]);
         }        
-        // /.Dr.ค่าธรรมเนียม
 
-        // .Cr.ค่าปรับ (รายได้เบ็ดเตล็ด)
+        // 5.Cr.ค่าปรับ (รายได้เบ็ดเตล็ด)
         if ($this->bankHeader['fincharge']) {
             $accountCode = "";
             $accountName = "";
@@ -200,16 +193,14 @@ class ReceiveOnSales extends Component
                 , 'bookid'=>'', 'employee_id'=>'Admin', 'transactiondate'=>Carbon::now()
             ]);
         }        
-        // /.Cr.ค่าปรับ (รายได้เบ็ดเตล็ด)
 
-        // .Cr.ลูกหนี้การค้า //account = $bankHeader['accountcus'] or buyer.account or controldef.account where id='AR'
+        // 6.Cr.ลูกหนี้การค้า //account = $bankHeader['accountcus'] or buyer.account or controldef.account where id='AR'
         if ($this->sumAR) {
             $accountCode = "";
             $accountName = "";
     
             if ($this->bankHeader['accountcus']){
                 $accountCode = $this->bankHeader['accountcus'];
-    
             }else{
                 $data = DB::table('buyer')
                 ->select("account")
@@ -229,7 +220,7 @@ class ReceiveOnSales extends Component
                     }
                 }
             }
-    
+
             if ($accountCode != ""){          
                 $data = DB::table('account')
                     ->select("accnameother")
@@ -280,7 +271,7 @@ class ReceiveOnSales extends Component
             ,'addressl1'=>'','addressl2'=>'','addressl3'=>'','amount'=>0,'findiscount'=>0,'fincharge'=>0,'feeamt'=>0,'payby'=>''
             ,'journal'=>'JR','bookid'=>'R1','account'=>'','accountcus'=>'','accounttax'=>'','accountcharge'=>'','accountdis'=>'','accountfee'=>''
             ,'taxscheme'=>'','witholdamt'=>0,'witholdtax'=>0,'witholdtaxrate'=>0,'taxscheme1'=>'','witholdamt1'=>0,'witholdtax1'=>0,'witholdtaxrate1'=>0
-            ,'taxtype'=>'2','taxrunningno'=>'','posted'=>false,'department'=>'','notes'=>''      
+            ,'taxtype'=>'2','taxrunningno'=>'','posted'=>false,'department'=>'','notes'=>'', 'gltran'=>getGlNunber('JR')
         ]);
 
         $data = DB::table('customer')
@@ -322,40 +313,56 @@ class ReceiveOnSales extends Component
     public function createUpdateReceiveOnSales()
     {
         if ($this->showEditModal == true){
-            DB::transaction(function () {
-
-                // .Table Bank
+            //===Edit===
+            DB::transaction(function () {                
+                // Bank
+                $xAmount = $this->bankHeader['amount'] - ($this->bankHeader['witholdtax'] + $this->bankHeader['witholdtax1']);
                 DB::statement("UPDATE bank SET gjournaldt=?, payby=?, documentref=?, taxrunningno=?
                             , taxscheme=?, witholdamt=?, witholdtax=?, witholdtaxrate=?
                             , taxscheme1=?, witholdamt1=?, witholdtax1=?, witholdtaxrate1=?
                             , account=?, accountcus=?, accounttax=?, accountcharge=?, accountdis=?, accountfee=?
-                            , employee_id=?, transactiondate=?, posted=?
+                            , employee_id=?, transactiondate=?, posted=?, amount=?
                             where gltran=?" 
                 , [$this->bankHeader['gjournaldt'], $this->bankHeader['payby'], $this->bankHeader['documentref'], $this->bankHeader['taxrunningno']
                 , $this->bankHeader['taxscheme'], $this->bankHeader['witholdamt'], $this->bankHeader['witholdtax'], $this->bankHeader['witholdtaxrate']
                 , $this->bankHeader['taxscheme1'], $this->bankHeader['witholdamt1'], $this->bankHeader['witholdtax1'], $this->bankHeader['witholdtaxrate1']
                 , $this->bankHeader['account'], $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge']
                 , $this->bankHeader['accountdis'], $this->bankHeader['accountfee']
-                , 'Admin', Carbon::now(), $this->bankHeader['posted'], $this->bankHeader['gltran']]);
-                // /.Table Bank
+                , 'Admin', Carbon::now(), $this->bankHeader['posted'], $xAmount, $this->bankHeader['gltran']]);
 
-                // .Table Bankdetail
+                //===ปิดรายกาาร===
+                if ($this->bankHeader['posted']) {
+                    DB::table('gltran')->insert($this->genGLs);
+                }
+                
+                // Bankdetail & Taxdata
                 foreach ($this->bankDetails as $row)
                 {
-                    DB::statement("UPDATE bankdetail SET amount=?, employee_id=?, transactiondate=?
-                    where id=?" 
-                    , [$row['amount'], 'Admin', Carbon::now(), $row['id']]);
+                    if ($this->bankHeader['posted']) {
+                        //===ปิดรายกาาร===
+                        DB::statement("UPDATE bankdetail SET amount=?, employee_id=?, transactiondate=?
+                        where id=?" 
+                        , [$row['amount'], 'Admin', Carbon::now(), $row['id']]);
+
+                        DB::statement("UPDATE taxdata SET paidamount=?, paiddate=?, employee_id=?, transactiondate=?
+                        where id=?" 
+                        , [$row['amount'], $this->bankHeader['gjournaldt'], 'Admin', Carbon::now(), $row['taxdataid']]);
+                    }else{
+
+                        DB::statement("UPDATE bankdetail SET amount=?, employee_id=?, transactiondate=?
+                        where id=?" 
+                        , [$row['amount'], 'Admin', Carbon::now(), $row['id']]);
+                    }                    
                 }
-                // /.Table Bankdetail
 
                 $this->dispatchBrowserEvent('hide-receiveOnSalesForm');
                 $this->dispatchBrowserEvent('alert',['message' => 'Save Successfully!']);
             });
 
         }else{
+            //===Insert====
             DB::transaction(function () {
-
-                // .Table Bank
+                // Bank
                 $xGLNumber = getGlNunber('JR');
                 DB::statement("INSERT INTO bank(gltran, gjournaldt, documentref, customerid, customername, addressl1, addressl2, addressl3
                 , amount, findiscount, fincharge, feeamt, payby, journal, bookid, account, accountcus, accounttax, accountcharge, accountdis
@@ -368,9 +375,9 @@ class ReceiveOnSales extends Component
                 , $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge'], $this->bankHeader['accountdis']
                 , $this->bankHeader['accountfee'], $this->bankHeader['taxscheme'], $this->bankHeader['witholdamt'], $this->bankHeader['witholdtax']
                 , $this->bankHeader['witholdtaxrate'], 'Admin', Carbon::now()]); 
-                // /.Table Bank
 
-                // .Table Bankdetail
+
+                // Bankdetail
                 //gltran,description,balance,findiscount,amount,journal(B1),taxref,tax,taxdate,bookid(R1),taxdataid,totalamount
                 
                 for($i=0; $i<count($this->bankDetails);$i++)
@@ -387,7 +394,6 @@ class ReceiveOnSales extends Component
                         , 'Admin', Carbon::now()]); 
                     }                    
                 }  
-                // /.Table Bankdetail
 
                 $this->dispatchBrowserEvent('hide-receiveOnSalesForm');
                 $this->dispatchBrowserEvent('alert',['message' => 'Save Successfully!']);
@@ -542,46 +548,52 @@ class ReceiveOnSales extends Component
         $this->showEditModal = TRUE;
         $this->clearValue();
 
-        // .bankHeader
-        $data = DB::table('bank')
-            ->selectRaw("gltran, to_char(gjournaldt,'YYYY-MM-DD') as gjournaldt, customerid, customername, documentref, amount
-                        , taxscheme, witholdamt, witholdtax, witholdtaxrate, taxscheme1, witholdamt1, witholdtax1, witholdtaxrate1
-                        , payby, account, accountcus, accounttax, taxrunningno, posted
-                        , fincharge, findiscount, feeamt, accountcharge, accountdis, accountfee")
-            ->where('gltran', $gltran)
-            ->get();
-        $this->bankHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
+        // bankHeader
+        $strsql = "select gltran, to_char(gjournaldt,'YYYY-MM-DD') as gjournaldt, customerid, customername, documentref, amount
+            , taxscheme, witholdamt, witholdtax, witholdtaxrate, taxscheme1, witholdamt1, witholdtax1, witholdtaxrate1
+            , payby, account, accountcus, accounttax, taxrunningno, posted
+            , fincharge, findiscount, feeamt, accountcharge, accountdis, accountfee
+            from bank 
+            where gltran='" . $gltran . "'";
+        $data = DB::select($strsql);
 
-        $this->bankHeader['amount'] = round($this->bankHeader['amount'],2);
-        $this->bankHeader['witholdamt'] = round($this->bankHeader['witholdamt'],2);
-        $this->bankHeader['witholdtax'] = round($this->bankHeader['witholdtax'],2);
-        $this->bankHeader['witholdtaxrate'] = round($this->bankHeader['witholdtaxrate'],2);
-        $this->bankHeader['witholdamt1'] = round($this->bankHeader['witholdamt1'],2);
-        $this->bankHeader['witholdtax1'] = round($this->bankHeader['witholdtax1'],2);
-        $this->bankHeader['witholdtaxrate1'] = round($this->bankHeader['witholdtaxrate1'],2);
-        $this->bankHeader['fincharge'] = round($this->bankHeader['fincharge'],2);
-        $this->bankHeader['findiscount'] = round($this->bankHeader['findiscount'],2);
-        $this->bankHeader['feeamt'] = round($this->bankHeader['feeamt'],2);
-        // /.bankHeader
+        if (count($data) > 0){
+            $this->bankHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
 
-        // .bankDetails
-        $data = DB::table('bankdetail')
-            ->select('bankdetail.id', 'bankdetail.taxref', 'bankdetail.description', 'bankdetail.balance', 'bankdetail.amount', 'bankdetail.tax'
-                    , 'taxdata.amount as oriamount', 'taxdata.taxamount as oritax')
-            ->Join('taxdata', 'bankdetail.taxdataid', '=', 'taxdata.id')
-            ->where('bankdetail.gltran', $gltran)
-            ->get();
-        $this->bankDetails = json_decode(json_encode($data), true); 
+            $this->bankHeader['amount'] = round($this->bankHeader['amount'],2);
+            $this->bankHeader['witholdamt'] = round($this->bankHeader['witholdamt'],2);
+            $this->bankHeader['witholdtax'] = round($this->bankHeader['witholdtax'],2);
+            $this->bankHeader['witholdtaxrate'] = round($this->bankHeader['witholdtaxrate'],2);
+            $this->bankHeader['witholdamt1'] = round($this->bankHeader['witholdamt1'],2);
+            $this->bankHeader['witholdtax1'] = round($this->bankHeader['witholdtax1'],2);
+            $this->bankHeader['witholdtaxrate1'] = round($this->bankHeader['witholdtaxrate1'],2);
+            $this->bankHeader['fincharge'] = round($this->bankHeader['fincharge'],2);
+            $this->bankHeader['findiscount'] = round($this->bankHeader['findiscount'],2);
+            $this->bankHeader['feeamt'] = round($this->bankHeader['feeamt'],2);
 
-        for($i=0; $i<count($this->bankDetails);$i++)
-        {
-            $this->bankDetails[$i]['balance'] = round($this->bankDetails[$i]['balance'],2);
-            $this->bankDetails[$i]['amount'] = round($this->bankDetails[$i]['amount'],2);
+            $this->calPlusDeduct();
         }
-        // /.bankDetails
+
+        // bankDetails
+        $strsql = "select bankdetail.id, bankdetail.taxref, bankdetail.description, bankdetail.balance, bankdetail.amount, bankdetail.tax
+            , taxdata.amount as oriamount, taxdata.taxamount as oritax, bankdetail.taxdataid
+            from bankdetail
+            join taxdata on bankdetail.taxdataid = taxdata.id
+            where bankdetail.gltran = '" . $gltran . "'";
+        $data = DB::select($strsql);
+
+        if(count($data) > 0){
+            $this->bankDetails = json_decode(json_encode($data), true); 
+
+            for($i=0; $i<count($this->bankDetails);$i++)
+            {
+                $this->bankDetails[$i]['balance'] = round($this->bankDetails[$i]['balance'],2);
+                $this->bankDetails[$i]['amount'] = round($this->bankDetails[$i]['amount'],2);
+            }
+        }
 
         $this->dispatchBrowserEvent('show-receiveOnSalesForm'); //แสดง Model Form
-        $this->dispatchBrowserEvent('clear-select2');
+        //$this->dispatchBrowserEvent('clear-select2');
     }
 
     public function confirmDelete($gltran) //แสดง Modal ยืนยันการลบ
@@ -604,7 +616,7 @@ class ReceiveOnSales extends Component
         // .Summary grid     
         if($this->bankDetails != Null)
         {
-            $this->calculateSummary();            
+            $this->calculateSummary();
         }else{
             $this->clearValue();
         }

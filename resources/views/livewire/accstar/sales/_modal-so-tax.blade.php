@@ -23,11 +23,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="row ">
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">เลขที่ใบสั่งขาย:</label>
                             <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.snumber">
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">วันที่ใบสั่งขาย:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
@@ -38,17 +38,17 @@
                                 <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'" disabled />
                             </div>
                         </div>
-                        <div class="col">
-                        </div>
-                        <div class="col">                            
+                        <div class="col-6">
+                            <label class="">คำอธิบายรายการ:</label>
+                            <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.sonote">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">เลขที่ใบสำคัญ:</label>
                             <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.gltran">
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">วันที่ใบสำคัญ</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
@@ -59,11 +59,11 @@
                                 <x-datepicker wire:model.defer="soHeader.journaldate" id="journaldate" :error="'date'" required />
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">เลขที่ใบกำกับ:</label>
                             <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">วันที่ใบกำกับ:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
@@ -92,7 +92,7 @@
                                 </x-select2>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-6">
                             <label class="">ที่อยู่:</label>
                             <textarea class="form-control form-control-sm mb-1" rows="2" readonly wire:model.defer="soHeader.full_address"></textarea>
                         </div>
@@ -142,25 +142,25 @@
                                             <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.description">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.quantity">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.unitprice">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly readonly style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.amount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.discountamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.discountamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxrate">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
                                         </td>
                                         </td>
                                         <td class="align-middle text-center">

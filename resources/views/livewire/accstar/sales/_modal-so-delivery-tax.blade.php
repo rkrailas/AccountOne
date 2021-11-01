@@ -23,11 +23,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="row ">
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">เลขที่ใบสั่งขาย:</label>
                             <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.snumber">
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">วันที่ใบสั่งขาย:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
@@ -38,28 +38,17 @@
                                 <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'" required />
                             </div>
                         </div>
-                        <div class="col">
-                            <label class="">เลขที่ใบสำคัญ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.deliveryno">
-                        </div>
-                        <div class="col">
-                            <label class="">วันที่ใบสำคัญ:</label>
-                            <div class="input-group mb-1">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-calendar"></i>
-                                    </span>
-                                </div>
-                                <x-datepicker wire:model.defer="soHeader.journaldate" id="journaldate" :error="'date'" required />
-                            </div>
+                        <div class="col-6">
+                            <label class="">คำอธิบายรายการ:</label>
+                            <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.sonote">
                         </div>
                     </div>
                     <div class="row ">
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">เลขที่ใบกำกับ:</label>
                             <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <label class="">วันที่ใบกำกับ:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
@@ -70,28 +59,20 @@
                                 <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoiceDate" :error="'date'" required />
                             </div>
                         </div>
-                        <div class="col">
-                            <label class="">วันที่ครบกำหนด:</label>
+                        <div class="col-3">
+                            <label class="">เลขที่ใบสำคัญ:</label>
+                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.deliveryno">
+                        </div>
+                        <div class="col-3">
+                            <label class="">วันที่ใบสำคัญ:</label>
                             <div class="input-group mb-1">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
                                         <i class="fas fa-calendar"></i>
                                     </span>
                                 </div>
-                                <x-datepicker wire:model.defer="soHeader.duedate" id="dueDate" :error="'date'" required />
+                                <x-datepicker wire:model.defer="soHeader.journaldate" id="journaldate" :error="'date'" required />
                             </div>
-                        </div>
-                        <div class="col">
-                            <label class="">การชำระเงิน:</label>
-                            <select class="form-control form-control-sm mb-1" wire:model.defer="soHeader.payby">
-                                <option value="0" selected>ยังไม่ชำระ</option>
-                                <option value="1">เงินสด</option>
-                                <option value="2">เช็ค</option>
-                                <option value="3">บัตรเครดิต</option>
-                                <option value="4">โอนเงิน</option>
-                                <option value="5">อื่่น ๆ</option>
-                                <option value="9">รวม</option>
-                            </select>
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -111,7 +92,7 @@
                                 </x-select2>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-6">
                             <label class="">ที่อยู่:</label>
                             <textarea class="form-control form-control-sm mb-1" rows="2" readonly wire:model.defer="soHeader.full_address"></textarea>
                         </div>
@@ -185,19 +166,19 @@
                                             <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required readonly style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.amount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.discountamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.discountamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.taxrate">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
                                         </td>
                                         </td>
                                         <td class="align-middle text-center">

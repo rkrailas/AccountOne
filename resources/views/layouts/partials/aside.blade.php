@@ -305,7 +305,7 @@
             <li class="nav-item">
               <a href="{{ route('accstar.account.cancelpostjournal') }}"
                 class="nav-link {{ request()->is('accstar/account/cancelpostjournal') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
+                <i class="far fa-times-circle nav-icon-submenu" aria-hidden="true"></i>
                 <p>ยกเลิกผ่านรายการบัญชี</p>
               </a>
             </li>

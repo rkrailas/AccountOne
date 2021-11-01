@@ -115,6 +115,9 @@
                                     <a href="" wire:click.prevent="edit('{{ $gltran->gltran }}')">
                                         <i class="fa fa-edit mr-2"></i>
                                     </a>
+                                    <a href="" wire:click.prevent="confirmDelete('{{ $gltran->gltran }}')">
+                                        <i class="fa fa-trash text-danger"></i>
+                                    </a>
                                 </td>
                             </tr>
                             @endforeach
