@@ -4,7 +4,7 @@
         <form autocomplete="off" wire:submit.prevent="createUpdateReceiveOnSales">
             <div class="modal-content ">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
+                    <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         @if($showEditModal)
                         แก้ไขใบสำคัญรับเงิน
                         @else
@@ -42,14 +42,14 @@
                         <!-- .Tab ข้อมูลทั่วไป -->
                         <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" wire:ignore.self>
                             <div class="row">
-                                <div class="col-6 mb-1 form-group">
+                                <div class="col-4 mb-1 form-group">
                                     <label class=" mr-1">ชื่อ:</label>
                                     <div {{ $showEditModal ? '' : 'class=d-none'}}>
                                         <input type="text" class="form-control form-control-sm" readonly wire:model.defer="bankHeader.customername">
                                     </div>
                                     <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
                                         <div wire:ignore>
-                                            <x-select2 wire:model="bankHeader.customerid" id="customer-dropdown">
+                                            <x-select2 wire:model="selectCustomerid" id="customer-dropdown">
                                                 <option value=" ">---โปรดเลือก---</option>
                                                 @foreach($customers_dd as $row)
                                                 <option value='{{ $row->customerid }}'>
@@ -59,6 +59,17 @@
                                             </x-select2>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-2">
+                                    <label class=" mr-1">ใบแจ้งหนี้:</label>
+                                    @if($billingNotices_dd)
+                                    <div wire:ignore>
+                                        <select class="form-control form-control-sm" wire:model="billingNo" id="billingno-dropdown">
+                                        </select>
+                                    </div>
+                                    @else
+                                        <input type="text" class="form-control form-control-sm" readonly wire:model.defer="bankHeader.billingno">
+                                    @endif
                                 </div>
                                 <div class="col-6 mb-1 form-group">
                                     <label class=" mr-1">ภาษีถูกหัก:</label>
@@ -328,10 +339,20 @@
             $('#receiveOnSalesForm').modal('hide');
         })
 
-        // window.addEventListener('clear-select2', event => {
-        //     clearSelect2('customer-dropdown');
-        // })
+        window.addEventListener('clear-select2', event => {
+            clearSelect2('customer-dropdown');
+        })
 
+        // $(document).ready(function(){
+        //     $(document).on('change','#billingno-dropdown',function(){
+        //         console.log("customer change");
+        //     });
+        // });
+
+        window.addEventListener('bindToBillingNo', event => {
+            $('#billingno-dropdown').html(" ");
+            $('#billingno-dropdown').append(event.detail.newOption);
+        })
     </script>
 
 @endpush

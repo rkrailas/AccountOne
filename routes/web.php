@@ -18,6 +18,8 @@ use App\Http\Livewire\AccStar\Sales\CancelAdjustSoDeliveryTax;
 use App\Http\Livewire\AccStar\Sales\ReturnGoods;
 use App\Http\Livewire\AccStar\Sales\CancelReturnGoods;
 use App\Http\Livewire\AccStar\Finance\ReceiveOnSales;
+use App\Http\Livewire\AccStar\Finance\CancelReceiveOnSales;
+use App\Http\Livewire\AccStar\Finance\BillingNotice;
 use App\Http\Livewire\AccStar\Account\ListGjournal;
 use App\Http\Livewire\AccStar\Account\PostJournal;
 use App\Http\Livewire\AccStar\Account\CancelPostJournal;
@@ -68,6 +70,8 @@ Route::get('accstar/sales/cancelreturngoods', CancelReturnGoods::class)->name('a
 
 //======== Finance ========
 Route::get('accstar/finance/receiveonsales', ReceiveOnSales::class)->name('accstar.finance.receiveonsales');
+Route::get('accstar/finance/cancelreceiveonsales', CancelReceiveOnSales::class)->name('accstar.finance.cancelreceiveonsales');
+Route::get('accstar/finance/billingnotice', BillingNotice::class)->name('accstar.finance.billingnotice');
 
 //======== Account ========
 Route::get('accstar/account/gjournal', ListGjournal::class)->name('accstar.account.gljournal');

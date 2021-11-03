@@ -43,7 +43,7 @@
 
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover table-bordered">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>

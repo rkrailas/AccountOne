@@ -234,13 +234,21 @@
               <a href="{{ route('accstar.finance.receiveonsales') }}"
                 class="nav-link {{ request()->is('accstar/finance/receiveonsales') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon-submenu"></i></i>
-                <p>รับชำระเงิน</p>
+                <p>รับชำระเงินตามใบเรียกเก็บเงิน</p>
+              </a>
+            </li>
+            <li class="nav-item"> 
+              <a href="{{ route('accstar.finance.billingnotice') }}" 
+              class="nav-link {{ request()->is('accstar/finance/billingnotice') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu"></i>
+                <p>ใบแจ้งหนี้/ใบวางบิล</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon-submenu"></i>
-                <p>_ใบแจ้งหนี้/ใบวางบิล</p>
+              <a href="{{ route('accstar.finance.cancelreceiveonsales') }}"
+                class="nav-link {{ request()->is('accstar/finance/cancelreceiveonsales') ? 'active' : '' }}">
+                <i class="far fa-times-circle nav-icon-submenu" aria-hidden="true"></i>
+                <p>ยกเลิก-รับชำระเงินตามใบเรียกฯ</p>
               </a>
             </li>
           </ul>
@@ -306,7 +314,7 @@
               <a href="{{ route('accstar.account.cancelpostjournal') }}"
                 class="nav-link {{ request()->is('accstar/account/cancelpostjournal') ? 'active' : '' }}">
                 <i class="far fa-times-circle nav-icon-submenu" aria-hidden="true"></i>
-                <p>ยกเลิกผ่านรายการบัญชี</p>
+                <p>ยกเลิก-ผ่านรายการบัญชี</p>
               </a>
             </li>
             <li class="nav-item">

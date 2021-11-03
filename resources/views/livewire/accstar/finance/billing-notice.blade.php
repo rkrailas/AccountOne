@@ -9,12 +9,12 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">รับชำระเงิน</h1>
+                    <h1 class="m-0 text-dark">ใบแจ้งหนี้/ใบวางบิล</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">AccStar</li>
-                        <li class="breadcrumb-item active">รับชำระเงิน</li>
+                        <li class="breadcrumb-item active">ใบแจ้งหนี้/ใบวางบิล</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -29,7 +29,7 @@
                     <div class="d-flex justify-content-between mb-2">
                         <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
-                            สร้างข้อมูลใหม่</button>
+                            สร้างข้อมูลใหม่</button>                        
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
@@ -49,16 +49,22 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">เลขที่ใบสำคัญรับ
-                                    <span wire:click="sortBy('gltran')" class="float-right text-sm" style="cursor: pointer;">
-                                        <i class="fa fa-arrow-up {{ $sortBy === 'gltran' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i class="fa fa-arrow-down {{ $sortBy === 'gltran' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                <th scope="col">ใบแจ้งหนี้
+                                    <span wire:click="sortBy('billingno')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'billingno' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'billingno' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">วันที่ใบสำคัญรับ
-                                    <span wire:click="sortBy('gjournaldt')" class="float-right text-sm" style="cursor: pointer;">
-                                        <i class="fa fa-arrow-up {{ $sortBy === 'gjournaldt' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i class="fa fa-arrow-down {{ $sortBy === 'gjournaldt' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                <th scope="col">วันที่
+                                    <span wire:click="sortBy('billingdate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'billingdate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'billingdate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
+                                <th scope="col">ครบกำหนด
+                                    <span wire:click="sortBy('duedate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'duedate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'duedate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">ผู้ซื้อ
@@ -73,22 +79,30 @@
                                         <i class="fa fa-arrow-down {{ $sortBy === 'amount' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
+                                <th scope="col">คงเหลือ
+                                    <span wire:click="sortBy('balance')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'balance' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'balance' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($recieptJournals as $recieptJournal)
+                            @foreach ($billingNotices as $billingNotice)
                             <tr>
-                                <td scope="col">{{ $loop->iteration + $recieptJournals->firstitem()-1  }}</td>
-                                <td scope="col">{{ $recieptJournal->gltran }} </td>
-                                <td scope="col">{{ \Carbon\Carbon::parse($recieptJournal->gjournaldt)->format('Y-m-d') }} </td>
-                                <td scope="col">{{ $recieptJournal->customername }} </td>
-                                <td scope="col" class="text-right pr-2">{{ number_format($recieptJournal->amount,2) }} </td>
+                                <td scope="col">{{ $loop->iteration + $billingNotices->firstitem()-1  }}</td>
+                                <td scope="col">{{ $billingNotice->billingno }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($billingNotice->billingdate)->format('Y-m-d') }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($billingNotice->duedate)->format('Y-m-d') }} </td>
+                                <td scope="col">{{ $billingNotice->customername }} </td>
+                                <td scope="col">{{ number_format($billingNotice->amount,2) }} </td>
+                                <td scope="col">{{ number_format($billingNotice->balance,2) }} </td>
                                 <td>
-                                    <a href="" wire:click.prevent="edit('{{ $recieptJournal->gltran }}')">
-                                        <i class="fa fa-edit mr-2"></i>
+                                    <a href="" wire:click.prevent="edit('{{ $billingNotice->billingno }}')">
+                                        <i class="fas fa-binoculars mr-2"></i>
                                     </a>
-                                    <a href="" wire:click.prevent="confirmDelete('{{ $recieptJournal->gltran }}')">
+                                    <a href="" wire:click.prevent="confirmDelete('{{ $billingNotice->billingno }}')">
                                         <i class="fa fa-trash text-danger"></i>
                                     </a>
                                 </td>
@@ -99,8 +113,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $recieptJournals->links() }} <span
-                        class="ml-2">จำนวน {{ number_format($recieptJournals->Total(),0) }} รายการ</span>
+                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $billingNotices->links() }} <span
+                        class="ml-2">จำนวน {{ number_format($billingNotices->Total(),0) }} รายการ</span>
                     <div class="col">
                         <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
@@ -112,8 +126,6 @@
             </div>
         </div>
     </div>
-    <!-- /.แสดงรายการใบสำคัญรับ -->
 
-    @include('livewire.accstar.finance._modalReceiveOnSales')
-    @include('livewire.accstar._modalGenGL')
+    @include('livewire.accstar.finance._modalBillingNotice')
 </div>

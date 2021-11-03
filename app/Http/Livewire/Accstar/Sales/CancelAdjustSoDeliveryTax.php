@@ -115,13 +115,8 @@ class CancelAdjustSoDeliveryTax extends Component
 
     public function resetPara()
     {
-        $this->deleteNumber = "";
-        $this->soHeader =[];
-        $this->soDetails =[];
-        $this->btnDelete = false;
+        $this->reset(['deleteNumber', 'soHeader', 'soDetails', 'btnDelete', 'sumQuantity', 'sumAmount']);
 
-        $this->sumQuantity = 0;
-        $this->sumAmount = 0;
         $this->soHeader['discountamount'] = 0;
         $this->soHeader['salestax'] = 0;
         $this->soHeader['sototal'] = 0;
@@ -187,13 +182,7 @@ class CancelAdjustSoDeliveryTax extends Component
 
     public function mount()
     {
-        $this->sumQuantity = 0;
-        $this->sumAmount = 0;
-        $this->soHeader['discountamount'] = 0;
-        $this->soHeader['salestax'] = 0;
-        $this->soHeader['sototal'] = 0;
-        $this->soHeader['customerid'] = "";
-        $this->btnDelete = false;
+        $this->resetPara();
     }
 
     public function render()

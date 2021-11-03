@@ -88,7 +88,6 @@
                             wire:click.prevent="saveSendTaxDate" >
                             <i class="far fa-calendar-check"></i>
                             ยืนภาษี</button>
-                        
                     </div>
                 </div>
             </div>
