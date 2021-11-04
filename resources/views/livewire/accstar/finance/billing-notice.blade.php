@@ -100,7 +100,7 @@
                                 <td scope="col">{{ number_format($billingNotice->balance,2) }} </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $billingNotice->billingno }}')">
-                                        <i class="fas fa-binoculars mr-2"></i>
+                                        <i class="fas fa-search mr-2"></i>
                                     </a>
                                     <a href="" wire:click.prevent="confirmDelete('{{ $billingNotice->billingno }}')">
                                         <i class="fa fa-trash text-danger"></i>

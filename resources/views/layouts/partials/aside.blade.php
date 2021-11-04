@@ -217,6 +217,13 @@
                 <p>ยกเลิก-รับคืนสินค้า</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.saleshistory') }}"
+                class="nav-link {{ request()->is('accstar/sales/saleshistory') ? 'active' : '' }}">
+                <i class="nav-icon-submenu fas fa-search"></i>
+                <p>ประวัติการขาย</p>
+              </a>
+            </li>
           </ul>
         </li>
 
