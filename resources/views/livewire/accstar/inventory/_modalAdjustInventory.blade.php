@@ -3,10 +3,12 @@
         <form autocomplete="off" wire:submit.prevent="createAdjustInventory">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="modal-title font-weight-bold" id="exampleModalLabel">
+                    <div class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         ปรับปรุงสินค้า
                     </div>
                     <div class="float-right">
+                        <button type="button" class="btn btn-secondary" wire:click.prevent="showGL">
+                            Gen GL</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
                             <i class="fa fa-times mr-1"></i>Cancel
                         </button>
@@ -70,7 +72,7 @@
                             <div class="card-body">
                                 <div class="row mb-2">
                                     <div class="col-4">
-                                        <label>หมายเลขอ้างอิง</label>
+                                        <label>หมายเลขอ้างอิง (ใบสำคัญ)</label>
                                         <input type="text"
                                             class="form-control form-control-sm @error('documentno') is-invalid @enderror" required
                                             wire:model.defer="adjInventory.documentno">
@@ -148,15 +150,8 @@
                                 <div class="row mb-2">
                                     <div class="col-4">
                                         <label>สถานที่เก็บ</label>
-                                        <select class="form-control form-control-sm" required disabled
-                                            wire:model.defer="adjInventory.location">
-                                            <option value="">---โปรดเลือก---</option>
-                                            @foreach ($location_dd as $row)
-                                            <option value='{{ $row->code }}'>
-                                                {{ $row->other }}
-                                            </option>
-                                            @endforeach
-                                        </select>
+                                        <input type="text" class="form-control form-control-sm" readonly
+                                            wire:model.defer="adjInventory.locationname">
                                     </div>
                                     <div class="col-4">
                                         <label>ทุนรวม</label>
@@ -191,6 +186,7 @@
 
     window.addEventListener('clear-select2', event => {
         clearSelect2('itemid-select2');
+        clearSelect2('account-select2');
     })
 </script>
 

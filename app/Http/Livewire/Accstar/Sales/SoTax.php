@@ -21,15 +21,15 @@ class SoTax extends Component
     public $searchTerm = null;
     
     public $showEditModal = null;
-    public $soHeader = []; //sodate,invoiceno,invoicedate,deliveryno,deliverydate,payby,duedate,journaldate,exclusivetax
-                           //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,full_address,shipcost
-    public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
+    public $soHeader = [];
+    public $soDetails = [];
     public $sumQuantity, $sumAmount = 0;
     public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
     public $sNumberDelete;
-    public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
-                        //, allcated, currencyid, posted, bookid, employee_id, transactiondate
+    public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
+
+    public $closed = false;
 
     public function updatingNumberOfPage()
     {
@@ -333,37 +333,40 @@ class SoTax extends Component
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {   
         if ($this->showEditModal == true){
-            DB::transaction(function () {
-                // Sales
-                DB::statement("UPDATE sales SET sonote=?,posted=?,employee_id=?,transactiondate=?
-                    where snumber=?" 
-                    , [$this->soHeader['sonote'], true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
+            if ($this->closed){
+                DB::transaction(function () {
+                    // Sales
+                    DB::statement("UPDATE sales SET sonote=?,posted=?,employee_id=?,transactiondate=?
+                        where snumber=?" 
+                        , [$this->soHeader['sonote'], true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
+    
+                    // Taxdata
+                    DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
+                                ,description,amountcur,amount,taxamount,duedate,purchase,posted
+                                ,isinputtax,totalamount,employee_id,transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
+                        , $this->soHeader['gltran'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['name'].'-'.$this->soHeader['snumber']
+                        , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
+                        , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
+    
+                    // Salesdetaillog 
+                    foreach ($this->soDetails as $soDetails2)
+                    {
+                        DB::statement("UPDATE salesdetaillog SET taxnumber=?,soreturn=?,employee_id=?,transactiondate=?
+                            where id=?" 
+                            , [$this->soHeader['invoiceno'], 'N', 'Admin', Carbon::now(), $soDetails2['id']]);
+                    }
+    
+                    //gltran
+                    //$this->generateGl(getGlNunber('SO'));
+                    $this->generateGl($this->soHeader['gltran']);
+                    DB::table('gltran')->insert($this->genGLs);
+                });
+            }
 
-                // Taxdata
-                DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
-                            ,description,amountcur,amount,taxamount,duedate,purchase,posted
-                            ,isinputtax,totalamount,employee_id,transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                    , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
-                    , $this->soHeader['gltran'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['name'].'-'.$this->soHeader['snumber']
-                    , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
-                    , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
-
-                // Salesdetaillog 
-                foreach ($this->soDetails as $soDetails2)
-                {
-                    DB::statement("UPDATE salesdetaillog SET taxnumber=?,soreturn=?,employee_id=?,transactiondate=?
-                        where id=?" 
-                        , [$this->soHeader['invoiceno'], 'N', 'Admin', Carbon::now(), $soDetails2['id']]);
-                }
-
-                //gltran
-                //$this->generateGl(getGlNunber('SO'));
-                $this->generateGl($this->soHeader['gltran']);
-                DB::table('gltran')->insert($this->genGLs);
-  
-                $this->dispatchBrowserEvent('hide-soTaxForm',['message' => 'Save Successfully!']);
-            });
+            $this->closed = false;
+            $this->dispatchBrowserEvent('hide-soTaxForm',['message' => 'Save Successfully!']);
         };
     }
 
@@ -479,9 +482,9 @@ class SoTax extends Component
         $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
         $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
         $this->soHeader['invoiceno'] = getTaxNunber("SO");
-        $this->soHeader['invoicedate'] = Carbon::now()->addMonth()->format('Y-m-d');
+        $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
         $this->soHeader['gltran'] = getGlNunber("SO"); //Add New Field
-        $this->soHeader['journaldate'] = Carbon::now()->addMonth()->format('Y-m-d');
+        $this->soHeader['journaldate'] = Carbon::now()->format('Y-m-d');
         if ($this->soHeader['sonote'] == null) {
             $this->soHeader['sonote'] = 'ขายสินค้าตามใบกำกับ-' . $this->soHeader['invoiceno'];
         }
@@ -546,10 +549,11 @@ class SoTax extends Component
 
         //getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','sales.snumber','sales.sodate','customer.name','sales.sototal')
+            ->selectRaw("sales.id, sales.snumber, sales.sodate, customer.customerid || ' : ' || customer.name as name, sales.sototal")
             ->join('salesdetaillog', 'sales.snumber', '=', 'salesdetaillog.snumber')
             ->leftJoin('customer', 'sales.customerid', 'customer.customerid')
             ->where('salesdetaillog.soreturn', 'G')
+            ->where('ram_sodeliverytax',false)
             ->Where(function($query) 
                 {
                     $query->where('sales.snumber', 'like', '%'.$this->searchTerm.'%')
@@ -558,7 +562,7 @@ class SoTax extends Component
                         ->orWhere('sales.sototal', 'like', '%'.$this->searchTerm.'%')
                         ->orWhere('salesdetaillog.deliveryno', 'like', '%'.$this->searchTerm.'%');
                 })
-            ->groupBy('sales.id','sales.snumber','sales.sodate','customer.name','sales.sototal')
+            ->groupBy('sales.id','sales.snumber','sales.sodate','customer.customerid','customer.name','sales.sototal')
             ->orderBy($this->sortBy,$this->sortDirection)
             ->paginate($this->numberOfPage);
 

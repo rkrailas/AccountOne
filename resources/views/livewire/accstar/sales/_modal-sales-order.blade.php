@@ -83,19 +83,22 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="">ชื่อ</label>
-                            <div {{ $showEditModal ? '' : 'class=d-none'}}>
-                                <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.shipname">
-                            </div>
-                            <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
-                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid" required :error="'customerid'">
-                                    {{-- <option value=" ">---โปรดเลือก---</option> --}}
-                                    @foreach($customers_dd as $row)
-                                    <option value='{{ $row->customerid }}'>
-                                        {{ $row->customerid . ': ' . $row->name }}
-                                    </option>
-                                    @endforeach
-                                </x-select2>
-                            </div>
+                            @if($showEditModal)
+                                <div>
+                                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.shipname">
+                                </div>
+                            @else
+                                <div>
+                                    <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid">
+                                        <option value=" ">---โปรดเลือก---</option>
+                                        @foreach($customers_dd as $row)
+                                        <option value='{{ $row->customerid }}'>
+                                            {{ $row->customerid . ': ' . $row->name }}
+                                        </option>
+                                        @endforeach
+                                    </x-select2>
+                                </div>
+                            @endif
                         </div>
                         <div class="col">
                             <label class="">ที่อยู่</label>

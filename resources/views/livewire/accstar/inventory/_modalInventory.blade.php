@@ -4,7 +4,7 @@
             wire:submit.prevent="{{ $showEditModal ? 'updateInventory' : 'createInventory' }}">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="modal-title font-weight-bold" id="exampleModalLabel">
+                    <div class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         @if($showEditModal)
                         แก้ไขข้อมูลสินค้า
                         @else
@@ -28,7 +28,7 @@
                 <div class="modal-body">
                     <div class="container">
                         <div class="card card-primary mt-2">
-                            <div class="card-header">
+                            <div class="card-header mt-0 mb-0">
                                 <h3 class="card-title">ข้อมูลทั่วไป</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">

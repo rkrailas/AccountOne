@@ -55,7 +55,7 @@
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sonumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">วันที่ปรับปรุง
+                                <th scope="col">วันที่
                                     <span wire:click="sortBy('sales.sodate')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.sodate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sodate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
@@ -73,7 +73,7 @@
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sototal' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">ใบกำกับต้นทาง
+                                <th scope="col">ใบกำกับอ้างอิง
                                     <span wire:click="sortBy('sales.refno')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.refno' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.refno' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>

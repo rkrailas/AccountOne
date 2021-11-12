@@ -49,13 +49,13 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">เลขที่ใบสำคัญรับ
+                                <th scope="col">ใบสำคัญรับ
                                     <span wire:click="sortBy('gltran')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'gltran' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'gltran' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">วันที่ใบสำคัญรับ
+                                <th scope="col">วันที่
                                     <span wire:click="sortBy('gjournaldt')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'gjournaldt' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'gjournaldt' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
@@ -73,6 +73,12 @@
                                         <i class="fa fa-arrow-down {{ $sortBy === 'amount' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
+                                <th scope="col">แก้ไขล่าสุด
+                                    <span wire:click="sortBy('transaactiondate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'transaactiondate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'transaactiondate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -84,6 +90,7 @@
                                 <td scope="col">{{ \Carbon\Carbon::parse($recieptJournal->gjournaldt)->format('Y-m-d') }} </td>
                                 <td scope="col">{{ $recieptJournal->customername }} </td>
                                 <td scope="col" class="text-right pr-2">{{ number_format($recieptJournal->amount,2) }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($recieptJournal->transactiondate)->format('Y-m-d') }} </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $recieptJournal->gltran }}')">
                                         <i class="fa fa-edit mr-2"></i>

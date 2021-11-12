@@ -46,13 +46,13 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">เลขที่ใบสั่งขาย
+                                <th scope="col">ใบสั่งขาย
                                     <span wire:click="sortBy('sales.snumber')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.snumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.snumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">วันที่ใบสั่งขาย
+                                <th scope="col">วันที่
                                     <span wire:click="sortBy('sales.sodate')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.sodate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sodate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>

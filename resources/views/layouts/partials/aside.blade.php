@@ -178,42 +178,42 @@
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsodeliverytax') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsodeliverytax') ? 'active' : '' }}">
-                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <i class="nav-icon-submenu fas fa-times"></i>
                 <p>ยกเลิก-ส่งสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsalesorder') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsalesorder') ? 'active' : '' }}">
-                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <i class="nav-icon-submenu fas fa-times"></i>
                 <p>ยกเลิก-ใบสั่งขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsodelivery') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsodelivery') ? 'active' : '' }}">
-                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <i class="nav-icon-submenu fas fa-times"></i>
                 <p>ยกเลิก-ใบส่งสินค้า</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelsotax') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsotax') ? 'active' : '' }}">
-                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <i class="nav-icon-submenu fas fa-times"></i>
                 <p>ยกเลิก-ใบกำกับของสินค้าที่ส่งแล้ว</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.canceladjustsodeliverytax') }}"
                 class="nav-link {{ request()->is('accstar/sales/canceladjustsodeliverytax') ? 'active' : '' }}">
-                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <i class="nav-icon-submenu fas fa-times"></i>
                 <p>ยกเลิก-ปรับปรุงราคาขาย</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('accstar.sales.cancelreturngoods') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelreturngoods') ? 'active' : '' }}">
-                <i class="nav-icon-submenu far fa-times-circle"></i>
+                <i class="nav-icon-submenu fas fa-times"></i>
                 <p>ยกเลิก-รับคืนสินค้า</p>
               </a>
             </li>
@@ -222,6 +222,13 @@
                 class="nav-link {{ request()->is('accstar/sales/saleshistory') ? 'active' : '' }}">
                 <i class="nav-icon-submenu fas fa-search"></i>
                 <p>ประวัติการขาย</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.sales.salesbackorder') }}"
+                class="nav-link {{ request()->is('accstar/sales/salesbackorder') ? 'active' : '' }}">
+                <i class="nav-icon-submenu fas fa-search"></i>
+                <p>รายการค้างส่ง</p>
               </a>
             </li>
           </ul>
@@ -254,8 +261,15 @@
             <li class="nav-item">
               <a href="{{ route('accstar.finance.cancelreceiveonsales') }}"
                 class="nav-link {{ request()->is('accstar/finance/cancelreceiveonsales') ? 'active' : '' }}">
-                <i class="far fa-times-circle nav-icon-submenu" aria-hidden="true"></i>
+                <i class="fas fa-times nav-icon-submenu" aria-hidden="true"></i>
                 <p>ยกเลิก-รับชำระเงินตามใบเรียกฯ</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.finance.receivehistory') }}"
+                class="nav-link {{ request()->is('accstar/finance/receivehistory') ? 'active' : '' }}">
+                <i class="nav-icon-submenu fas fa-search"></i>
+                <p>ประวัติการรับชำระ</p>
               </a>
             </li>
           </ul>
@@ -320,7 +334,7 @@
             <li class="nav-item">
               <a href="{{ route('accstar.account.cancelpostjournal') }}"
                 class="nav-link {{ request()->is('accstar/account/cancelpostjournal') ? 'active' : '' }}">
-                <i class="far fa-times-circle nav-icon-submenu" aria-hidden="true"></i>
+                <i class="fas fa-times nav-icon-submenu" aria-hidden="true"></i>
                 <p>ยกเลิก-ผ่านรายการบัญชี</p>
               </a>
             </li>

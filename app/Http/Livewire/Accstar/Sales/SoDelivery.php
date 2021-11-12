@@ -21,14 +21,12 @@ class SoDelivery extends Component
     public $searchTerm = null;
     
     public $showEditModal = null;
-    public $soHeader = []; //snumber,sonumber,sodate,expirydate,deliverydate,refno,exclusivetax
-                        //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,full_address,shipcost,posted
-    public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
+    public $soHeader = [];
+    public $soDetails = [];
     public $sumQuantity, $sumAmount = 0;
     public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
     public $sNumberDelete;
-    public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
-                        //, allcated, currencyid, posted, bookid, employee_id, transactiondate
+    public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
 
     public $closed = false;
@@ -175,7 +173,14 @@ class SoDelivery extends Component
             //ตรวจสอบว่าเป้นการแก้ไข quantity หรือ unitprice หรือ discountamount
             if ($itemName == "quantity" || $itemName == "unitprice" || $itemName == "discountamount" || $itemName == "taxrate")
                 {
-                    $this->reCalculateInGrid();    
+                    if($this->soDetails[$index]['quantity'] > $this->soDetails[$index]['quantitybac']){
+                        $this->dispatchBrowserEvent('popup-alert', [
+                            'title' => 'ไม่สามารถป้อนมากกว่าจำนวนคงค้างได้ !',
+                        ]);
+
+                        $this->soDetails[$index]['quantity'] = $this->soDetails[$index]['quantitybac'];
+                    }
+                    $this->reCalculateInGrid();
                 }
         }        
     }
@@ -343,11 +348,13 @@ class SoDelivery extends Component
 
         // .getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','snumber','sodate','name','sototal','refno')
+            ->selectRaw("sales.id, snumber, sodate, sototal, refno
+                        , customer.customerid || ' : ' || name as name")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', FALSE)
             ->where('soreturn','N')
-            ->where('closed',TRUE)
+            ->where('closed',TRUE) 
+            ->where('ram_sodeliverytax',false)
             ->where('expirydate', '>', Carbon::now()->addMonth(-1))
             ->whereIn('snumber',function ($query) {
                 $query->select('snumber')->from('salesdetail')

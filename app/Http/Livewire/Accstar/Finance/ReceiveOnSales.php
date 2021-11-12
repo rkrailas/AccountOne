@@ -75,7 +75,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['amount'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => $this->bankHeader['notes'], 'gldebit' => $this->bankHeader['amount'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
 
@@ -296,10 +296,11 @@ class ReceiveOnSales extends Component
 
             if (count($data) > 0) {
                 $this->bankHeader['customername'] = $data[0]['name'];
-                $this->bankHeader['address1'] = $data[0]['address11'];;
-                $this->bankHeader['address2'] = $data[0]['address12'];;
-                $this->bankHeader['address3'] = $data[0]['address3'];;
-                $this->bankHeader['accountcus'] = $data[0]['account'];;
+                $this->bankHeader['address1'] = $data[0]['address11'];
+                $this->bankHeader['address2'] = $data[0]['address12'];
+                $this->bankHeader['address3'] = $data[0]['address3'];
+                $this->bankHeader['accountcus'] = $data[0]['account'];
+                $this->bankHeader['notes'] = 'รับเงิน - บัญชีลูกหนี้ - ' . $data[0]['name']; 
             }
 
             // babkDetails
@@ -333,10 +334,15 @@ class ReceiveOnSales extends Component
                             , taxscheme=?, witholdamt=?, witholdtax=?, witholdtaxrate=?
                             , taxscheme1=?, witholdamt1=?, witholdtax1=?, witholdtaxrate1=?
                             , account=?, accountcus=?, accounttax=?, accountcharge=?, accountdis=?, accountfee=?
-                            , employee_id=?, transactiondate=?, posted=?, amount=?
+                            , employee_id=?, transactiondate=?, posted=?, amount=?, notes
                             where gltran=?",
                     [
-                        $this->bankHeader['gjournaldt'], $this->bankHeader['payby'], $this->bankHeader['documentref'], $this->bankHeader['taxrunningno'], $this->bankHeader['taxscheme'], $this->bankHeader['witholdamt'], $this->bankHeader['witholdtax'], $this->bankHeader['witholdtaxrate'], $this->bankHeader['taxscheme1'], $this->bankHeader['witholdamt1'], $this->bankHeader['witholdtax1'], $this->bankHeader['witholdtaxrate1'], $this->bankHeader['account'], $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge'], $this->bankHeader['accountdis'], $this->bankHeader['accountfee'], 'Admin', Carbon::now(), $this->bankHeader['posted'], $xAmount, $this->bankHeader['gltran']
+                        $this->bankHeader['gjournaldt'], $this->bankHeader['payby'], $this->bankHeader['documentref'], $this->bankHeader['taxrunningno']
+                        , $this->bankHeader['taxscheme'], $this->bankHeader['witholdamt'], $this->bankHeader['witholdtax'], $this->bankHeader['witholdtaxrate']
+                        , $this->bankHeader['taxscheme1'], $this->bankHeader['witholdamt1'], $this->bankHeader['witholdtax1'], $this->bankHeader['witholdtaxrate1']
+                        , $this->bankHeader['account'], $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge']
+                        , $this->bankHeader['accountdis'], $this->bankHeader['accountfee'], 'Admin', Carbon::now(), $this->bankHeader['posted']
+                        , $xAmount, $this->bankHeader['gltran'], $this->bankHeader['notes']
                     ]
                 );
 
@@ -380,8 +386,8 @@ class ReceiveOnSales extends Component
                 DB::statement(
                     "INSERT INTO bank(gltran, gjournaldt, documentref, customerid, customername, addressl1, addressl2, addressl3
                 , amount, findiscount, fincharge, feeamt, payby, journal, bookid, account, accountcus, accounttax, accountcharge, accountdis
-                , accountfee, taxscheme, witholdamt, witholdtax, witholdtaxrate, billingno, employee_id, transactiondate)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                , accountfee, taxscheme, witholdamt, witholdtax, witholdtaxrate, billingno, employee_id, transactiondate, notes)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     [
                         $this->bankHeader['gltran'], $this->bankHeader['gjournaldt'], $this->bankHeader['documentref'], $this->bankHeader['customerid']
                         , $this->bankHeader['customername'], $this->bankHeader['address1'], $this->bankHeader['address2'], $this->bankHeader['address3']
@@ -389,7 +395,7 @@ class ReceiveOnSales extends Component
                         , $this->bankHeader['payby'], $this->bankHeader['journal'], $this->bankHeader['bookid'], $this->bankHeader['account']
                         , $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge'], $this->bankHeader['accountdis']
                         , $this->bankHeader['accountfee'], $this->bankHeader['taxscheme'], $this->bankHeader['witholdamt'], $this->bankHeader['witholdtax']
-                        , $this->bankHeader['witholdtaxrate'], $this->bankHeader['billingno'], 'Admin', Carbon::now()
+                        , $this->bankHeader['witholdtaxrate'], $this->bankHeader['billingno'], 'Admin', Carbon::now(), $this->bankHeader['notes']
                     ]
                 );
 
@@ -542,7 +548,7 @@ class ReceiveOnSales extends Component
         // bankHeader
         $strsql = "select gltran, to_char(gjournaldt,'YYYY-MM-DD') as gjournaldt, customerid, customername, documentref, amount
             , taxscheme, witholdamt, witholdtax, witholdtaxrate, taxscheme1, witholdamt1, witholdtax1, witholdtaxrate1
-            , payby, account, accountcus, accounttax, taxrunningno, posted, billingno
+            , payby, account, accountcus, accounttax, taxrunningno, posted, billingno, notes
             , fincharge, findiscount, feeamt, accountcharge, accountdis, accountfee
             from bank 
             where gltran='" . $gltran . "'";
@@ -630,14 +636,17 @@ class ReceiveOnSales extends Component
 
         // ใบสำคัญรับเงินที่ยังไม่ ปิดรายการ
         $recieptJournals = DB::table('bank')
-            ->select('gltran', 'gjournaldt', 'customername', 'amount')
+            ->selectRaw("gltran, gjournaldt, customer.customerid || ' : ' || customer.name as customername, amount, bank.transactiondate")
+            ->Join('customer','bank.customerid','=','customer.customerid')
             ->where('posted', FALSE)
             ->where('bookid', 'R1')
             ->Where(function ($query) {
-                $query->where('gltran', 'like', '%' . $this->searchTerm . '%')
-                    ->orWhere('gjournaldt', 'like', '%' . $this->searchTerm . '%')
-                    ->orWhere('customername', 'like', '%' . $this->searchTerm . '%')
-                    ->orWhere('amount', 'like', '%' . $this->searchTerm . '%');
+                $query->where('gltran', 'ilike', '%' . $this->searchTerm . '%')
+                    ->orWhere('gjournaldt', 'ilike', '%' . $this->searchTerm . '%')
+                    ->orWhere('customer.customerid', 'ilike', '%' . $this->searchTerm . '%')
+                    ->orWhere('customer.name', 'ilike', '%' . $this->searchTerm . '%')
+                    ->orWhere('amount', 'ilike', '%' . $this->searchTerm . '%')
+                    ->orWhere('bank.transactiondate', 'ilike', '%' . $this->searchTerm . '%');
             })
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->numberOfPage);

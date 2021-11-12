@@ -7,8 +7,6 @@
                         ใบส่งสินค้า
                     </h5>
                     <div class="float-right">
-                        <button type="button" class="btn btn-secondary" wire:click.prevent="showGL" {{ $showEditModal ? '' : 'disabled' }}>
-                            Gen GL</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
                             <i class="fa fa-times mr-1"></i>Cancel</button>
                         <button type="submit" class="btn btn-primary">
@@ -78,19 +76,7 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="">ชื่อ</label>
-                            <div {{ $showEditModal ? '' : 'class=d-none'}}>
                                 <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.shipname">
-                            </div>
-                            <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
-                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid">
-                                    <option value=" ">---โปรดเลือก---</option>
-                                    @foreach($customers_dd as $row)
-                                    <option value='{{ $row->customerid }}'>
-                                        {{ $row->customerid . ': ' . $row->name }}
-                                    </option>
-                                    @endforeach
-                                </x-select2>
-                            </div>
                         </div>
                         <div class="col">
                             <label class="">ที่อยู่</label>

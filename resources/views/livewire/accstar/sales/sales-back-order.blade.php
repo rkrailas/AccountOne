@@ -9,7 +9,7 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">ประวัติการขาย</h1>
+                    <h1 class="m-0 text-dark">รายการค้างส่ง</h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -68,120 +68,100 @@
                                 <th scope="col">#</th>
                                 <th scope="col">
                                     ใบสั่งขาย
-                                    <span wire:click="sortBy('sales.sonumber')" class="float-right text-sm"
+                                    <span wire:click="sortBy('salesBackOrders.sonumber')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'sales.sonumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.sonumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'sales.sonumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.sonumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">
                                     วันที่
-                                    <span wire:click="sortBy('sales.sodate')" class="float-right text-sm"
+                                    <span wire:click="sortBy('salesBackOrders.sodate')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'sales.sodate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.sodate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'sales.sodate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.sodate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">                                    
-                                    ผู้ซื้อ
-                                    <span wire:click="sortBy('customer.customerid')" class="float-right text-sm"
+                                    สินค้า
+                                    <span wire:click="sortBy('salesBackOrders.item')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'customer.customerid' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.item' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'customer.customerid' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.item' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">                                    
-                                    ใบกำกับ
-                                    <span wire:click="sortBy('taxdata.taxnumber')" class="float-right text-sm"
+                                    จำนวนสั่ง
+                                    <span wire:click="sortBy('salesBackOrders.quantityord')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'taxdata.taxnumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.quantityord' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'taxdata.taxnumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.quantityord' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">                                    
-                                    วันที่
-                                    <span wire:click="sortBy('taxdata.taxdate')" class="float-right text-sm"
+                                    ค้างส่ง
+                                    <span wire:click="sortBy('salesBackOrders.quantitybac')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'taxdata.taxdate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.quantitybac' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'taxdata.taxdate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.quantitybac' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">                                    
                                     ยอดเงิน
-                                    <span wire:click="sortBy('taxdata.amount')" class="float-right text-sm"
+                                    <span wire:click="sortBy('salesBackOrders.amount')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'taxdata.amount' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.amount' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'taxdata.amount' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.amount' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">                                    
-                                    ภาษี
-                                    <span wire:click="sortBy('taxdata.taxamount')" class="float-right text-sm"
-                                        style="cursor: pointer;">
-                                        <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'taxdata.taxamount' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'taxdata.taxamount' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
-                                    </span>
-                                </th>
-                                <th scope="col">ส่งสินค้าพร้อมฯ</th>
                                 <th scope="col">
-                                    Action
+                                    ผู้ซื้อ
+                                    <span wire:click="sortBy('salesBackOrders.customer')" class="float-right text-sm"
+                                        style="cursor: pointer;">
+                                        <i
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'salesBackOrders.customer' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'salesBackOrders.customer' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if(count($salesOrders) > 0)
-                            @foreach ($salesOrders as $row)
+                            @if(count($salesBackOrders) > 0)
+                            @foreach ($salesBackOrders as $row)
                             <tr>
-                                <td scope="col">{{ $loop->iteration + $salesOrders->firstitem()-1  }}</td>
+                                <td scope="col">{{ $loop->iteration + $salesBackOrders->firstitem()-1  }}</td>
                                 <td scope="col">{{ $row->sonumber }} </td>
                                 <td scope="col">{{ \Carbon\Carbon::parse($row->sodate)->format('Y-m-d') }} </td>
-                                <td scope="col">{{ $row->customername }} </td>
-                                <td scope="col">{{ $row->taxnumber }} </td>
-                                <td scope="col">{{ \Carbon\Carbon::parse($row->taxdate)->format('Y-m-d') }} </td>                                
+                                <td scope="col">{{ $row->item }} </td>
+                                <td scope="col" class="text-right">{{ number_format($row->quantityord, 2) }} </td>
+                                <td scope="col" class="text-right">{{ number_format($row->quantitybac, 2) }} </td>
                                 <td scope="col" class="text-right">{{ number_format($row->amount, 2) }} </td>
-                                <td scope="col" class="text-right">{{ number_format($row->taxamount, 2) }} </td>
-                                <td scope="col" style="text-align:center">
-                                    @if($row->ram_sodeliverytax) 
-                                        <i class="fas fa-check"></i> 
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="" wire:click.prevent="edit('{{ $row->sonumber }}')">
-                                        <i class="fas fa-search mr-2"></i>
-                                    </a>
-                                </td>
+                                <td scope="col">{{ $row->customer }} </td>
                             </tr>
                             @endforeach
                             @endif
                         </tbody>
                         <tfoot>
-                            <tr>
-                                <td colspan="7"></td>
-                                <td class="text-right font-weight-bold">{{ number_format($sumAmount2, 2) }}</td>
-                                <td class="text-right font-weight-bold">{{ number_format($sumTaxAmount, 2) }}</td>
-                                <td colspan="5"></td>
-                            </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
             <div class="row">
-                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $salesOrders->links() }} <span
-                        class="ml-2">จำนวน {{ number_format($salesOrders->Total(),0) }} รายการ</span>
+                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $salesBackOrders->links() }} <span
+                        class="ml-2">จำนวน {{ number_format($salesBackOrders->Total(),0) }} รายการ</span>
                     <div class="col">
                         <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
@@ -193,6 +173,4 @@
             </div>
         </div>
     </div>
-
-    @include('livewire.accstar.sales._modal-sales-order-history')
 </div>

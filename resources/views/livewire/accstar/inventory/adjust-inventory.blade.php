@@ -48,7 +48,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">
-                                    หมายเลขอ้างอิง
+                                    หมายเลข
                                     <span wire:click="sortBy('inventoryadjlog.documentno')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
@@ -98,7 +98,7 @@
                                     </span>
                                 </th>
                                 <th scope="col">
-                                    ทุนต่อหน่วย
+                                    ทุน/หน่วย
                                     <span wire:click="sortBy('inventoryadjlog.adjvalue')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
@@ -118,17 +118,7 @@
                                     </span>
                                 </th>
                                 <th scope="col">
-                                    พนักงาน
-                                    <span wire:click="sortBy('employee.name')" class="float-right text-sm"
-                                        style="cursor: pointer;">
-                                        <i
-                                            class="fa fa-arrow-up {{ $sortBy === 'employee.name' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i
-                                            class="fa fa-arrow-down {{ $sortBy === 'employee.name' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
-                                    </span>
-                                </th>
-                                <th scope="col">
-                                    วันที่
+                                    แก้ไขล่าสุด
                                     <span wire:click="sortBy('inventoryadjlog.transactiondate')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
@@ -159,7 +149,6 @@
                                 <td scope="col" class="text-right">{{ number_format($item->adjquantity, 2) }}</td>
                                 <td scope="col" class="text-right">{{ number_format($item->adjvalue, 2) }}</td>
                                 <td scope="col">{{ $item->location }} </td>
-                                <td scope="col">{{ $item->employee }} </td>
                                 <td scope="col">{{ \Carbon\Carbon::parse($item->transactiondate)->format('Y-m-d') }}</td>
                             </tr>
                             @endforeach
@@ -185,4 +174,5 @@
     </div>
 
     @include('livewire.accstar.inventory._modalAdjustInventory')
+    @include('livewire.accstar._modalGenGL')
 </div>

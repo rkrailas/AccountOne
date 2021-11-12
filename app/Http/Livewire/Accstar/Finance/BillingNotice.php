@@ -29,6 +29,14 @@ class BillingNotice extends Component
     public $selectedRows = [];
     public $selectPageRows = false;
 
+    public $sDate, $eDate;
+
+    public function refreshData()
+    {
+        $this->resetPage();
+        $this->clearValue();
+    }
+
     public function updatedSelectPageRows($value)
     {
         $this->selectedRows = [];
@@ -102,7 +110,7 @@ class BillingNotice extends Component
                     };
 
                     DB::statement("INSERT INTO billingnotice(billingno,customerid,billingdate,duedate,notes,amount,closed,employee_id,transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?)"
+                    VALUES(?,?,?,?,?,?,?,?,?)"
                     , [$this->billingHeader['billingno'], $this->billingHeader['customerid'], $this->billingHeader['billingdate']
                     , $this->billingHeader['duedate'], $this->billingHeader['notes'], $data['amount'], true, 'Admin', Carbon::now()]); 
     
@@ -217,6 +225,12 @@ class BillingNotice extends Component
             DB::table('billingnoticedetail')->where('billingno', $this->sNumberDelete)->delete();
         });
     }
+
+    public function mount()
+    {
+        $this->sDate = date_format(Carbon::now()->addMonth(-3),'Y-m-d');
+        $this->eDate = date_format(Carbon::now(),'Y-m-d');
+    }
     
     public function render()
     {
@@ -246,6 +260,7 @@ class BillingNotice extends Component
         ->where('billingnotice.closed', true)
         ->where('taxdata.purchase', false)
         ->where('taxdata.iscancelled', false)
+        ->whereBetween('billingnotice.billingdate',[$this->sDate, $this->eDate])
         ->whereRaw('taxdata.amount <> taxdata.paidamount')
         ->Where(function($query) 
         {

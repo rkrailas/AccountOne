@@ -75,7 +75,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">เลขที่ใบสำคัญ
+                                <th scope="col">ใบสำคัญ
                                     <span wire:click="sortBy('gltran.gltran')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'gltran.gltran' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'gltran.gltran' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>

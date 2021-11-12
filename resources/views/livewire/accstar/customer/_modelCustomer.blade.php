@@ -3,7 +3,7 @@
         <form autocomplete="off" wire:submit.prevent="{{ $showEditModal ? 'updateCustomer' : 'createCustomer' }}">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="modal-title font-weight-bold" id="exampleModalLabel">
+                    <div class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         @if($showEditModal)
                         แก้ไขข้อมูล #{{$state['customerid']}} : {{$state['name']}}
                         @else

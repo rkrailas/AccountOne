@@ -47,7 +47,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">
-                                    รหัสลูกค้า
+                                    รหัส
                                     <span wire:click="sortBy('customer.customerid')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'customer.customerid' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'customer.customerid' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
@@ -93,8 +93,8 @@
                             <tr>
                                 <td scope="col">{{ $loop->iteration + $customers->firstitem()-1  }}</td>
                                 <td scope="col">{{ $customer->customerid }} </td>
-                                <td scope="col">{{ $customer->name }} </td>
-                                <td scope="col">{{ $customer->contact1 }} </td>
+                                <td scope="col" class="csstextoverflow">{{ $customer->name }} </td>
+                                <td scope="col" class="csstextoverflow">{{ $customer->contact1 }} </td>
                                 <td scope="col">{{ $customer->phone1 }} </td>
                                 <td scope="col">{{ $customer->taxid }} </td>
                                 <td scope="col" style="text-align:center"> @if($customer->debtor ) <i
@@ -133,3 +133,14 @@
 
     @include('livewire.accstar.customer._modelCustomer')
 </div>
+
+@push('styles')
+<style>
+    .csstextoverflow {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+@endpush

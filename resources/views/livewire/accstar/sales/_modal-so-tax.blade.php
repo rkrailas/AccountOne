@@ -78,18 +78,8 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="">ชื่อ:</label>
-                            <div {{ $showEditModal ? '' : 'class=d-none'}}>
+                            <div>
                                 <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.name">
-                            </div>
-                            <div {{ $showEditModal ? 'class=d-none' : 'class=float-top'}}>
-                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid">
-                                    <option value=" ">---โปรดเลือก---</option>
-                                    @foreach($customers_dd as $row)
-                                    <option value='{{ $row->customerid }}'>
-                                        {{ $row->customerid . ': ' . $row->name }}
-                                    </option>
-                                    @endforeach
-                                </x-select2>
                             </div>
                         </div>
                         <div class="col-6">
@@ -102,6 +92,10 @@
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" disabled wire:model.defer="soHeader.exclusivetax" wire:change="checkExclusiveTax">
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" wire:model.defer="closed">
+                                <label class="form-check-label" for="closed">ปิดรายการ</label>
                             </div>
                         </div>
                     </div>

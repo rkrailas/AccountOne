@@ -26,7 +26,7 @@ class CancelSoDeliveryTax extends Component
                 from sales 
                 join customer on sales.customerid=customer.customerid
                 join taxdata on sales.snumber = taxdata.reference and taxdata.iscancelled=false
-                where sales.soreturn='N' and sales.posted=true
+                where sales.soreturn='N' and sales.posted=true and ram_sodeliverytax=true
                 and taxdata.taxnumber='" . $this->deleteNumber . "'";
         $data =  DB::select($strsql);
 

@@ -157,7 +157,7 @@ class SalesHistory extends Component
 
         $salesOrders = DB::table('taxdata')
         ->selectRaw("sales.sonumber, sales.sodate, customer.customerid || ': ' || customer.name as customername
-                    , taxdata.taxnumber, taxdata.taxdate, sales.sonote, taxdata.amount, taxdata.taxamount")
+                    , taxdata.taxnumber, taxdata.taxdate, taxdata.amount, taxdata.taxamount, sales.ram_sodeliverytax")
         ->Join('sales','taxdata.reference','=','sales.sonumber')
         ->Join('customer','taxdata.customerid','=','customer.customerid')
         ->Where('taxdata.purchase',false)
@@ -170,7 +170,6 @@ class SalesHistory extends Component
                     ->orWhere('customer.name', 'ilike', '%'.$this->searchTerm.'%')
                     ->orWhere('taxdata.taxnumber', 'ilike', '%'.$this->searchTerm.'%')
                     ->orWhere('taxdata.taxdate', 'ilike', '%'.$this->searchTerm.'%')
-                    ->orWhere('sales.sonote', 'ilike', '%'.$this->searchTerm.'%')
                     ->orWhere('taxdata.amount', 'ilike', '%'.$this->searchTerm.'%')
                     ->orWhere('taxdata.taxamount', 'ilike', '%'.$this->searchTerm.'%');
             })

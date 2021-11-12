@@ -27,9 +27,31 @@
             <div class="row mb-2">
                 <div class="col">
                     <div class="d-flex justify-content-between mb-2">
-                        <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
+                        <div class="form-inline">
+                            <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
-                            สร้างข้อมูลใหม่</button>                        
+                            สร้างข้อมูลใหม่</button>
+                            <label class=" ml-1 mr-1">วันที่:</label>
+                            <div class="input-group mr-1">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calendar"></i>
+                                    </span>
+                                </div>
+                                <x-datepicker wire:model.defer="sDate" id="่sDate" :error="'date'" required />
+                            </div>                            
+                            <label class="mr-1">ถึง:</label>
+                            <div class="input-group mr-1">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calendar"></i>
+                                    </span>
+                                </div>
+                                <x-datepicker wire:model.defer="eDate" id="่eDate" :error="'date'" required />
+                            </div>
+                            <button wire:click.prevent="refreshData" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sync-alt"></i>
+                            ดึงข้อมูลใหม่</button>
+                        </div>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->

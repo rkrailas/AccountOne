@@ -18,8 +18,10 @@ use App\Http\Livewire\AccStar\Sales\CancelAdjustSoDeliveryTax;
 use App\Http\Livewire\AccStar\Sales\ReturnGoods;
 use App\Http\Livewire\AccStar\Sales\CancelReturnGoods;
 use App\Http\Livewire\AccStar\Sales\SalesHistory;
+use App\Http\Livewire\AccStar\Sales\SalesBackOrder;
 use App\Http\Livewire\AccStar\Finance\ReceiveOnSales;
 use App\Http\Livewire\AccStar\Finance\CancelReceiveOnSales;
+use App\Http\Livewire\AccStar\Finance\ReceiveHistory;
 use App\Http\Livewire\AccStar\Finance\BillingNotice;
 use App\Http\Livewire\AccStar\Account\ListGjournal;
 use App\Http\Livewire\AccStar\Account\PostJournal;
@@ -69,11 +71,13 @@ Route::get('accstar/sales/canceladjustsodeliverytax', CancelAdjustSoDeliveryTax:
 Route::get('accstar/sales/returngoods', ReturnGoods::class)->name('accstar.sales.returngoods');
 Route::get('accstar/sales/cancelreturngoods', CancelReturnGoods::class)->name('accstar.sales.cancelreturngoods');
 Route::get('accstar/sales/saleshistory', SalesHistory::class)->name('accstar.sales.saleshistory');
+Route::get('accstar/sales/salesbackorder', SalesBackOrder::class)->name('accstar.sales.salesbackorder');
 
 //======== Finance ========
 Route::get('accstar/finance/receiveonsales', ReceiveOnSales::class)->name('accstar.finance.receiveonsales');
 Route::get('accstar/finance/cancelreceiveonsales', CancelReceiveOnSales::class)->name('accstar.finance.cancelreceiveonsales');
 Route::get('accstar/finance/billingnotice', BillingNotice::class)->name('accstar.finance.billingnotice');
+Route::get('accstar/finance/receivehistory', ReceiveHistory::class)->name('accstar.finance.receivehistory');
 
 //======== Account ========
 Route::get('accstar/account/gjournal', ListGjournal::class)->name('accstar.account.gljournal');

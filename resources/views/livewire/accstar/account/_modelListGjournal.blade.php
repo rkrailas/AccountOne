@@ -3,7 +3,7 @@
         <form autocomplete="off" wire:submit.prevent="createUpdateJournal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
+                    <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         @if($showEditModal)
                         แก้ไขใบสำคัญ
                         @else

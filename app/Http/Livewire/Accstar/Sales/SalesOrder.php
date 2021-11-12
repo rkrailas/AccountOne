@@ -350,11 +350,13 @@ class SalesOrder extends Component
 
         // getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','snumber','sodate','deliverydate','name','sototal','refno')
+            ->selectRaw("sales.id, snumber, sodate, deliverydate, customer.customerid || ' : ' || name as name
+                        , sototal, refno")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', false)
             ->where('soreturn','N')
             ->where('closed',false)
+            ->where('ram_sodeliverytax',false)
             ->where('expirydate', '>', Carbon::now()->addDays(-1))
             ->Where(function($query) 
                 {

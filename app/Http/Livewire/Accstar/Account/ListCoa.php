@@ -47,7 +47,7 @@ class ListCoa extends Component
     public function chartofaccounts()
     {
         $strsql = "select account as id, accgroup as parent_id, accname
-                    from account a where acctype='1'
+                    from account a --where acctype='1'
                     order by account";
         $account = DB::select($strsql);
         $account = json_decode(json_encode($account), true);

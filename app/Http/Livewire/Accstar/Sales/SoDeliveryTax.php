@@ -622,7 +622,7 @@ class SoDeliveryTax extends Component
         $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
         $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
         $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
-        $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);  
+        $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
         // ./soHeader
         
         // .soDetails
@@ -689,10 +689,12 @@ class SoDeliveryTax extends Component
 
         // .getSalesOrder
         $salesOrders = DB::table('sales')
-            ->select('sales.id','snumber','sodate','name','sototal','sales.transactiondate')
+            ->selectRaw("sales.id, snumber, sodate, sototal, sales.transactiondate
+                        , customer.customerid || ' : ' || name as name")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', FALSE)
             ->where('soreturn','N')
+            ->where('ram_sodeliverytax',true)
             ->whereIn('snumber',function ($query) {
                 $query->select('snumber')->from('salesdetail')
                 ->where('quantitybac', '>' , 0)

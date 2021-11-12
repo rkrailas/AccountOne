@@ -49,7 +49,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">                                    
-                                    รหัสสินค้า
+                                    รหัส
                                     <span wire:click="sortBy('inventory.itemid')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
@@ -69,7 +69,7 @@
                                     </span>
                                 </th>
                                 <th scope="col">
-                                    ชนิดของสินค้า
+                                    ชนิด
                                     <span wire:click="sortBy('inventory.stocktype')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
@@ -79,7 +79,7 @@
                                     </span>
                                 </th>
                                 <th scope="col">
-                                    ประเภทสินค้า
+                                    ประเภท
                                     <span wire:click="sortBy('inventory.category')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
@@ -108,7 +108,7 @@
                                             class="fa fa-arrow-down {{ $sortBy === 'inventory.salesprice' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">รูปสินค้า</th>
+                                <th scope="col">รูปภาพ</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>

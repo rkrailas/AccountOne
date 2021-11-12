@@ -232,8 +232,8 @@ class Customer extends Component
                 ,'customer.taxid','customer.debtor','customer.creditor','customer.corporate')
         ->whereNotNull('customerid')
         ->Where(function($query) {
-                $query->where('customer.customerid', 'like', '%'.$this->searchTerm.'%')
-                      ->orWhere('customer.name', 'like', '%'.$this->searchTerm.'%');
+                $query->where('customer.customerid', 'ilike', '%'.$this->searchTerm.'%')
+                      ->orWhere('customer.name', 'ilike', '%'.$this->searchTerm.'%');
                 })
         ->orderBy($this->sortBy,$this->sortDirection)
         ->paginate($this->numberOfPage);
