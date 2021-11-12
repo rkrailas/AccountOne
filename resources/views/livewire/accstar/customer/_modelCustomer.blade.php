@@ -47,7 +47,8 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <label for="customerID" style="color:red;">รหัส</label>
-                                            <input class="form-control form-control-sm @error('customerid') is-invalid @enderror" type="text" id="customerID" required {{ $showEditModal ? 'readonly' : '' }} wire:model.defer="state.customerid">
+                                            <input class="form-control form-control-sm @error('customerid') is-invalid @enderror" maxlength="15" type="text" 
+                                                id="customerID" required {{ $showEditModal ? 'readonly' : '' }} wire:model.defer="state.customerid">
                                             @error('customerid')
                                             <div class="invalid-feedback">
                                                 The Customer ID has already been taken.
@@ -56,27 +57,27 @@
                                         </div>
                                         <div class="col-md-8">
                                             <label for="name" style="color:red;">ชื่อ</label>
-                                            <input class="form-control form-control-sm" type="text" id="name" required wire:model.defer="state.name">
+                                            <input class="form-control form-control-sm" type="text" id="name" maxlength="100" required wire:model.defer="state.name">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="names" style="color:red;">ชื่อ2</label>
-                                            <input class="form-control form-control-sm" type="text" id="names" required wire:model.defer="state.names">
+                                            <input class="form-control form-control-sm" type="text" id="names" maxlength="100" required wire:model.defer="state.names">
                                         </div>
                                         <div class="col-md-6">
                                             <label for="name1" style="color:red;">ชื่อ3</label>
-                                            <input class="form-control form-control-sm" type="text" id="name1" required wire:model.defer="state.name1">
+                                            <input class="form-control form-control-sm" type="text" id="name1" maxlength="100" required wire:model.defer="state.name1">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <label for="taxID" style="color:red;">เลขประจำตัวภาษี</label>
-                                            <input class="form-control form-control-sm" type="text" id="taxID" required wire:model.defer="state.taxid">
+                                            <input class="form-control form-control-sm" type="text" id="taxID" maxlength="30" required wire:model.defer="state.taxid">
                                         </div>
                                         <div class="col-md-3">
                                             <label for="branchNo">รหัสสาขา</label>
-                                            <input class="form-control form-control-sm" type="text" id="branchNo" wire:model.defer="state.branchno">
+                                            <input class="form-control form-control-sm" type="text" maxlength="10" id="branchNo" wire:model.defer="state.branchno">
                                         </div>
                                         <div class="col-md-5">
                                             <label for="groupCheckbox">สถานะ</label>
@@ -100,13 +101,13 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label for="address11" style="color:red;">ที่อยู่บรรทัดที่ 1</label>
-                                            <input class="form-control form-control-sm" type="text" id="address11" required wire:model.defer="state.address11">
+                                            <input class="form-control form-control-sm" type="text" id="address11" maxlength="100" required wire:model.defer="state.address11">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label for="address12">ที่อยู่บรรทัดที่ 2</label>
-                                            <input class="form-control form-control-sm" type="text" id="address12" wire:model.defer="state.address12">
+                                            <input class="form-control form-control-sm" type="text" id="address12" maxlength="100" wire:model.defer="state.address12">
                                         </div>
                                     </div>
                                     <div class="row">
@@ -134,31 +135,31 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label for="zipcode1">รหัสไปรษณีย์</label>
-                                            <input class="form-control form-control-sm" type="text" id="zipcode1" wire:model.defer="state.zipcode1">
+                                            <input class="form-control form-control-sm" type="text" id="zipcode1" maxlength="10" wire:model.defer="state.zipcode1">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-3">
                                             <label for="phone1">โทรศัพท์</label>
-                                            <input class="form-control form-control-sm" type="text" id="phone1" wire:model.defer="state.phone1">
+                                            <input class="form-control form-control-sm" type="text" id="phone1" maxlength="50" wire:model.defer="state.phone1">
                                         </div>
                                         <div class="col-md-3">
                                             <label for="fax1">โทรสาร</label>
-                                            <input class="form-control form-control-sm" type="text" id="fax1" wire:model.defer="state.fax1">
+                                            <input class="form-control form-control-sm" type="text" id="fax1" maxlength="50" wire:model.defer="state.fax1">
                                         </div>
                                         <div class="col-md-3">
                                             <label for="email1">Email</label>
-                                            <input class="form-control form-control-sm" type="text" id="email1" wire:model.defer="state.email1">
+                                            <input class="form-control form-control-sm" type="text" id="email1" maxlength="50" wire:model.defer="state.email1">
                                         </div>
                                         <div class="col-md-3">
                                             <label for="contact1">ผู้ติดต่อ</label>
-                                            <input class="form-control form-control-sm" type="text" id="contact1" wire:model.defer="state.contact1">
+                                            <input class="form-control form-control-sm" type="text" id="contact1" maxlength="100" wire:model.defer="state.contact1">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label for="notes1">บันทึก</label>
-                                            <input class="form-control form-control-sm" type="text" id="notes1" wire:model.defer="state.notes1"></input>
+                                            <input class="form-control form-control-sm" type="text" id="notes1" maxlength="100" wire:model.defer="state.notes1"></input>
                                         </div>
                                     </div>
 
@@ -192,7 +193,7 @@
                                         </div>
                                         <div class="col-md-9">
                                             <label for="termDiscount">เงิ่อนไขชำระเงิน</label>
-                                            <input class="form-control form-control-sm" type="text" id="termDiscount" wire:model.defer="state.termdiscount">
+                                            <input class="form-control form-control-sm" type="text" id="termDiscount" maxlength="50" wire:model.defer="state.termdiscount">
                                         </div>
                                     </div>
                                     <div class="row">
@@ -274,7 +275,7 @@
                                         </div>
                                         <div class="col-md-9">
                                             <label for="termDiscount_ap">เงิ่อนไขชำระเงิน</label>
-                                            <input class="form-control form-control-sm" type="text" id="termDiscount_ap" wire:model.defer="state.termdiscount_ap">
+                                            <input class="form-control form-control-sm" type="text" id="termDiscount_ap" maxlength="50" wire:model.defer="state.termdiscount_ap">
                                         </div>
                                     </div>
                                     <div class="row">

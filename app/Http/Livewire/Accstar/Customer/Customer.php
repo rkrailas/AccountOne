@@ -60,37 +60,45 @@ class Customer extends Component
 
     public function createCustomer()
     {        
-        $validateData = Validator::make($this->state, [
-                'customerid' => 'required|unique:customer,customerid',
-            ])->validate();
-         
-        DB::transaction(function () {
-                DB::statement("INSERT INTO customer(customerid,name,names,name1,taxid,branchno,debtor,creditor,corporate
-                ,address11,address12,city1,state1,zipcode1,phone1,fax1,email1,contact1,notes1,employee_id,transactiondate)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                ,[$this->state['customerid'],$this->state['name'],$this->state['names'],$this->state['name1'],$this->state['taxid'],$this->state['branchno']
-                ,$this->state['debtor'],$this->state['creditor'],$this->state['corporate'],$this->state['address11']
-                ,$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1'],$this->state['phone1']
-                ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1'],'Admin', Carbon::now()]);
+        // $validateData = Validator::make($this->state, [
+        //         'customerid' => 'required|unique:customer,customerid',
+        //     ])->validate();
         
-                DB::statement("INSERT INTO buyer(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount
-                ,account,tax,tax1,pricelevel,employee_id,transactiondate)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)" 
-                ,[$this->state['customerid'],$this->state['creditlimit'],$this->state['discountday'],$this->state['discount'],$this->state['dueday']
-                ,$this->state['generaldiscount'],$this->state['termdiscount'],$this->state['account'],$this->state['tax'],$this->state['tax1']
-                ,$this->state['pricelevel'],'Admin', Carbon::now()]);
+        $strsql = "select customerid from customer where customerid='" . $this->state['customerid'] . "'";
+        $data = DB::select($strsql);
+        if (count($data)) {
+                $this->dispatchBrowserEvent('popup-alert', [
+                        'title' => 'มีรหัสลูกค้านี้อยู่แล้ว !',
+                        ]);
+        }else{
+                DB::transaction(function () {
+                        DB::statement("INSERT INTO customer(customerid,name,names,name1,taxid,branchno,debtor,creditor,corporate
+                        ,address11,address12,city1,state1,zipcode1,phone1,fax1,email1,contact1,notes1,employee_id,transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        ,[$this->state['customerid'],$this->state['name'],$this->state['names'],$this->state['name1'],$this->state['taxid'],$this->state['branchno']
+                        ,$this->state['debtor'],$this->state['creditor'],$this->state['corporate'],$this->state['address11']
+                        ,$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1'],$this->state['phone1']
+                        ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1'],'Admin', Carbon::now()]);
+                
+                        DB::statement("INSERT INTO buyer(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount
+                        ,account,tax,tax1,pricelevel,employee_id,transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)" 
+                        ,[$this->state['customerid'],$this->state['creditlimit'],$this->state['discountday'],$this->state['discount'],$this->state['dueday']
+                        ,$this->state['generaldiscount'],$this->state['termdiscount'],$this->state['account'],$this->state['tax'],$this->state['tax1']
+                        ,$this->state['pricelevel'],'Admin', Carbon::now()]);
 
-                DB::statement("INSERT INTO vendor(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount,account
-                ,tax,tax1,pricelevel,discountontotal,exclusivetax,employee_id,transactiondate)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" 
-                ,[$this->state['customerid'],$this->state['creditlimit_ap'],$this->state['discountday_ap'],$this->state['discount_ap']
-                ,$this->state['dueday_ap'],$this->state['generaldiscount_ap'],$this->state['termdiscount_ap'],$this->state['account_ap']
-                ,$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap'],$this->state['discountontotal_ap']
-                ,$this->state['exclusivetax_ap'],'Admin', Carbon::now()]);
-        });
-
-        $this->dispatchBrowserEvent('hide-customerForm');
-        $this->dispatchBrowserEvent('alert',['message' => 'Create Successfully!']);        
+                        DB::statement("INSERT INTO vendor(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount,account
+                        ,tax,tax1,pricelevel,discountontotal,exclusivetax,employee_id,transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" 
+                        ,[$this->state['customerid'],$this->state['creditlimit_ap'],$this->state['discountday_ap'],$this->state['discount_ap']
+                        ,$this->state['dueday_ap'],$this->state['generaldiscount_ap'],$this->state['termdiscount_ap'],$this->state['account_ap']
+                        ,$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap'],$this->state['discountontotal_ap']
+                        ,$this->state['exclusivetax_ap'],'Admin', Carbon::now()]);
+                });
+        
+                $this->dispatchBrowserEvent('hide-customerForm');
+                $this->dispatchBrowserEvent('alert',['message' => 'Create Successfully!']);        
+        }
     }
 
     public function updateCustomer()
