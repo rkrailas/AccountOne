@@ -59,6 +59,7 @@ class ListGjournal extends Component
 
     public function addNew() //จากการกดปุ่ม สร้างใบสำคัญ
     {
+        $this->reset(['journalDetails','sumGldebit','sumGlcredit','gltranNo2','gjournal2','department2','gjournaldt2','gldescription2']);
         $this->showEditModal = FALSE;
         $this->addRow();
         $this->dispatchBrowserEvent('show-formJournal'); //แสดง Model Form

@@ -27,7 +27,7 @@
                     <div class="row">
                         <div class="col">
                             <label>เลขใบสำคัญ:</label>
-                            <input type="text" class="form-control" required wire:model.defer="gltranNo2">
+                            <input type="text" class="form-control form-control-sm" required wire:model.defer="gltranNo2">
                         </div>
                         <div class="col">
                             <label>วันที่ใบสำคัญ:</label>
@@ -42,7 +42,7 @@
                         </div>
                         <div class="col">
                             <label>สมุดรายวัน:</label>
-                            <select class="form-control" required wire:model.defer="gjournal2">
+                            <select class="form-control form-control-sm" required wire:model.defer="gjournal2">
                                 <option value="">--- โปรดเลือก ---</option>
                                 @foreach ($journals as $journal)
                                 <option value="{{ $journal->code }}">{{ $journal->other }}</option>
@@ -51,7 +51,7 @@
                         </div>
                         <div class="col">
                             <label>ชนิดการจัดสรร:</label>
-                            <select class="form-control" wire:model.defer="department2">
+                            <select class="form-control form-control-sm" wire:model.defer="department2">
                                 <option value="">--- โปรดเลือก ---</option>
                                 @foreach ($allocations as $allocation)
                                 <option value="{{ $allocation->code }}">{{ $allocation->description }}</option>
@@ -64,7 +64,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-1 col-form-label">คำอธิบาย:</label>
                                 <div class="col-sm-11">
-                                    <input type="text" class="form-control" wire:model.defer="gldescription2">
+                                    <input type="text" class="form-control form-control-sm" wire:model.defer="gldescription2">
                                 </div>
                             </div>
                         </div>

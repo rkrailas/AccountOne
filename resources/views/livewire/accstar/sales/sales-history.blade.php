@@ -151,7 +151,7 @@
                                 <td scope="col">{{ \Carbon\Carbon::parse($row->sodate)->format('Y-m-d') }} </td>
                                 <td scope="col">{{ $row->customername }} </td>
                                 <td scope="col">{{ $row->taxnumber }} </td>
-                                <td scope="col">{{ \Carbon\Carbon::parse($row->taxdate)->format('Y-m-d') }} </td>                                
+                                <td scope="col">{{ \Carbon\Carbon::parse($row->taxdate)->format('Y-m-d') }} </td>
                                 <td scope="col" class="text-right">{{ number_format($row->amount, 2) }} </td>
                                 <td scope="col" class="text-right">{{ number_format($row->taxamount, 2) }} </td>
                                 <td scope="col" style="text-align:center">
@@ -170,10 +170,10 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="7"></td>
+                                <td colspan="6"></td>
                                 <td class="text-right font-weight-bold">{{ number_format($sumAmount2, 2) }}</td>
                                 <td class="text-right font-weight-bold">{{ number_format($sumTaxAmount, 2) }}</td>
-                                <td colspan="5"></td>
+                                <td colspan="2"></td>
                             </tr>
                         </tfoot>
                     </table>

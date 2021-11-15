@@ -49,72 +49,86 @@ class AdjustSoDeliveryTax extends Component
     public function searchDoc()
     {
         //ตรวจสอบว่าปรับปรุงหรือยัง
-        $strsql = "select sonumber from sales
-                    where soreturn='D' and refno='" . $this->taxNumber . "'";
-        $data =  DB::select($strsql);
-        if (count($data)) {
-            $this->dispatchBrowserEvent('popup-alert', [
-                'title' => 'ใบกำกับภาษีนำไปปรับปรุงแล้ว !',
-            ]);
-            $this->resetValuesInModel();
-        } else {
-            //หา Taxdata > sale + saledetail 
-            $strsql = "select taxnumber, reference
-            from taxdata
-            where iscancelled=false and purchase=false 
-            and taxnumber='" . $this->taxNumber . "'";
+        if ($this->taxNumber) {
+            $strsql = "select sonumber from sales where soreturn='D' and refno='" . $this->taxNumber . "'";
             $data =  DB::select($strsql);
-
             if (count($data)) {
-                $data = json_decode(json_encode($data[0]), true);
-
-                $xSoNumber = $data['reference'];
-
-                //soHeader
-                $data = DB::table('sales')
-                    ->selectRaw("sonumber,snumber,to_char(sodate,'YYYY-MM-DD') as sodate, invoiceno, to_char(invoicedate,'YYYY-MM-DD') as invoicedate
-                            , deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate, payby
-                            , CONCAT(customer.customerid,': ', customer.name) as shipname
-                            , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
-                            , to_char(duedate,'YYYY-MM-DD') as duedate, to_char(journaldate,'YYYY-MM-DD') as journaldate, exclusivetax
-                            , taxontotal, salesaccount, taxrate, salestax, discountamount, sototal, customer.customerid
-                            , shipcost, refno")
-                    ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
-                    ->where('sonumber', $xSoNumber)
-                    ->where('soreturn', 'N')
-                    ->get();
-                $this->soHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
-                $this->soHeader['discountamount'] = round($this->soHeader['discountamount'], 2);
-                $this->soHeader['shipcost'] = round($this->soHeader['shipcost'], 2);
-                $this->soHeader['salestax'] = round($this->soHeader['salestax'], 2);
-                $this->soHeader['sototal'] = round($this->soHeader['sototal'], 2);
-                $this->soHeader['sonumber'] = getCnDocNunber('SO');
-                $this->soHeader['sodate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['deliveryno'] = getGlNunber('SO');
-                $this->soHeader['deliverydate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['invoiceno'] = getCnTaxNunber('SO');
-                $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
-                $this->soHeader['closed'] = false;
-                $this->soHeader['sonote'] = "ปรับปรุงราคาขายใบกำกับ " . $this->taxNumber;
-
-                //soDetails
-                $data2 = DB::table('salesdetaillog')
-                    ->selectRaw('itemid,description,quantity,salesac,unitprice,taxrate,taxamount,id,inventoryac,0 as cost')
-                    ->where('snumber', $xSoNumber)
-                    ->where('soreturn', 'N')
-                    ->get();
-                $this->soDetails = json_decode(json_encode($data2), true);
-
-                $this->reCalculateInGrid();
-
-                //$this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
-            } else {
                 $this->dispatchBrowserEvent('popup-alert', [
-                    'title' => 'ไม่พบใบกำกับภาษี !',
+                    'title' => 'ใบกำกับภาษีนำไปปรับปรุงแล้ว !',
                 ]);
                 $this->resetValuesInModel();
+            } else {
+                //หา Taxdata > sale + saledetail 
+                $strsql = "select taxnumber, reference from taxdata
+                where iscancelled=false and purchase=false 
+                and taxnumber='" . $this->taxNumber . "'";
+                $data =  DB::select($strsql);
+
+                if (count($data)) {
+                    $data = json_decode(json_encode($data[0]), true);
+
+                    $xSoNumber = $data['reference'];
+
+                    //soHeader
+                    $data = DB::table('sales')
+                        ->selectRaw("sonumber,snumber,to_char(sodate,'YYYY-MM-DD') as sodate, invoiceno, to_char(invoicedate,'YYYY-MM-DD') as invoicedate
+                                , deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate, payby
+                                , CONCAT(customer.customerid,': ', customer.name) as shipname
+                                , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
+                                , to_char(duedate,'YYYY-MM-DD') as duedate, to_char(journaldate,'YYYY-MM-DD') as journaldate, exclusivetax
+                                , taxontotal, salesaccount, taxrate, salestax, discountamount, sototal, customer.customerid
+                                , shipcost, refno")
+                        ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
+                        ->where('sonumber', $xSoNumber)
+                        ->where('soreturn', 'N')
+                        ->get();
+                    $this->soHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
+                    $this->soHeader['discountamount'] = round($this->soHeader['discountamount'], 2);
+                    $this->soHeader['shipcost'] = round($this->soHeader['shipcost'], 2);
+                    $this->soHeader['salestax'] = round($this->soHeader['salestax'], 2);
+                    $this->soHeader['sototal'] = round($this->soHeader['sototal'], 2);
+                    $this->soHeader['sonumber'] = getCnDocNunber('SO');
+                    $this->soHeader['sodate'] = Carbon::now()->format('Y-m-d');
+                    $this->soHeader['deliveryno'] = getGlNunber('SO');
+                    $this->soHeader['deliverydate'] = Carbon::now()->format('Y-m-d');
+                    $this->soHeader['invoiceno'] = getCnTaxNunber('SO');
+                    $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
+                    $this->soHeader['closed'] = false;
+                    $this->soHeader['sonote'] = "ปรับปรุงราคาขายใบกำกับ " . $this->taxNumber;
+
+                    //ค้นหา Account Code ที่บันทึกไว้ตอนขาย
+                    $strsql = "select sa.salesaccount from taxdata tx
+                                join sales sa on tx.reference=sa.sonumber and tx.customerid=sa.customerid
+                                where tx.taxnumber='" . $this->taxNumber . "'";
+                    $data2 =  DB::select($strsql);
+                    if (count($data2)) {
+                         $this->soHeader['sonote'] = $data2[0]->salesaccount;
+                    }
+
+                    //soDetails
+                    $data2 = DB::table('salesdetaillog')
+                        ->selectRaw('itemid,description,quantity,salesac,unitprice,taxrate,taxamount,id,inventoryac,0 as cost')
+                        ->where('snumber', $xSoNumber)
+                        ->where('soreturn', 'N')
+                        ->get();
+                    $this->soDetails = json_decode(json_encode($data2), true);
+
+                    $this->reCalculateInGrid();
+
+                    //$this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+                } else {
+                    $this->dispatchBrowserEvent('popup-alert', [
+                        'title' => 'ไม่พบใบกำกับภาษี !',
+                    ]);
+                    $this->resetValuesInModel();
+                }
             }
+        }else{
+            $this->dispatchBrowserEvent('popup-alert', [
+                'title' => 'กรุณาป้อนเลขที่ใบกำกับ !',
+            ]);
         }
+        
     }
 
     public function updatingNumberOfPage()
@@ -373,13 +387,14 @@ class AdjustSoDeliveryTax extends Component
 
                     DB::statement(
                         "INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount
-                    , quantity, quantityord, quantitydel, quantitybac, taxrate, taxamount, soreturn
+                    , quantity, quantityord, quantitydel, quantitybac, taxrate, taxamount, soreturn, cost
                     , salesac, employee_id, transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         [
                             $this->soHeader['sonumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
                             , $soDetails2['unitprice'], $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac
-                            , $soDetails2['taxrate'], $soDetails2['taxamount'], 'D', $soDetails2['salesac'], 'Admin', Carbon::now()
+                            , $soDetails2['taxrate'], $soDetails2['taxamount'], 'D', $soDetails2['cost'], $soDetails2['salesac']
+                            , 'Admin', Carbon::now()
                         ]
                     );
                 }
@@ -419,13 +434,13 @@ class AdjustSoDeliveryTax extends Component
 
                     DB::statement(
                         "INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount
-                    , quantity, quantityord, quantitydel, quantitybac, taxrate, taxamount, soreturn, salesac
+                    , quantity, quantityord, quantitydel, quantitybac, taxrate, taxamount, soreturn, cost, salesac
                     , employee_id, transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         [
                             $this->soHeader['sonumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice']
                             , $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
-                            , 'D', $soDetails2['salesac'], 'Admin', Carbon::now()
+                            , 'D', $soDetails2['cost'], $soDetails2['salesac'], 'Admin', Carbon::now()
                         ]
                     );
                 }

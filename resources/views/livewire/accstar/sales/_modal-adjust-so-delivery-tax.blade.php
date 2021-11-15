@@ -94,7 +94,7 @@
                                 <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoicedate" :error="'date'" required />
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-6">
                             <label for="account">บัญชีขาย</label>
                             <select class="form-control form-control-sm" id="salesaccount" wire:model="soHeader.salesaccount">
                                 <option value=" ">---โปรดเลือก---</option>
