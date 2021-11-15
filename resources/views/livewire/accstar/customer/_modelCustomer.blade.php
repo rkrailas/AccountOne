@@ -199,11 +199,11 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="account">บัญชีลูกหนี้</label>
-                                            <x-select2 id="account-select2" wire:model.defer="state.account">
+                                            <x-select2 id="account-select2" wire:model="state.account">
                                                 <option value=" ">---โปรดเลือก---</option>
                                                 @foreach($accountNos_dd as $row)
                                                 <option value='{{ $row->account }}'>
-                                                    {{ $row->account . ': ' . $row->accname }}
+                                                    {{ $row->account . ' : ' . $row->accname }}
                                                 </option>
                                                 @endforeach
                                             </x-select2>
@@ -369,6 +369,11 @@
         clearSelect2('city1-select2');
         clearSelect2('state1-select2');
         clearSelect2('account_ap-select2');
+    })
+
+    window.addEventListener('bindToSelect', event => {
+        $(event.detail.selectName).html(" ");
+        $(event.detail.selectName).append(event.detail.newOption);
     })
 </script>
 @endpush

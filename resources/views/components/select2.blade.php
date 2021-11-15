@@ -38,6 +38,11 @@
             function clearSelect2(id){
                 $('#'+id).select2('val', ' ');
             }
+
+            // function addValSelect2(id){
+            //     //alert(event.detail.myval);
+            //     $('#'+id).select2('val', event.detail.myval);
+            // }
         </script>
     @endpush
 @endonce

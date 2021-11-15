@@ -159,8 +159,35 @@ class Customer extends Component
         //Convert เป็น Arrat 1 มิติ
         $this->state = json_decode(json_encode($data[0]), true);
 
+        //Bind Buyer Account
+        $newOption = "<option value=''>---โปรดเลือก---</option>";
+        foreach ($this->accountNos_dd as $row) {
+            $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+            if ($row['account'] == $this->state['account']) {
+                $newOption = $newOption . "selected='selected'"; 
+            }
+            $newOption = $newOption . ">" . $row['account'] . " : " . $row['accname'] . "</option>";
+        }
+        $this->dispatchBrowserEvent('bindToSelect', [
+                                'newOption' => $newOption, 
+                                'selectName' => '#account-select2',
+                                ]);
+
+        //Bind Vendor Account
+        $newOption = "<option value=''>---โปรดเลือก---</option>";
+        foreach ($this->accountNosAp_dd as $row) {
+            $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+            if ($row['account'] == $this->state['account_ap']) {
+                $newOption = $newOption . "selected='selected'"; 
+            }
+            $newOption = $newOption . ">" . $row['account'] . " : " . $row['accname'] . "</option>";
+        }
+        $this->dispatchBrowserEvent('bindToSelect', [
+                                'newOption' => $newOption, 
+                                'selectName' => '#account_ap-select2',
+                                ]);
+
         $this->dispatchBrowserEvent('show-customerForm');
-        $this->dispatchBrowserEvent('clear-select2');
     }
 
     public function updatingSearchTerm()

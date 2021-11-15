@@ -2,7 +2,7 @@
 
 {{-- {{ $attributes }} --}}
 <div wire:ignore>
-    <select id="{{ $id }}" style="width: 100%" > 
+    <select id="{{ $id }}" style="width: 100%"> 
         {{ $slot }}
     </select>
 </div>
