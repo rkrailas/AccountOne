@@ -28,8 +28,8 @@ class SoTax extends Component
     public $sNumberDelete;
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
-
     public $closed = false;
+    public $errorValidate, $errorInvoiceNo, $errorGLTran = false;
 
     public function updatingNumberOfPage()
     {
@@ -328,18 +328,49 @@ class SoTax extends Component
             $this->sumDebit = $this->sumDebit + $this->genGLs[$i]['gldebit'];
             $this->sumCredit = $this->sumCredit + $this->genGLs[$i]['glcredit'];
         }        
+
+        //Sorting
+        $gldebit = array_column($this->genGLs, 'gldebit');
+        array_multisort($gldebit, SORT_DESC, $this->genGLs);
     }
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {   
         if ($this->showEditModal == true){
+            //ตรวจสอบเลขที่ใบกำกับ & ใบสำคัญซ้ำหรือไม่
+            $strsql = "select count(*) as count from taxdata where purchase=false and taxnumber='" . $this->soHeader['invoiceno'] . "'";
+            $data = DB::select($strsql);
+            if ($data[0]->count){
+                $this->errorInvoiceNo = true;
+                $this->errorValidate = true;
+            }
+
+            $strsql = "select count(*) as count from gltran where gltran='" . $this->soHeader['deliveryno'] . "'";
+            $data = DB::select($strsql);
+            if ($data[0]->count){
+                $this->errorGLTran = true;
+                $this->errorValidate = true;
+            }
+
+            $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
+            $data = DB::select($strsql);
+            if ($data[0]->count){
+                $this->errorGLTran = true;
+                $this->errorValidate = true;
+            }
+
+            if ($this->errorValidate){
+                return;
+            }
+
+            // Sales
+            DB::statement("UPDATE sales SET invoiceno=?,invoicedate=?,deliveryno=?,journaldate=?,sonote=?,posted=?,employee_id=?,transactiondate=?
+            where snumber=?" 
+            , [$this->soHeader['invoiceno'],$this->soHeader['invoicedate'],$this->soHeader['deliveryno'],$this->soHeader['journaldate']
+            , $this->soHeader['sonote'], true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
+
             if ($this->closed){
-                DB::transaction(function () {
-                    // Sales
-                    DB::statement("UPDATE sales SET sonote=?,posted=?,employee_id=?,transactiondate=?
-                        where snumber=?" 
-                        , [$this->soHeader['sonote'], true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
-    
+                DB::transaction(function () {    
                     // Taxdata
                     DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
                                 ,description,amountcur,amount,taxamount,duedate,purchase,posted
@@ -363,6 +394,8 @@ class SoTax extends Component
                     $this->generateGl($this->soHeader['gltran']);
                     DB::table('gltran')->insert($this->genGLs);
                 });
+            }else{
+
             }
 
             $this->closed = false;
@@ -463,6 +496,7 @@ class SoTax extends Component
     public function edit($sNumber) //กดปุ่ม Edit ที่ List รายการ
     {
         $this->showEditModal = TRUE;
+        $this->reset(['soHeader','soDetails','sumQuantity','sumAmount','errorValidate','errorInvoiceNo','errorGLTran']);
 
         //soHeader
         $data = DB::table('sales')
@@ -470,7 +504,7 @@ class SoTax extends Component
                         , to_char(sales.duedate,'YYYY-MM-DD') as duedate, customer.name, customer.customerid
                         , CONCAT(customer.address11,' ',customer.address12,' ',customer.city1,' ',customer.state1,' ',customer.zipcode1) as full_address
                         , to_char(sales.journaldate,'YYYY-MM-DD') as journaldate, sales.exclusivetax, sales.taxontotal, sales.taxrate, sales.salestax
-                        , sales.discountamount, sales.sototal, sales.shipcost, sales.sonote")
+                        , sales.discountamount, sales.sototal, sales.shipcost, sales.sonote, sales.deliveryno")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('sales.snumber', $sNumber)
             ->where('sales.soreturn', 'N')
@@ -481,10 +515,20 @@ class SoTax extends Component
         $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
         $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
         $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
-        $this->soHeader['invoiceno'] = getTaxNunber("SO");
-        $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
-        $this->soHeader['gltran'] = getGlNunber("SO"); //Add New Field
-        $this->soHeader['journaldate'] = Carbon::now()->format('Y-m-d');
+
+        if (!$this->soHeader['invoiceno']){
+            $this->soHeader['invoiceno'] = getTaxNunber("SO");
+        }
+        if (!$this->soHeader['invoicedate']){
+            $this->soHeader['invoicedate'] = Carbon::now()->format('Y-m-d');
+        }
+        if (!$this->soHeader['deliveryno']){
+            $this->soHeader['deliveryno'] = getGlNunber("SO");
+        }
+        if (!$this->soHeader['journaldate']){
+            $this->soHeader['journaldate'] = Carbon::now()->format('Y-m-d');
+        }
+        
         if ($this->soHeader['sonote'] == null) {
             $this->soHeader['sonote'] = 'ขายสินค้าตามใบกำกับ-' . $this->soHeader['invoiceno'];
         }

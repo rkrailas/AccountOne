@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ReturnGoods extends Component
 {
@@ -29,6 +30,7 @@ class ReturnGoods extends Component
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
     public $taxNumber;
+    public $errorValidate, $errorTaxNumber, $errorGLTran = false;
 
     public function resetValuesInModel()
     {
@@ -99,6 +101,26 @@ class ReturnGoods extends Component
                 $this->soHeader['closed'] = false;
                 $this->soHeader['sonote'] = "รับคืนสินค้าจากใบกำกับ " . $this->taxNumber;
 
+                //ค้นหา Account Code ที่บันทึกไว้ตอนขาย
+                $strsql = "select sa.salesaccount from taxdata tx
+                            join sales sa on tx.reference=sa.sonumber and tx.customerid=sa.customerid
+                            where tx.taxnumber='" . $this->taxNumber . "'";
+                $data2 =  DB::select($strsql);
+                if (count($data2)) {                    
+                    $this->soHeader['salesaccount'] = $data2[0]->salesaccount;
+                }
+
+                //Bind salesaccount
+                $newOption = "<option value=''>---โปรดเลือก---</option>";
+                foreach ($this->salesAcs_dd as $row) {
+                    $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+                    if ($row['account'] == $this->soHeader['salesaccount']) { 
+                        $newOption = $newOption . "selected='selected'"; 
+                    }
+                    $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+                }
+                $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesaccount-select2']);
+                
                 //soDetailsLog
                 $data2 = DB::table('salesdetaillog')
                     ->selectRaw('itemid,description,quantity,salesac,unitprice,taxrate,taxamount,id
@@ -296,6 +318,10 @@ class ReturnGoods extends Component
             $this->sumDebit = $this->sumDebit + $this->genGLs[$i]['gldebit'];
             $this->sumCredit = $this->sumCredit + $this->genGLs[$i]['glcredit'];
         }
+
+        //Sorting
+        $gldebit = array_column($this->genGLs, 'gldebit');
+        array_multisort($gldebit, SORT_DESC, $this->genGLs);
     }
 
     public function addNew() //กดปุ่ม สร้างข้อมูลใหม่
@@ -303,6 +329,7 @@ class ReturnGoods extends Component
         $this->showEditModal = FALSE;
         $this->resetValuesInModel();
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('clear-select2');
     }
 
     public function removeRowInGrid($index) //กดปุ่มลบ Row ใน Grid
@@ -320,6 +347,32 @@ class ReturnGoods extends Component
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {
+        //ตรวจสอบเลขที่ใบสั่งขาย ใบกำกับ ใบสำคัญซ้ำหรือไม่
+        $strsql = "select count(*) as count from taxdata where purchase=false and taxnumber='" . $this->soHeader['invoiceno'] . "'";
+        $data = DB::select($strsql);
+        if ($data[0]->count){
+            $this->errorInvoiceNo = true;
+            $this->errorValidate = true;
+        }
+
+        $strsql = "select count(*) as count from gltran where gltran='" . $this->soHeader['deliveryno'] . "'";
+        $data = DB::select($strsql);
+        if ($data[0]->count){
+            $this->errorGLTran = true;
+            $this->errorValidate = true;
+        }
+
+        $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
+        $data = DB::select($strsql);
+        if ($data[0]->count){
+            $this->errorGLTran = true;
+            $this->errorValidate = true;
+        }
+
+        if ($this->errorValidate){
+            return;
+        }
+        
         if ($this->showEditModal == true) {
             //===Edit===
             DB::transaction(function () {
@@ -419,12 +472,13 @@ class ReturnGoods extends Component
 
                         DB::statement(
                             "INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord, quantitydel, quantitybac
-                            , taxrate, taxamount, salesac, cost, employee_id, transactiondate)
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                            , taxrate, taxamount, salesac, cost, soreturn, employee_id, transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                             [
                                 $this->soHeader['sonumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
                                 , $soDetails2['unitprice'], $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac
-                                , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['salesac'], $soDetails2['cost'], 'Admin', Carbon::now()
+                                , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['salesac'], $soDetails2['cost'], 'Y' 
+                                , 'Admin', Carbon::now()
                             ]
                         );
                     }
@@ -434,6 +488,11 @@ class ReturnGoods extends Component
             });
         } else {
             //===New===
+            //ตรวจสอบเลขที่เอกสารซ้ำหรือไม่
+            $validateData = Validator::make($this->soHeader, [
+                'sonumber' => 'required|unique:sales,sonumber',
+            ])->validate();
+
             DB::transaction(function () {
                 //Insert Sales
                 DB::statement(
@@ -624,6 +683,17 @@ class ReturnGoods extends Component
 
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
         //$this->dispatchBrowserEvent('clear-select2');
+
+        //Bind salesaccount
+        $newOption = "<option value=''>---โปรดเลือก---</option>";
+        foreach ($this->salesAcs_dd as $row) {
+            $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+            if ($row['account'] == $this->soHeader['salesaccount']) { 
+                $newOption = $newOption . "selected='selected'"; 
+            }
+            $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+        }
+        $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesaccount-select2']);
     }
 
     public function updatingSearchTerm() //Event นี้เกิดจากการ Key ที่ input wire:model.lazy="searchTerm"
@@ -661,7 +731,7 @@ class ReturnGoods extends Component
         $salesOrders = DB::table('sales')
             ->select('sales.id', 'sonumber', 'snumber', 'sodate', 'name', 'sototal', 'sales.transactiondate', 'sales.refno') //sonumber, sonumber=เลขที่ใบรับคืน
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
-            ->where('closed', FALSE)
+            ->where('closed', false)
             ->where('soreturn', 'Y')
             ->whereIn('sonumber', function ($query) {
                 $query->select('snumber')->from('salesdetail')

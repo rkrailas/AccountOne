@@ -292,11 +292,13 @@
                                         <div>
                                             <img src="{{ $photo->temporaryUrl() }}" style="width: 150px;" alt="">
                                         </div>
+                                        @else
+                                            @if(count($product) > 0 && $product['ram_inventory_image'])
+                                            <img src="{{url('storage/inventory_images/'.$product['ram_inventory_image'])}}"
+                                                style="width: 150px;">
+                                            @endif
                                         @endif
-                                        @if(count($product) > 0 && $product['ram_inventory_image'])
-                                        <img src="{{url('storage/inventory_images/'.$product['ram_inventory_image'])}}"
-                                            style="width: 150px;">
-                                        @endif
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -328,6 +330,11 @@
         clearSelect2('salesac-dropdown');
         clearSelect2('purchasertac-dropdown');
         clearSelect2('salesrtac-dropdown');
+    })
+
+    window.addEventListener('bindToSelect', event => {
+        $(event.detail.selectName).html(" ");
+        $(event.detail.selectName).append(event.detail.newOption);
     })
 </script>
 

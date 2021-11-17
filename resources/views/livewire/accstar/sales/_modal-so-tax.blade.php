@@ -46,7 +46,13 @@
                     <div class="row">
                         <div class="col-3">
                             <label class="">เลขที่ใบสำคัญ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.gltran">
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorGLTran ? 'is-invalid' : '' }}"
+                                required wire:model.defer="soHeader.deliveryno">
+                                @if($errorGLTran)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบสำคัญ</label>
@@ -61,7 +67,13 @@
                         </div>
                         <div class="col-3">
                             <label class="">เลขที่ใบกำกับ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorInvoiceNo ? 'is-invalid' : '' }}" 
+                                required wire:model.defer="soHeader.invoiceno">
+                                @if($errorInvoiceNo)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบกำกับ:</label>

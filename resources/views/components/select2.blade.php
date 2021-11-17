@@ -1,8 +1,8 @@
-@props(['id'])
+@props(['id', 'required'=>''])
 
 {{-- {{ $attributes }} --}}
 <div wire:ignore>
-    <select id="{{ $id }}" style="width: 100%"> 
+    <select id="{{ $id }}" style="width: 100%" {{ $required == 'true' ? 'required' : '' }}> 
         {{ $slot }}
     </select>
 </div>
@@ -48,7 +48,7 @@
 @endonce
 
 @push('js')
-    <script>       
+    <script>        
         $(function(){
             $('#{{ $id }}').select2({
                 theme: 'bootstrap4',

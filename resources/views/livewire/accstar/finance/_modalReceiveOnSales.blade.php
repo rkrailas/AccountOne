@@ -82,7 +82,7 @@
                                             </option>
                                             @endforeach
                                         </select>
-                                        <input type="number" step="0.01" class="form-control form-control-sm" style="width: 30%;" wire:model.defer="bankHeader.witholdamt">
+                                        <input type="number" step="0.01" class="form-control form-control-sm" style="width: 30%;" wire:model.lazy="bankHeader.witholdamt">
                                         <input type="number" step="0.01" class="form-control form-control-sm" style="width: 30%;" wire:model.defer="bankHeader.witholdtax">
                                     </div>
                                 </div>
@@ -195,9 +195,10 @@
                                                 <td class="align-middle">
                                                     {{ $bankDetails[$index]['description'] }}
                                                 </td>
-                                                <td class="align-middle" style="text-align: right;">
+                                                <td class="align-middle" style="text-align: right;">                                                    
+                                                    {{ number_format($bankDetails[$index]['balance'],2) }}
                                                     <a href="#" wire:click.prevent="getBalance({{ $index }})">
-                                                        {{ number_format($bankDetails[$index]['balance'],2) }}
+                                                        <i class="fas fa-angle-double-right" style="color: blue"></i>
                                                     </a>
                                                 </td>
                                                 <td class="align-middle">
@@ -342,12 +343,6 @@
         window.addEventListener('clear-select2', event => {
             clearSelect2('customer-dropdown');
         })
-
-        // $(document).ready(function(){
-        //     $(document).on('change','#billingno-dropdown',function(){
-        //         console.log("customer change");
-        //     });
-        // });
 
         window.addEventListener('bindToBillingNo', event => {
             $('#billingno-dropdown').html(" ");

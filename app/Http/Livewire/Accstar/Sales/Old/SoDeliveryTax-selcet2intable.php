@@ -7,7 +7,6 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class SoDeliveryTax extends Component
 {
@@ -22,14 +21,20 @@ class SoDeliveryTax extends Component
     public $searchTerm = null;
     
     public $showEditModal = null;
-    public $soHeader = [];
-    public $soDetails = [];
+    public $soHeader = []; //sodate,invoiceno,invoicedate,deliveryno,deliverydate,payby,duedate,journaldate,exclusivetax
+                           //,taxontotal,salesaccount,taxrate,salestax,discountamount,sototal,customerid,full_address,shipcost
+    public $soDetails = []; //itemid,description,quantity,salesac,unitprice,amount,discountamount,netamount,taxrate,taxamount,id,inventoryac
     public $sumQuantity, $sumAmount = 0;
     public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd; //Dropdown
     public $sNumberDelete;
-    public $genGLs = [];
+    public $genGLs = []; //gltran, gjournaldt, glaccount, glaccname, gldescription, gldebit, glcredit, jobid, department
+                        //, allcated, currencyid, posted, bookid, employee_id, transactiondate
     public $sumDebit, $sumCredit = 0;
-    public $errorValidate, $errorTaxNumber, $errorGLTran = false;
+
+    public function test555()
+    {
+        dd('here');
+    }
 
     public function updatingNumberOfPage()
     {
@@ -314,10 +319,6 @@ class SoDeliveryTax extends Component
             $this->sumDebit = $this->sumDebit + $this->genGLs[$i]['gldebit'];
             $this->sumCredit = $this->sumCredit + $this->genGLs[$i]['glcredit'];
         }        
-
-        //Sorting
-        $gldebit = array_column($this->genGLs, 'gldebit');
-        array_multisort($gldebit, SORT_DESC, $this->genGLs);
     }
 
     public function addNew() //กดปุ่ม สร้างข้อมูลใหม่
@@ -339,6 +340,12 @@ class SoDeliveryTax extends Component
         $this->addRowInGrid();
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
         $this->dispatchBrowserEvent('clear-select2');
+        //$this->dispatchBrowserEvent('regen-select2');
+
+        //Re-gen Select2 ??? กำลังแก้ตรงนี้
+        $this->dispatchBrowserEvent('regen-select2', [
+            'name' => '#item-select2-' . count($this->soDetails) - 1 ,
+            ]);
     }
 
     public function removeRowInGrid($index) //กดปุ่มลบ Row ใน Grid
@@ -361,52 +368,20 @@ class SoDeliveryTax extends Component
     }
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
-    {
-        //ตรวจสอบเลขที่ใบสั่งขาย ใบกำกับ ใบสำคัญซ้ำหรือไม่
-        $strsql = "select count(*) as count from taxdata where purchase=false and taxnumber='" . $this->soHeader['invoiceno'] . "'";
-        $data = DB::select($strsql);
-        if ($data[0]->count){
-            $this->errorInvoiceNo = true;
-            $this->errorValidate = true;
-        }
-
-        $strsql = "select count(*) as count from gltran where gltran='" . $this->soHeader['deliveryno'] . "'";
-        $data = DB::select($strsql);
-        if ($data[0]->count){
-            $this->errorGLTran = true;
-            $this->errorValidate = true;
-        }
-
-        $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
-        $data = DB::select($strsql);
-        if ($data[0]->count){
-            $this->errorGLTran = true;
-            $this->errorValidate = true;
-        }
-
-        if ($this->errorValidate){
-            return;
-        }
-        
+    {   
         if ($this->showEditModal == true){
             //Edit
-            //ตรวจสอบเลขที่เอกสารซ้ำหรือไม่ ***ยังหาวิธีไม่ได้
-            // $validateData = Validator::make($this->soHeader, [
-            //     'invoiceno' => 'required|unique:sales,invoiceno,'.$this->soHeader['invoiceno'].',invoiceno',
-            //     'deliveryno' => 'required|unique:sales,deliveryno,'.$this->soHeader['deliveryno'].',deliveryno',
-            //     ])->validate();
-
             DB::transaction(function () {
                 // Sales
-                DB::statement("UPDATE sales SET sodate=?, customerid=?, invoiceno=?, invoicedate=?, deliveryno=?, deliverydate=?, sototal=?, salestax=?
+                DB::statement("UPDATE sales SET sodate=?, invoiceno=?, invoicedate=?, deliveryno=?, deliverydate=?, sototal=?, salestax=?
                 , payby=?, duedate=?, journaldate=?, exclusivetax=?, taxontotal=?, salesaccount=?, employee_id=?, transactiondate=?, posted=?
                 , sonote=?
                 where snumber=?" 
-                , [$this->soHeader['sodate'], $this->soHeader['customerid'], $this->soHeader['invoiceno'], $this->soHeader['invoicedate']
-                , $this->soHeader['deliveryno'], $this->soHeader['deliverydate'], $this->soHeader['sototal'], $this->soHeader['salestax']
-                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
-                , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $this->soHeader['posted']
-                , $this->soHeader['sonote'], $this->soHeader['snumber']]);
+                , [$this->soHeader['sodate'], $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno']
+                , $this->soHeader['deliverydate'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['payby']
+                , $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax'], $this->soHeader['taxontotal']
+                , $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $this->soHeader['posted'], $this->soHeader['sonote']
+                , $this->soHeader['snumber']]);
 
                 // Taxdata & GLTran
                 if ($this->soHeader['posted']){
@@ -492,12 +467,7 @@ class SoDeliveryTax extends Component
                 $this->dispatchBrowserEvent('hide-soDeliveryTaxForm',['message' => 'Save Successfully!']);
             });
         }else{
-            //New
-            //ตรวจสอบเลขที่เอกสารซ้ำหรือไม่
-            $validateData = Validator::make($this->soHeader, [
-              'snumber' => 'required|unique:sales,sonumber',
-            ])->validate();
-
+            //New 
             DB::transaction(function () {
                 // Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate, deliveryno, deliverydate, payby
@@ -652,9 +622,8 @@ class SoDeliveryTax extends Component
     public function edit($sNumber) //กดปุ่ม Edit ที่ List รายการ
     {
         $this->showEditModal = TRUE;
-        $this->reset(['soHeader','soDetails','errorValidate','errorTaxNumber','errorGLTran']);
 
-        // soHeader
+        // .soHeader
         $data = DB::table('sales')
             ->selectRaw("snumber,to_char(sodate,'YYYY-MM-DD') as sodate, invoiceno, to_char(invoicedate,'YYYY-MM-DD') as invoicedate
                         , deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate, payby
@@ -671,8 +640,9 @@ class SoDeliveryTax extends Component
         $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
         $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
         $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
+        // ./soHeader
         
-        // soDetails
+        // .soDetails
         $data2 = DB::table('salesdetail')
             ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac')
             ->where('snumber', $sNumber)
@@ -681,21 +651,33 @@ class SoDeliveryTax extends Component
         $this->soDetails = json_decode(json_encode($data2), true); 
 
         $this->reCalculateInGrid();
+        // ./soDetails
 
     
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
-        //$this->dispatchBrowserEvent('clear-select2');
+        $this->dispatchBrowserEvent('clear-select2');
 
-        //Bind Customer
-        $newOption = "<option value=''>---โปรดเลือก---</option>";
-        foreach ($this->customers_dd as $row) {
-            $newOption = $newOption . "<option value='" . $row['customerid'] . "' ";
-            if ($row['customerid'] == $this->soHeader['customerid']) {
-                $newOption = $newOption . "selected='selected'"; 
+        foreach ($this->soDetails as $index => $rowsSOetails)
+        {
+            //$soDetails2['quantity']
+            //Re-gen Select2
+            $this->dispatchBrowserEvent('regen-select2', [
+                'name' => '#item-select2-' . $index ,
+                ]);
+
+            //Bind Item
+            $newOption = "<option value=''>---โปรดเลือก---</option>";
+            foreach ($this->itemNos_dd as $row) {
+                $newOption = $newOption . "<option value='" . $row['itemid'] . "' ";
+                if ($row['itemid'] == $rowsSOetails['itemid']) {
+                    $newOption = $newOption . "selected='selected'"; 
+                }
+                $newOption = $newOption . ">" . $row['itemid'] . " : " . $row['description'] . "</option>";
             }
-            $newOption = $newOption . ">" . $row['customerid'] . " : " . $row['name'] . "</option>";
+            $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#item-select2-' . $index]);
         }
-        $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#customer-select2']);
+
+
     }
 
     public function updatingSearchTerm() //Event นี้เกิดจากการ Key ที่ input wire:model.lazy="searchTerm"

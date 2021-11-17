@@ -174,7 +174,8 @@ class ListGjournal extends Component
                 })
             ->where('gltran.gjournal','=',$this->book)
             ->groupBy('gltran.gltran','gltran.gjournaldt','gltran.gldescription','misctable.other')
-            ->paginate(10);
+            ->orderBy($this->sortBy,$this->sortDirection)
+            ->paginate($this->numberOfPage);
         }else{
             $gltrans = DB::table('gltran')
             ->select('gltran.gltran','gltran.gjournaldt','gltran.gldescription','misctable.other')

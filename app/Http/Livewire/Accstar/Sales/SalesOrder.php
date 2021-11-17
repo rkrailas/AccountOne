@@ -81,13 +81,12 @@ class SalesOrder extends Component
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {   
         if ($this->showEditModal == true){
-            //===Edit===
             DB::transaction(function () {
                 //Updaate Sales
-                DB::statement("UPDATE sales SET sodate=?, deliverydate=?, expirydate=?, refno=?, sototal=?, salestax=?
+                DB::statement("UPDATE sales SET sodate=?, customerid=?, deliverydate=?, expirydate=?, refno=?, sototal=?, salestax=?
                 , exclusivetax=?, taxontotal=?, salesaccount=?, employee_id=?, transactiondate=?, closed=?, duedate=?
                 where snumber=?" 
-                , [$this->soHeader['sodate'], $this->soHeader['deliverydate'], $this->soHeader['expirydate']
+                , [$this->soHeader['sodate'], $this->soHeader['customerid'], $this->soHeader['deliverydate'], $this->soHeader['expirydate']
                 , $this->soHeader['refno'], $this->soHeader['sototal'], $this->soHeader['salestax']
                 , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount']
                 , 'Admin', Carbon::now(), $this->soHeader['closed'], $this->soHeader['duedate'], $this->soHeader['snumber']]);
@@ -120,6 +119,10 @@ class SalesOrder extends Component
             });
         }else{
             //===New===
+            $validateData = Validator::make($this->soHeader, [
+                'snumber' => 'required|unique:sales,sonumber',
+                ])->validate();
+
             DB::transaction(function () {
                 //Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, expirydate, deliverydate, refno
@@ -269,6 +272,7 @@ class SalesOrder extends Component
     {
         $this->showEditModal = TRUE;
 
+        // soHeader
         $data = DB::table('sales')
             ->selectRaw("snumber,to_char(sodate,'YYYY-MM-DD') as sodate, deliveryno, to_char(deliverydate,'YYYY-MM-DD') as deliverydate
                     , to_char(expirydate,'YYYY-MM-DD') as expirydate, refno, payby
@@ -286,9 +290,8 @@ class SalesOrder extends Component
         $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
         $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
         $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);  
-        // ./soHeader
         
-        // .soDetails
+        // soDetails
         $data2 = DB::table('salesdetail')
             ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac')
             ->where('snumber', $sNumber)
@@ -297,11 +300,20 @@ class SalesOrder extends Component
         $this->soDetails = json_decode(json_encode($data2), true); 
 
         $this->reCalculateInGrid();
-        // ./soDetails
 
     
         $this->dispatchBrowserEvent('show-SalesOrderForm'); //แสดง Model Form
-        $this->dispatchBrowserEvent('clear-select2');
+
+        //Bind Customer
+        $newOption = "<option value=''>---โปรดเลือก---</option>";
+        foreach ($this->customers_dd as $row) {
+            $newOption = $newOption . "<option value='" . $row['customerid'] . "' ";
+            if ($row['customerid'] == $this->soHeader['customerid']) {
+                $newOption = $newOption . "selected='selected'"; 
+            }
+            $newOption = $newOption . ">" . $row['customerid'] . " : " . $row['name'] . "</option>";
+        }
+        $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#customer-select2']);
     }
 
     public function updatingSearchTerm() //Event นี้เกิดจากการ Key ที่ input wire:model.lazy="searchTerm"

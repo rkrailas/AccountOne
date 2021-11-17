@@ -49,15 +49,12 @@ class Inventory extends Component
         }
     }
 
-    public function clearValues()
-    {
-        $this->photo = "";
-        $this->product = [];
-    }
-
     public function addNew()
     {
         $this->showEditModal = FALSE;
+        $this->photo = "";
+        $this->product = [];
+        
         $this->product = [
                 'itemid'=>'','description'=>'','stocktype'=>'','category'=>'','brand'=>'','model'=>'','location'=>'','unitofmeasure'=>'','unitofmeasures'=>''
                 ,'averagecost'=>0,'salesprice'=>0,'inventoryac'=>'','purchasertac'=>'','salesac'=>'','salesrtac'=>'','costtype'=>'','stdcost'=>0
@@ -69,36 +66,43 @@ class Inventory extends Component
 
     public function createInventory()
     {
-        $validateData = Validator::make($this->product, [
-            'itemid' => 'required|unique:inventory,itemid',
-        ])->validate();
+        // $validateData = Validator::make($this->product, [
+        //     'itemid' => 'required|unique:inventory,itemid',
+        // ])->validate();
 
-        DB::transaction(function () {
-            $inventory_images = "";
-            if ($this->photo) 
-            {
-                $inventory_images = $this->photo->store('/', 'inventory_images');
-            }
-
-            DB::statement("INSERT INTO inventory(itemid,description,stocktype,category,brand,model,location,unitofmeasure,unitofmeasures
-            ,averagecost,salesprice,inventoryac,salesac,purchasertac,salesrtac,costtype,stdcost,reorderlevel,reorderqty,ram_inventory_image
-            ,employee_id,transactiondate)
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            ,[$this->product['itemid'],$this->product['description'],$this->product['stocktype'],$this->product['category'],$this->product['brand']
-            ,$this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['unitofmeasures'],$this->product['averagecost']
-            ,$this->product['salesprice'],$this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac'],$this->product['salesrtac']
-            ,$this->product['costtype'],$this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty'],$inventory_images
-            ,'Admin', Carbon::now()
-            ]);
-        });
-
-        $this->dispatchBrowserEvent('hide-inventoryForm',['message' => 'Create Successfully!']);
+        $strsql = "select itemid from inventory where itemid='" . $this->product['itemid'] . "'";
+        $data = DB::select($strsql);
+        if (count($data)) {
+                $this->dispatchBrowserEvent('popup-alert', ['title' => 'มีรหัสสินค้านี้อยู่แล้ว !',]);
+        }else{
+            DB::transaction(function () {
+                $inventory_images = "";
+                if ($this->photo) 
+                {
+                    $inventory_images = $this->photo->store('/', 'inventory_images');
+                }
+    
+                DB::statement("INSERT INTO inventory(itemid,description,stocktype,category,brand,model,location,unitofmeasure,unitofmeasures
+                ,averagecost,salesprice,inventoryac,salesac,purchasertac,salesrtac,costtype,stdcost,reorderlevel,reorderqty,ram_inventory_image
+                ,employee_id,transactiondate)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                ,[$this->product['itemid'],$this->product['description'],$this->product['stocktype'],$this->product['category'],$this->product['brand']
+                ,$this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['unitofmeasures'],$this->product['averagecost']
+                ,$this->product['salesprice'],$this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac'],$this->product['salesrtac']
+                ,$this->product['costtype'],$this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty'],$inventory_images
+                ,'Admin', Carbon::now()
+                ]);
+            });
+    
+            $this->dispatchBrowserEvent('hide-inventoryForm',['message' => 'Create Successfully!']);
+        }
     }
 
     public function edit($id)
     {
         $this->showEditModal = TRUE;
-        $this->clearValues();
+        $this->photo = "";
+        $this->product = [];
 
         $data = DB::table('inventory')
             ->select("inventory.*")
@@ -113,16 +117,60 @@ class Inventory extends Component
         $this->product['reorderqty'] = round($this->product['reorderqty'],2);
 
         $this->dispatchBrowserEvent('show-inventoryForm');
-        $this->dispatchBrowserEvent('clear-select2');
+
+         //Bind inventoryac
+         $newOption = "<option value=''>---โปรดเลือก---</option>";
+         foreach ($this->account_dd as $row) {
+             $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+             if ($row['account'] == $this->product['inventoryac']) {
+                 $newOption = $newOption . "selected='selected'"; 
+             }
+             $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+         }
+         $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#inventoryac-dropdown']);
+
+         //Bind salesac
+         $newOption = "<option value=''>---โปรดเลือก---</option>";
+         foreach ($this->account_dd as $row) {
+             $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+             if ($row['account'] == $this->product['salesac']) {
+                 $newOption = $newOption . "selected='selected'"; 
+             }
+             $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+         }
+         $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesac-dropdown']);
+
+         //Bind purchasertac
+         $newOption = "<option value=''>---โปรดเลือก---</option>";
+         foreach ($this->account_dd as $row) {
+             $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+             if ($row['account'] == $this->product['purchasertac']) {
+                 $newOption = $newOption . "selected='selected'"; 
+             }
+             $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+         }
+         $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#purchasertac-dropdown']);
+
+         //Bind salesrtac
+         $newOption = "<option value=''>---โปรดเลือก---</option>";
+         foreach ($this->account_dd as $row) {
+             $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+             if ($row['account'] == $this->product['salesrtac']) {
+                 $newOption = $newOption . "selected='selected'"; 
+             }
+             $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+         }
+         $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesrtac-dropdown']);
     }
 
     public function updateInventory()
     {
         DB::transaction(function () {
             $inventory_images = "";
-            if ($this->photo) 
-            {
+            if ($this->photo){
                 $inventory_images = $this->photo->store('/', 'inventory_images');
+            }else{
+                $inventory_images = $this->product['ram_inventory_image'];
             }
 
             DB::statement("UPDATE inventory SET itemid=?,description=?,stocktype=?,category=?,brand=?,model=?,location=?,unitofmeasure=?,unitofmeasures=?

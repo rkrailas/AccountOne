@@ -49,7 +49,13 @@
                     <div class="row mb-2">
                         <div class="col-3">
                             <label class="">เลขที่ปรับปรุง:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.sonumber">
+                            <input type="text" class="form-control form-control-sm mb-1 @error('sonumber') is-invalid @enderror" 
+                                required wire:model.defer="soHeader.sonumber">
+                                @error('sonumber')
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @enderror
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ปรับปรุง:</label>
@@ -64,7 +70,13 @@
                         </div>
                         <div class="col-3">
                             <label class="">เลขที่ใบสำคัญ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.deliveryno">
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorGLTran ? 'is-invalid' : '' }}" required 
+                                wire:model.defer="soHeader.deliveryno">
+                                @if($errorGLTran)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบสำคัญ:</label>
@@ -81,7 +93,13 @@
                     <div class="row mb-2">
                         <div class="col-3">
                             <label class="">เลขที่ใบกำกับใหม่:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorTaxNumber ? 'is-invalid' : '' }}" required                                 
+                                wire:model.defer="soHeader.invoiceno">
+                                @if($errorTaxNumber)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบกำกับใหม่:</label>
@@ -96,14 +114,13 @@
                         </div>
                         <div class="col-6">
                             <label for="account">บัญชีขาย</label>
-                            <select class="form-control form-control-sm" id="salesaccount" wire:model="soHeader.salesaccount">
-                                <option value=" ">---โปรดเลือก---</option>
+                            <x-select2 id="salesaccount-select2" wire:model.defer="soHeader.salesaccount" required="true">
                                 @foreach($salesAcs_dd as $row)
                                 <option value="{{ $row->account }}">
                                     {{ $row->account . ': ' . $row->accnameother }}
                                 </option>
                                 @endforeach
-                            </select>
+                            </x-select2>
                         </div>
                         <div class="col-3">
                         </div>                    
@@ -224,6 +241,15 @@
     window.addEventListener('hide-soDeliveryTaxForm', event => {
         $('#soDeliveryTaxForm').modal('hide');
         toastr.success(event.detail.message, 'Success!');
+    })
+
+    window.addEventListener('clear-select2', event => {
+        clearSelect2('salesaccount-select2');
+    })
+
+    window.addEventListener('bindToSelect', event => {
+        $(event.detail.selectName).html(" ");
+        $(event.detail.selectName).append(event.detail.newOption);
     })
 </script>
 @endpush

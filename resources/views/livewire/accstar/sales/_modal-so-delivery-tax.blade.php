@@ -25,7 +25,14 @@
                     <div class="row ">
                         <div class="col-3">
                             <label class="">เลขที่ใบสั่งขาย:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.snumber">
+                            <input type="text" class="form-control form-control-sm mb-1 @error('snumber') is-invalid @enderror"
+                            {{ $showEditModal ? 'readonly' : '' }}
+                            required wire:model.defer="soHeader.snumber">
+                            @error('snumber')
+                            <div class="invalid-feedback">
+                                เลขที่เอกสารซ้ำ
+                            </div>
+                            @enderror
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบสั่งขาย:</label>
@@ -35,7 +42,7 @@
                                         <i class="fas fa-calendar"></i>
                                     </span>
                                 </div>
-                                <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'" required />
+                                <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'"/>
                             </div>
                         </div>
                         <div class="col-6">
@@ -46,7 +53,13 @@
                     <div class="row ">
                         <div class="col-3">
                             <label class="">เลขที่ใบกำกับ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.invoiceno">
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorTaxNumber ? 'is-invalid' : '' }}" 
+                                required wire:model.defer="soHeader.invoiceno">
+                                @if($errorTaxNumber)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบกำกับ:</label>
@@ -61,7 +74,13 @@
                         </div>
                         <div class="col-3">
                             <label class="">เลขที่ใบสำคัญ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" required wire:model.defer="soHeader.deliveryno">
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorGLTran ? 'is-invalid' : '' }}" 
+                                required wire:model.defer="soHeader.deliveryno">
+                                @if($errorGLTran)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบสำคัญ:</label>
@@ -78,22 +97,15 @@
                     <div class="row mb-2">
                         <div class="col-6">
                             <label class="">ชื่อ:</label>
-                            @if($showEditModal)
-                                <div>
-                                    <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.shipname">
-                                </div>
-                            @else
-                                <div>
-                                    <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid">
-                                        <option value=" ">---โปรดเลือก---</option>
-                                        @foreach($customers_dd as $row)
-                                        <option value='{{ $row->customerid }}'>
-                                            {{ $row->customerid . ': ' . $row->name }}
-                                        </option>
-                                        @endforeach
-                                    </x-select2>
-                                </div>
-                            @endif
+                            <div>
+                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid" required="true">
+                                    @foreach($customers_dd as $row)
+                                    <option value='{{ $row->customerid }}'>
+                                        {{ $row->customerid . ': ' . $row->name }}
+                                    </option>
+                                    @endforeach
+                                </x-select2>
+                            </div>
                         </div>
                         <div class="col-6">
                             <label class="">ที่อยู่:</label>
@@ -150,14 +162,6 @@
                                                 </option>
                                                 @endforeach
                                             </select>
-                                            {{-- <x-select2 id="item-select2" wire:model.lazy="soDetails.{{$index}}.itemid" required>
-                                                <option value=" ">---โปรดเลือก---</option>
-                                                @foreach($itemNos_dd as $itemNo_dd)
-                                                <option value="{{ $itemNo_dd->itemid }}">{{ $itemNo_dd->itemid }}:
-                                                    {{ $itemNo_dd->description }}
-                                                </option>
-                                                @endforeach
-                                            </x-select2> --}}
                                         </td>
                                         <td>
                                             <input type="text" class="form-control form-control-sm" wire:model.defer="soDetails.{{$index}}.description">
@@ -237,6 +241,11 @@
 
     window.addEventListener('clear-select2', event => {
         clearSelect2('customer-select2');
+    })
+
+    window.addEventListener('bindToSelect', event => {
+        $(event.detail.selectName).html(" ");
+        $(event.detail.selectName).append(event.detail.newOption);
     })
 </script>
 @endpush

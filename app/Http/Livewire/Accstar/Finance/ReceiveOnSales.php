@@ -330,11 +330,9 @@ class ReceiveOnSales extends Component
                 // Bank
                 $xAmount = $this->bankHeader['amount'] - ($this->bankHeader['witholdtax'] + $this->bankHeader['witholdtax1']);
                 DB::statement(
-                    "UPDATE bank SET gjournaldt=?, payby=?, documentref=?, taxrunningno=?
-                            , taxscheme=?, witholdamt=?, witholdtax=?, witholdtaxrate=?
-                            , taxscheme1=?, witholdamt1=?, witholdtax1=?, witholdtaxrate1=?
-                            , account=?, accountcus=?, accounttax=?, accountcharge=?, accountdis=?, accountfee=?
-                            , employee_id=?, transactiondate=?, posted=?, amount=?, notes
+                    "UPDATE bank SET gjournaldt=?, payby=?, documentref=?, taxrunningno=?, taxscheme=?, witholdamt=?, witholdtax=?, witholdtaxrate=?
+                            , taxscheme1=?, witholdamt1=?, witholdtax1=?, witholdtaxrate1=?, account=?, accountcus=?, accounttax=?, accountcharge=?
+                            , accountdis=?, accountfee=?, employee_id=?, transactiondate=?, posted=?, amount=?, notes=?
                             where gltran=?",
                     [
                         $this->bankHeader['gjournaldt'], $this->bankHeader['payby'], $this->bankHeader['documentref'], $this->bankHeader['taxrunningno']
@@ -342,7 +340,7 @@ class ReceiveOnSales extends Component
                         , $this->bankHeader['taxscheme1'], $this->bankHeader['witholdamt1'], $this->bankHeader['witholdtax1'], $this->bankHeader['witholdtaxrate1']
                         , $this->bankHeader['account'], $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge']
                         , $this->bankHeader['accountdis'], $this->bankHeader['accountfee'], 'Admin', Carbon::now(), $this->bankHeader['posted']
-                        , $xAmount, $this->bankHeader['gltran'], $this->bankHeader['notes']
+                        , $xAmount, $this->bankHeader['notes'], $this->bankHeader['gltran']
                     ]
                 );
 
@@ -475,6 +473,15 @@ class ReceiveOnSales extends Component
         }
     }
 
+    public function updatedBankHeaderWitholdamt()
+    {
+        $this->bankHeader['witholdtax'] = 0;
+
+        if ($this->bankHeader['witholdtaxrate']) {
+            $this->bankHeader['witholdtax'] = round($this->bankHeader['witholdamt'] * $this->bankHeader['witholdtaxrate'] / 100, 2);
+        }
+    }
+
     public function updatedBankHeaderWitholdamt1()
     {
         $this->bankHeader['witholdtax1'] = 0;
@@ -514,16 +521,28 @@ class ReceiveOnSales extends Component
         // ]);
     }
 
+    public function updated($item) 
+    {
+        $xxx = explode(".",$item); 
+
+        //ตรวจสอบว่าเป็นการแก้ไขข้อมูลที่ Grid หรือไม่
+        if($xxx[0] == "bankDetails") 
+        {
+            $this->calculateSummary();
+        }        
+    }
+
     public function calculateSummary() //ทำทุกครั้งที่มีการ Render
     {
-        $this->bankHeader['witholdamt'] = 0;
+        //$this->bankHeader['witholdamt'] = 0; //ตามข้อ 4 วันที่ 15/11/64
         $this->sumBalance = 0;
         $this->sumAR = 0;
         $sumReceieAmount = 0; //ยอดรับก่อนหัก W/H
 
         for ($i = 0; $i < count($this->bankDetails); $i++) {
-            $this->bankHeader['witholdamt'] = round($this->bankHeader['witholdamt'] + ($this->bankDetails[$i]['amount'] -
-                ($this->bankDetails[$i]['amount'] * $this->bankDetails[$i]['oritax'] / $this->bankDetails[$i]['oriamount'])), 2);
+            //ตามข้อ 4 วันที่ 15/11/64
+            // $this->bankHeader['witholdamt'] = round($this->bankHeader['witholdamt'] + ($this->bankDetails[$i]['amount'] -
+            //     ($this->bankDetails[$i]['amount'] * $this->bankDetails[$i]['oritax'] / $this->bankDetails[$i]['oriamount'])), 2);
 
             $sumReceieAmount = $sumReceieAmount + $this->bankDetails[$i]['amount'];
 
@@ -589,7 +608,6 @@ class ReceiveOnSales extends Component
         }
 
         $this->dispatchBrowserEvent('show-receiveOnSalesForm'); //แสดง Model Form
-        //$this->dispatchBrowserEvent('clear-select2');
     }
 
     public function confirmDelete($gltran) //แสดง Modal ยืนยันการลบ

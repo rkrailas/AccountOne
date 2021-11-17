@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AdjustSoDeliveryTax extends Component
 {
@@ -29,6 +30,7 @@ class AdjustSoDeliveryTax extends Component
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
     public $taxNumber;
+    public $errorValidate, $errorTaxNumber, $errorGLTran = false;
 
     public function resetValuesInModel()
     {
@@ -102,8 +104,19 @@ class AdjustSoDeliveryTax extends Component
                                 where tx.taxnumber='" . $this->taxNumber . "'";
                     $data2 =  DB::select($strsql);
                     if (count($data2)) {
-                         $this->soHeader['sonote'] = $data2[0]->salesaccount;
+                         $this->soHeader['salesaccount'] = $data2[0]->salesaccount;
                     }
+
+                    //Bind salesaccount
+                    $newOption = "<option value=''>---โปรดเลือก---</option>";
+                    foreach ($this->salesAcs_dd as $row) {
+                        $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+                        if ($row['account'] == $this->soHeader['salesaccount']) { 
+                            $newOption = $newOption . "selected='selected'"; 
+                        }
+                        $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+                    }
+                    $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesaccount-select2']);
 
                     //soDetails
                     $data2 = DB::table('salesdetaillog')
@@ -298,12 +311,16 @@ class AdjustSoDeliveryTax extends Component
             , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => ''
             , 'transactiondate' => Carbon::now()
         ]);
-
+        
         // Summary Debit & Credit
         for ($i = 0; $i < count($this->genGLs); $i++) {
             $this->sumDebit = $this->sumDebit + $this->genGLs[$i]['gldebit'];
             $this->sumCredit = $this->sumCredit + $this->genGLs[$i]['glcredit'];
         }
+
+        //Sorting
+        $gldebit = array_column($this->genGLs, 'gldebit');
+        array_multisort($gldebit, SORT_DESC, $this->genGLs);
     }
 
     public function addNew() //กดปุ่ม สร้างข้อมูลใหม่
@@ -311,6 +328,7 @@ class AdjustSoDeliveryTax extends Component
         $this->showEditModal = FALSE;
         $this->resetValuesInModel();
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('clear-select2');
     }
 
     public function removeRowInGrid($index) //กดปุ่มลบ Row ใน Grid
@@ -328,6 +346,32 @@ class AdjustSoDeliveryTax extends Component
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {
+        //ตรวจสอบเลขที่ใบสั่งขาย ใบกำกับ ใบสำคัญซ้ำหรือไม่
+        $strsql = "select count(*) as count from taxdata where purchase=false and taxnumber='" . $this->soHeader['invoiceno'] . "'";
+        $data = DB::select($strsql);
+        if ($data[0]->count){
+            $this->errorInvoiceNo = true;
+            $this->errorValidate = true;
+        }
+
+        $strsql = "select count(*) as count from gltran where gltran='" . $this->soHeader['deliveryno'] . "'";
+        $data = DB::select($strsql);
+        if ($data[0]->count){
+            $this->errorGLTran = true;
+            $this->errorValidate = true;
+        }
+
+        $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
+        $data = DB::select($strsql);
+        if ($data[0]->count){
+            $this->errorGLTran = true;
+            $this->errorValidate = true;
+        }
+
+        if ($this->errorValidate){
+            return;
+        }
+        
         if ($this->showEditModal == true) {
             //===Edit===
             DB::transaction(function () {
@@ -403,6 +447,12 @@ class AdjustSoDeliveryTax extends Component
             });
         } else {
             //===New===
+
+            //ตรวจสอบเลขที่เอกสารซ้ำหรือไม่
+            $validateData = Validator::make($this->soHeader, [
+                'sonumber' => 'required|unique:sales,sonumber',
+              ])->validate();
+
             DB::transaction(function () {
                 //Insert Sales
                 DB::statement(
@@ -597,6 +647,17 @@ class AdjustSoDeliveryTax extends Component
 
         $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
         //$this->dispatchBrowserEvent('clear-select2');
+
+        //Bind salesaccount
+        $newOption = "<option value=''>---โปรดเลือก---</option>";
+        foreach ($this->salesAcs_dd as $row) {
+            $newOption = $newOption . "<option value='" . $row['account'] . "' ";
+            if ($row['account'] == $this->soHeader['salesaccount']) { 
+                $newOption = $newOption . "selected='selected'"; 
+            }
+            $newOption = $newOption . ">" . $row['account'] . " : " . $row['accnameother'] . "</option>";
+        }
+        $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesaccount-select2']);
     }
 
     public function updatingSearchTerm() //Event นี้เกิดจากการ Key ที่ input wire:model.lazy="searchTerm"

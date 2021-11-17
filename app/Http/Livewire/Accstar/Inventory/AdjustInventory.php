@@ -226,6 +226,10 @@ class AdjustInventory extends Component
             $this->sumDebit = $this->sumDebit + $this->genGLs[$i]['gldebit'];
             $this->sumCredit = $this->sumCredit + $this->genGLs[$i]['glcredit'];
         }        
+
+        //Sorting
+        $gldebit = array_column($this->genGLs, 'gldebit');
+        array_multisort($gldebit, SORT_DESC, $this->genGLs);
     }
 
     public function exportExcel(){

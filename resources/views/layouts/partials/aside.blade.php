@@ -388,3 +388,31 @@
   </div>
   <!-- /.sidebar -->
 </aside>
+
+@push("js")
+<script type="text/javascript">
+  $(function () {
+      var params = window.location.pathname;
+      params = params.toLowerCase();
+
+      if (params != "/") {
+          $(".nav-sidebar li a").each(function (i) {
+              var obj = this;
+              var url = $(this).attr("href");
+              if (url == "" || url == "#") {
+                  return true;
+              }
+              url = url.toLowerCase();
+              if (url.indexOf(params) > -1) {
+                  $(this).parent().addClass("active open menu-open");
+                  $(this).parent().parent().addClass("active open menu-open");
+                  $(this).parent().parent().parent().addClass("active open menu-open");
+                  $(this).parent().parent().parent().parent().addClass("active open menu-open");
+                  $(this).parent().parent().parent().parent().parent().addClass("active open menu-open");
+                  return false;
+              }
+          });
+      }
+  });
+</script>
+@endpush

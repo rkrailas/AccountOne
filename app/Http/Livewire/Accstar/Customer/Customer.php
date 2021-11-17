@@ -168,10 +168,7 @@ class Customer extends Component
             }
             $newOption = $newOption . ">" . $row['account'] . " : " . $row['accname'] . "</option>";
         }
-        $this->dispatchBrowserEvent('bindToSelect', [
-                                'newOption' => $newOption, 
-                                'selectName' => '#account-select2',
-                                ]);
+        $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#account-select2']);
 
         //Bind Vendor Account
         $newOption = "<option value=''>---โปรดเลือก---</option>";
@@ -182,10 +179,7 @@ class Customer extends Component
             }
             $newOption = $newOption . ">" . $row['account'] . " : " . $row['accname'] . "</option>";
         }
-        $this->dispatchBrowserEvent('bindToSelect', [
-                                'newOption' => $newOption, 
-                                'selectName' => '#account_ap-select2',
-                                ]);
+        $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#account_ap-select2']);
 
         $this->dispatchBrowserEvent('show-customerForm');
     }
