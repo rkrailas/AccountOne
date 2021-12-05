@@ -44,7 +44,7 @@
                                             {{ $showEditModal ? 'readonly' : '' }} wire:model.defer="product.itemid">
                                         @error('itemid')
                                         <div class="invalid-feedback">
-                                            The Item ID has already been taken.
+                                            มีรหัสสินค้านี้อยู่แล้ว!
                                         </div>
                                         @enderror
                                     </div>

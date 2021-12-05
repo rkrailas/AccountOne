@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\AccStar\Customer\Customer;
 use App\Http\Livewire\AccStar\Inventory\Inventory;
 use App\Http\Livewire\AccStar\Inventory\AdjustInventory;
+use App\Http\Livewire\AccStar\Inventory\InventorySerialNo;
 use App\Http\Livewire\AccStar\Sales\SoDeliveryTax;
 use App\Http\Livewire\AccStar\Sales\SalesOrder;
 use App\Http\Livewire\AccStar\Sales\SoDelivery;
@@ -38,6 +39,7 @@ use App\Http\Livewire\Test3;
 use App\Http\Livewire\Test4DataTable;
 use App\Http\Livewire\Test5;
 use App\Http\Livewire\Test6Invoice;
+use App\Http\Livewire\Test7;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +58,8 @@ Route::get('accstar/customer/customer', Customer::class)->name('accstar.customer
 //======== Inventory ========
 Route::get('accstar/inventory/inventory', Inventory::class)->name('accstar.inventory.inventory');
 Route::get('accstar/inventory/adjustinventory', AdjustInventory::class)->name('accstar.inventory.adjustinventory');
+Route::get('accstar/inventory/inventoryserialno', InventorySerialNo::class)->name('accstar.inventory.inventoryserialno');
+
 
 //======== Sales ========
 Route::get('accstar/sales/sodeliverytax', SoDeliveryTax::class)->name('accstar.sales.sodeliverytax');
@@ -101,3 +105,4 @@ Route::get('test3', Test3::class);
 Route::get('test4', Test4DataTable::class);
 Route::get('test5', Test5::class);
 Route::get('test6', Test6Invoice::class);
+Route::get('test7', Test7::class);

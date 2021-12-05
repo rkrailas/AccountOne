@@ -200,10 +200,10 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="5"></td>
-                                <td class="text-right font-weight-bold">{{ number_format($totalBeforeVAT, 2) }}</td>
-                                <td class="text-right font-weight-bold">{{ number_format($totalTaxAmount, 2) }}</td>
-                                <td class="text-right font-weight-bold">{{ number_format($totalAmountCur, 2) }}</td>
+                                <td colspan="4"></td>
+                                <td class="text-right font-weight-bold" style="font-size: 12px;">{{ number_format($totalBeforeVAT, 2) }}</td>
+                                <td class="text-right font-weight-bold" style="font-size: 12px;">{{ number_format($totalTaxAmount, 2) }}</td>
+                                <td class="text-right font-weight-bold" style="font-size: 12px;">{{ number_format($totalAmountCur, 2) }}</td>
                                 <td colspan="5"></td>
                             </tr>
                         </tfoot>

@@ -127,4 +127,6 @@
     </div>
     <!-- /.List Sales Order -->
     @include('livewire.accstar.sales._modal-sales-order')
+    @include('livewire.accstar.sales._modal-list-item')
+    @include('livewire.accstar.sales._modal-sn-out')
 </div>

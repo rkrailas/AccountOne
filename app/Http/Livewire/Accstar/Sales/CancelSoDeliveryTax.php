@@ -37,18 +37,18 @@ class CancelSoDeliveryTax extends Component
             $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
             $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
 
-            $data2 = DB::table('salesdetaillog')
-                ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount'
-                        ,'id','inventoryac','soreturn','cost') //cost > per unit
-                ->where('snumber', $this->soHeader['snumber'])
-                ->where('soreturn', 'N')
-                ->get();
-            $this->soDetails = json_decode(json_encode($data2), true);
-    
+            $strsql = "select sl.itemid,sl.quantity,sl.salesac,sl.unitprice,sl.discountamount,sl.taxrate,sl.taxamount
+                    ,sl.id,sl.inventoryac,sl.soreturn,sl.cost,sl.serialno
+                    ,CASE 
+                        WHEN inv.stocktype = '4' THEN sl.description || ' (' || sl.serialno || ')'
+                        ELSE sl.description
+                    END as description
+                    from salesdetaillog sl
+                    join inventory inv on sl.itemid=inv.itemid
+                    where sl.soreturn='N' and sl.snumber='" . $this->soHeader['snumber'] . "'";
+            $this->soDetails = json_decode(json_encode(DB::select($strsql)), true);
             $this->reCalculateInGrid();
-
             $this->btnDelete = true;
-
         }else{
             $this->dispatchBrowserEvent('popup-alert', [
                 'title' => 'ไม่พบใบกำกับภาษี !',
@@ -58,12 +58,12 @@ class CancelSoDeliveryTax extends Component
         }
     }
 
-    public function pressCancel()
+    public function pressCancel() //กดปุ่ม Cancel
     {
         $this->resetPara();
     }
 
-    public function confirmDelete() 
+    public function confirmDelete() //กดปุ่มยกเลิกเอกสาร
     {
         $this->dispatchBrowserEvent('delete-confirmation');
     }
@@ -92,7 +92,7 @@ class CancelSoDeliveryTax extends Component
                 where snumber=?" 
                 , ['Admin', Carbon::now(), $this->soHeader['snumber']]);
 
-            //5. Update Inventory
+            //5. Update Inventory & Inventoryserial
             foreach ($this->soDetails as $soDetails2){
                 $strsql = "select instock, instockvalue from inventory where itemid='" . $soDetails2['itemid'] . "'";
                 $data =  DB::select($strsql);
@@ -103,6 +103,12 @@ class CancelSoDeliveryTax extends Component
                     DB::statement("UPDATE inventory SET instock=?,instockvalue=?,employee_id=?,transactiondate=? where itemid=?" 
                     ,[
                         $newInstock,$newInstockValue,'Admin',Carbon::now(),$soDetails2['itemid']
+                    ]);
+
+                    DB::statement("UPDATE inventoryserial SET sold=?,snumber=?,solddate=?,employee_id=?,transactiondate=? 
+                                where itemid=? and serialno=?" 
+                    ,[
+                        false,null,null,'Admin',Carbon::now(),$soDetails2['itemid'],$soDetails2['serialno']
                     ]);
                 }
             }

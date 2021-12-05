@@ -58,7 +58,7 @@ class Inventory extends Component
         $this->product = [
                 'itemid'=>'','description'=>'','stocktype'=>'','category'=>'','brand'=>'','model'=>'','location'=>'','unitofmeasure'=>'','unitofmeasures'=>''
                 ,'averagecost'=>0,'salesprice'=>0,'inventoryac'=>'','purchasertac'=>'','salesac'=>'','salesrtac'=>'','costtype'=>'','stdcost'=>0
-                ,'reorderlevel'=>0,'reorderqty'=>0,'ram_inventory_image'=>''
+                ,'reorderlevel'=>0,'reorderqty'=>0,'ram_inventory_image'=>'', 'isserial'=>false
         ];
         $this->dispatchBrowserEvent('show-inventoryForm');
         $this->dispatchBrowserEvent('clear-select2');
@@ -77,20 +77,24 @@ class Inventory extends Component
         }else{
             DB::transaction(function () {
                 $inventory_images = "";
-                if ($this->photo) 
-                {
+                if ($this->photo) {
                     $inventory_images = $this->photo->store('/', 'inventory_images');
                 }
+
+                if ($this->product['stocktype'] == "4"){
+                    $this->product['isserial'] = true;
+                }
+
     
                 DB::statement("INSERT INTO inventory(itemid,description,stocktype,category,brand,model,location,unitofmeasure,unitofmeasures
                 ,averagecost,salesprice,inventoryac,salesac,purchasertac,salesrtac,costtype,stdcost,reorderlevel,reorderqty,ram_inventory_image
-                ,employee_id,transactiondate)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                ,isserial,employee_id,transactiondate)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 ,[$this->product['itemid'],$this->product['description'],$this->product['stocktype'],$this->product['category'],$this->product['brand']
                 ,$this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['unitofmeasures'],$this->product['averagecost']
                 ,$this->product['salesprice'],$this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac'],$this->product['salesrtac']
                 ,$this->product['costtype'],$this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty'],$inventory_images
-                ,'Admin', Carbon::now()
+                ,$this->product['isserial'],'Admin', Carbon::now()
                 ]);
             });
     
@@ -175,13 +179,13 @@ class Inventory extends Component
 
             DB::statement("UPDATE inventory SET itemid=?,description=?,stocktype=?,category=?,brand=?,model=?,location=?,unitofmeasure=?,unitofmeasures=?
                 ,averagecost=?,salesprice=?,inventoryac=?,salesac=?,purchasertac=?,salesrtac=?,costtype=?,stdcost=?,reorderlevel=?,reorderqty=?
-                ,employee_id=?, transactiondate=?, ram_inventory_image=?
+                ,employee_id=?, transactiondate=?, ram_inventory_image=?, isserial=?
                 where id=?" 
                 ,[$this->product['itemid'],$this->product['description'],$this->product['stocktype'],$this->product['category'],$this->product['brand']
                 ,$this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['unitofmeasures']
                 ,$this->product['averagecost'],$this->product['salesprice'],$this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac']
                 ,$this->product['salesrtac'],$this->product['costtype'],$this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty']
-                ,'Admin', Carbon::now(), $inventory_images, $this->product['id']]);
+                ,'Admin', Carbon::now(), $inventory_images, $this->product['id'], $this->product['isserial']]);
         });
 
         $this->dispatchBrowserEvent('hide-inventoryForm', ['message' => 'Updated Successfully!']);

@@ -1,10 +1,10 @@
-<div class="modal fade bd-example-modal-xl" id="soTaxForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
+<div class="modal fade bd-example-modal-xl" id="soDeliveryTaxForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
     <div class="modal-dialog modal-dialog-scrollable" style="max-width: 95%;">
         <form autocomplete="off" wire:submit.prevent="createUpdateSalesOrder">
             <div class="modal-content ">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
-                        ใบกำกับภาษีของสินค้าที่ส่งแล้ว
+                        ส่งสินค้าพร้อมใบกำกับ
                     </h5>
                     <div class="float-right">
                         <button type="button" class="btn btn-secondary" wire:click.prevent="showGL" {{ $showEditModal ? '' : 'disabled' }}>
@@ -25,7 +25,14 @@
                     <div class="row ">
                         <div class="col-3">
                             <label class="">เลขที่ใบสั่งขาย:</label>
-                            <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.snumber">
+                            <input type="text" class="form-control form-control-sm mb-1 @error('snumber') is-invalid @enderror"
+                            {{ $showEditModal ? 'readonly' : '' }}
+                            required wire:model.defer="soHeader.snumber">
+                            @error('snumber')
+                            <div class="invalid-feedback">
+                                เลขที่เอกสารซ้ำ
+                            </div>
+                            @enderror
                         </div>
                         <div class="col-3">
                             <label class="">วันที่ใบสั่งขาย:</label>
@@ -35,7 +42,7 @@
                                         <i class="fas fa-calendar"></i>
                                     </span>
                                 </div>
-                                <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'" disabled />
+                                <x-datepicker wire:model.defer="soHeader.sodate" id="soDate" :error="'date'"/>
                             </div>
                         </div>
                         <div class="col-6">
@@ -43,28 +50,7 @@
                             <input type="text" class="form-control form-control-sm mb-1" wire:model.defer="soHeader.sonote">
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <label class="">เลขที่ใบสำคัญ:</label>
-                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorGLTran ? 'is-invalid' : '' }}"
-                                required wire:model.defer="soHeader.deliveryno">
-                                @if($errorGLTran)
-                                <div class="invalid-feedback">
-                                    เลขที่เอกสารซ้ำ
-                                </div>
-                                @endif
-                        </div>
-                        <div class="col-3">
-                            <label class="">วันที่ใบสำคัญ</label>
-                            <div class="input-group mb-1">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-calendar"></i>
-                                    </span>
-                                </div>
-                                <x-datepicker wire:model.defer="soHeader.journaldate" id="journaldate" :error="'date'" required />
-                            </div>
-                        </div>
+                    <div class="row ">
                         <div class="col-3">
                             <label class="">เลขที่ใบกำกับ:</label>
                             <input type="text" class="form-control form-control-sm mb-1 {{ $errorTaxNumber ? 'is-invalid' : '' }}" 
@@ -83,7 +69,28 @@
                                         <i class="fas fa-calendar"></i>
                                     </span>
                                 </div>
-                                <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoicedate" :error="'date'" required />
+                                <x-datepicker wire:model.defer="soHeader.invoicedate" id="invoiceDate" :error="'date'" required />
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <label class="">เลขที่ใบสำคัญ:</label>
+                            <input type="text" class="form-control form-control-sm mb-1 {{ $errorGLTran ? 'is-invalid' : '' }}" 
+                                required wire:model.defer="soHeader.deliveryno">
+                                @if($errorGLTran)
+                                <div class="invalid-feedback">
+                                    เลขที่เอกสารซ้ำ
+                                </div>
+                                @endif
+                        </div>
+                        <div class="col-3">
+                            <label class="">วันที่ใบสำคัญ:</label>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calendar"></i>
+                                    </span>
+                                </div>
+                                <x-datepicker wire:model.defer="soHeader.journaldate" id="journaldate" :error="'date'" required />
                             </div>
                         </div>
                     </div>
@@ -91,7 +98,13 @@
                         <div class="col-6">
                             <label class="">ชื่อ:</label>
                             <div>
-                                <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.name">
+                                <x-select2 id="customer-select2" wire:model.defer="soHeader.customerid" required="true">
+                                    @foreach($customers_dd as $row)
+                                    <option value='{{ $row->customerid }}'>
+                                        {{ $row->customerid . ': ' . $row->name }}
+                                    </option>
+                                    @endforeach
+                                </x-select2>
                             </div>
                         </div>
                         <div class="col-6">
@@ -102,12 +115,13 @@
                     <div class="row mb-3">
                         <div class="col">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" disabled wire:model.defer="soHeader.exclusivetax" wire:change="checkExclusiveTax">
+                                <input class="form-check-input" type="checkbox" wire:model.defer="soHeader.exclusivetax" wire:change="checkExclusiveTax">
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" wire:model.defer="closed">
-                                <label class="form-check-label" for="closed">ปิดรายการ</label>
+                                <input class="form-check-input" type="checkbox" {{ $showEditModal ? '' : 'disabled' }}
+                                    wire:model.defer="soHeader.posted">
+                                <label class="form-check-label" for="posted">ปิดรายการ</label>
                             </div>
                         </div>
                     </div>
@@ -118,8 +132,9 @@
                             <table class="table table-striped myGridTB">
                                 <thead>
                                     <tr class="text-center">
-                                        <th scope="col"></th>
-                                        <th scope="col">ใบส่งสินค้า</th>
+                                        <th scope="col">
+                                            <button class="btn btn-sm btn-primary" wire:click.prevent="addRowInGrid">+Add</button>
+                                        </th>
                                         <th scope="col">รหัส</th>
                                         <th scope="col" style="width: 25%;">รายละเอียด</th>
                                         <th scope="col" style="width: 7%;">จำนวน</th>
@@ -139,34 +154,51 @@
                                             {{ $loop->iteration }}
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.deliveryno">
+                                            <select class="form-control form-control-sm" required wire:model.lazy="soDetails.{{$index}}.itemid">
+                                                <option value="">--- โปรดเลือก ---</option>
+                                                @foreach($itemNos_dd as $itemNo_dd)
+                                                <option value="{{ $itemNo_dd->itemid }}">{{ $itemNo_dd->itemid }}:
+                                                    {{ $itemNo_dd->description }}
+                                                </option>
+                                                @endforeach
+                                            </select>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.itemid">
+                                            <input type="text" class="form-control form-control-sm" wire:model.defer="soDetails.{{$index}}.description">
+                                            @if ($soDetails[$index]['stocktype'] == '4')
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm mb-1" placeholder="Serial No"
+                                                    wire:model.defer="soDetails.{{$index}}.serialno">
+                                                <div class="input-group-append">
+                                                <button class="btn btn-primary form-control-sm" type="button" wire:click.prevent="showSN('{{ $index }}')">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                </div>
+                                            </div>
+                                            @endif
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.description">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" 
+                                                {{ $soDetails[$index]['stocktype'] == '4' ? 'readonly' : ''}}
+                                                wire:model.lazy="soDetails.{{$index}}.quantity">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.quantity">
-                                        </td>
-                                        <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.unitprice">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.amount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.discountamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.discountamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxrate">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.taxrate">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
                                         </td>
                                         </td>
                                         <td class="align-middle text-center">
@@ -179,7 +211,8 @@
                                 </tbody>
                                 <tfoot>
                                     <tr style="text-align: right; color: blue; font-weight: bold;">
-                                        <td colspan="3"></td>
+                                        <td></td>
+                                        <td></td>                                        
                                         <td>ยอดรวม</td>
                                         <td>{{ number_format($sumQuantity,2) }}</td>
                                         <td></td>
@@ -210,17 +243,22 @@
 
 @push('js')
 <script>
-    window.addEventListener('show-soTaxForm', event => {
-        $('#soTaxForm').modal('show');
+    window.addEventListener('show-soDeliveryTaxForm', event => {
+        $('#soDeliveryTaxForm').modal('show');
     })
 
-    window.addEventListener('hide-soTaxForm', event => {
-        $('#soTaxForm').modal('hide');
+    window.addEventListener('hide-soDeliveryTaxForm', event => {
+        $('#soDeliveryTaxForm').modal('hide');
         toastr.success(event.detail.message, 'Success!');
     })
 
     window.addEventListener('clear-select2', event => {
         clearSelect2('customer-select2');
+    })
+
+    window.addEventListener('bindToSelect', event => {
+        $(event.detail.selectName).html(" ");
+        $(event.detail.selectName).append(event.detail.newOption);
     })
 </script>
 @endpush

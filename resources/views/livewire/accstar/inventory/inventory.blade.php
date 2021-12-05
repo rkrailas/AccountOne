@@ -130,7 +130,7 @@
                                     <a href="#" wire:click.prevent="showImage('{{ url('storage/inventory_images/'.$inventory->ram_inventory_image) }}')">
                                         <img src="{{url('storage/inventory_images/'.$inventory->ram_inventory_image)}}" style="width: 50px;" class="ml-2">
                                     </a>
-                                @endif
+                                    @endif
                                 </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $inventory->id }}')">

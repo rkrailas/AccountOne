@@ -129,8 +129,9 @@
                                         <th scope="col">
                                             <button class="btn btn-sm btn-primary" wire:click.prevent="addRowInGrid">+Add</button>
                                         </th>
-                                        <th scope="col">รหัส</th>
-                                        <th scope="col" style="width: 25%;">รายละเอียด</th>
+                                        <th scope="col" style="width: 10%;">รหัส</th>
+                                        <th scope="col" style="width: 20%;">รายละเอียด</th>
+                                        <th scope="col" style="width: 15%;">Serial No.</th>
                                         <th scope="col" style="width: 7%;">จำนวน</th>
                                         <th scope="col">ต่อหน่วย</th>
                                         <th scope="col">รวม</th>
@@ -148,21 +149,37 @@
                                             {{ $loop->iteration }}
                                         </td>
                                         <td>
-                                            <select class="form-control form-control-sm" required id="item-select2-{{$index}}"
-                                                wire:model.lazy="soDetails.{{$index}}.itemid">
-                                                <option value="">--- โปรดเลือก ---</option>
-                                                @foreach($itemNos_dd as $itemNo_dd)
-                                                <option value="{{ $itemNo_dd->itemid }}">{{ $itemNo_dd->itemid }}:
-                                                    {{ $itemNo_dd->description }}
-                                                </option>
-                                                @endforeach
-                                            </select>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm mb-1" placeholder="เลือกสินค้า" readonly
+                                                    wire:model.defer="soDetails.{{$index}}.itemid">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-primary form-control-sm" type="button" 
+                                                        wire:click.prevent="showModalItem('{{$index}}')">
+                                                        <i class="fas fa-ellipsis-h"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control form-control-sm" wire:model.defer="soDetails.{{$index}}.description">
                                         </td>
+                                        <td>                                            
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm mb-1" placeholder="เลือก S/N" readonly
+                                                    wire:model.defer="soDetails.{{$index}}.serialno">
+                                                <div class="input-group-append">
+                                                <button class="btn btn-primary form-control-sm" type="button" 
+                                                    {{ $soDetails[$index]['stocktype'] == '4' ? '' : 'disabled'}}
+                                                    wire:click.prevent="showModalSN('{{ $index }}')">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" 
+                                                {{ $soDetails[$index]['stocktype'] == '4' ? 'readonly' : ''}}
+                                                wire:model.lazy="soDetails.{{$index}}.quantity">
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
@@ -193,6 +210,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr style="text-align: right; color: blue; font-weight: bold;">
+                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td>ยอดรวม</td>

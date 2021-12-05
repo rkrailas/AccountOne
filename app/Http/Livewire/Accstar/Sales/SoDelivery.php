@@ -28,8 +28,52 @@ class SoDelivery extends Component
     public $sNumberDelete;
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
-
     public $closed = false;
+
+    //Modal Serial No
+    public $serialDetails;
+    public $workingRow;
+    public $searchSN = "";
+
+    //.Event SN Modal
+    public function updatedSearchSN() 
+    {
+        $this->getItemSNInModal();
+    }
+
+    public function selectedSN($xserialno)
+    {
+        $this->dispatchBrowserEvent('hide-serialNoOutForm');
+        $this->soDetails[$this->workingRow]['serialno'] = $xserialno;
+        $this->reset(['workingRow']);
+    }
+
+    public function getItemSNInModal()
+    {
+        //ดึงข้อมูล inventoryserial ที่ยังไม่ได้ขาย และจอง
+        $strsql = "select inv.serialno, loc.code || ' : ' || loc.other as location, round(inv.cost,2) as cost
+                ,col.code || ' : ' || col.other as color, inv.reference1, inv.reference2, aa.snumber
+                from inventoryserial inv
+                left join misctable loc on inv.location=loc.code and loc.tabletype='LO'
+                left join misctable col on inv.color=col.code and col.tabletype='CL'
+                left join (select a.snumber,b.serialno from sales a
+                    join salesdetail b on a.snumber=b.snumber
+                    where a.posted=false) aa on inv.serialno=aa.serialno
+                where inv.serialno ilike '%" . $this->searchSN . "%' 
+                and inv.sold=false and aa.snumber is null
+                and inv.itemid='" . $this->soDetails[$this->workingRow]['itemid'] . "'";
+        $this->serialDetails = DB::select($strsql);
+        $this->serialDetails = json_decode(json_encode($this->serialDetails), true);
+    }
+
+    public function showModalSN($xindex)
+    {
+        $this->reset(['searchSN']);
+        $this->workingRow = $xindex; //กำลังทำงานเป็น Row ไหน ของ soDetails
+        $this->getItemSNInModal();
+        $this->dispatchBrowserEvent('show-serialNoOutForm');
+    }
+    //./Event SN Modal
 
     public function updatingNumberOfPage()
     {
@@ -77,15 +121,22 @@ class SoDelivery extends Component
 
                     //ปิดรายการ
                     if($this->closed == true){
+
+                        //ตรวจสอบถ้าเป็นสินค้ามี SN จะต้องเลือก SN แล้ว
+                        if ($soDetails2['stocktype'] == 4 and $soDetails2['serialno'] == ""){
+                            $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Serial No. ของสินค้า!',]);
+                            return;
+                        }
+
                         if ($soDetails2['quantity'] > 0) { //รายการที่ส่งสินค้า
                             $xquantity = $soDetails2['quantitybac'] - $soDetails2['quantity'];
                             $xquantitydel = $soDetails2['quantitydel'] + $soDetails2['quantity'];
                             $quantitybac = $soDetails2['quantityord'] - $xquantitydel;
-                            
+
                             //SalesDetail
-                            DB::statement("UPDATE salesdetail SET quantity=?, quantitydel=?, quantitybac=?, employee_id=?, transactiondate=?
+                            DB::statement("UPDATE salesdetail SET quantity=?, quantitydel=?, quantitybac=?, serialno=?, employee_id=?, transactiondate=?
                                 where id=?" 
-                                , [$xquantity, $xquantitydel, $quantitybac, 'Admin', Carbon::now(), $soDetails2['id']]);
+                                , [$xquantity, $xquantitydel, $quantitybac, $soDetails2['serialno'], 'Admin', Carbon::now(), $soDetails2['id']]);
     
                             //Product Cost
                             $costAmt = 0;
@@ -99,12 +150,12 @@ class SoDelivery extends Component
     
                             //SalesDetailLog
                             DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description, quantity, unitprice
-                                , amount, taxrate, taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id
+                                , amount, taxrate, taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, serialno
                                 , employee_id, transactiondate)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
                                 , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'], $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], 'Admin', Carbon::now()]);
+                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], $soDetails2['serialno'], 'Admin', Carbon::now()]);
     
                             //Inventory
                             $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
@@ -114,6 +165,12 @@ class SoDelivery extends Component
                                 where itemid=?" 
                                 , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
 
+                            // inventoryserial
+                            DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
+                                where itemid=? and serialno=?"
+                                ,[$this->soHeader['snumber'],$this->soHeader['sodate'], true, 'Admin', Carbon::now(),$soDetails2['itemid']
+                                ,$soDetails2['serialno']]);
+
                         }else{ //รายการที่ไม่ได้ส่ง Update SalesDetail Reset quantity ของรายการที่่ไม่ได้ส่งกลับมาให้เท่ากับ quantitybac
                             DB::statement("UPDATE salesdetail SET quantity=?, employee_id=?, transactiondate=?
                                 where id=?" 
@@ -121,10 +178,10 @@ class SoDelivery extends Component
                         }                        
                     }else{
                         //Update Salesdetail
-                        DB::statement("UPDATE salesdetail SET quantity=?, amount=?, taxamount=?, soreturn=?, employee_id=?, transactiondate=?
+                        DB::statement("UPDATE salesdetail SET quantity=?, amount=?, taxamount=?, soreturn=?, serialno=?, employee_id=?, transactiondate=?
                         where id=?" 
-                        , [$soDetails2['quantity'], $soDetails2['amount'], $soDetails2['taxamount']
-                        , 'G', 'Admin', Carbon::now(), $soDetails2['id']]);
+                        , [$soDetails2['quantity'], $soDetails2['amount'], $soDetails2['taxamount'], 'G', $soDetails2['taxamount']
+                        , 'Admin', Carbon::now(), $soDetails2['id']]);
                     }
                 }
 
@@ -261,6 +318,7 @@ class SoDelivery extends Component
     public function edit($sNumber) //กดปุ่ม Edit ที่ List รายการ
     {
         $this->showEditModal = TRUE;
+        $this->reset(['soHeader','soDetails']);
 
         // soHeader
         $data = DB::table('sales')
@@ -283,12 +341,13 @@ class SoDelivery extends Component
         $this->soHeader['journaldate'] = Carbon::now()->format('Y-m-d');
         
         // .soDetails
-        $data2 = DB::table('salesdetail')
-            ->select('itemid','description','quantity','quantitybac','quantitydel','quantityord','salesac','unitprice'
-                    ,'discountamount','taxrate','taxamount','id','inventoryac')
-            ->where('snumber', $sNumber)
-            ->where('quantitybac', '>', 0)
-            ->whereIn('soreturn', ['N','G'])
+        $data2 = DB::table('salesdetail as sd')
+            ->select('sd.itemid','sd.description','sd.quantity','sd.quantitybac','sd.quantitydel','sd.quantityord','sd.salesac','sd.unitprice'
+                    ,'sd.discountamount','sd.taxrate','sd.taxamount','sd.id','sd.inventoryac','sd.serialno','inv.stocktype')
+            ->leftJoin('inventory as inv', 'sd.itemid', '=', 'inv.itemid')
+            ->where('sd.snumber', $sNumber)
+            ->where('sd.quantitybac', '>', 0)
+            ->whereIn('sd.soreturn', ['N','G'])
             ->get();
         $this->soDetails = json_decode(json_encode($data2), true); 
 
@@ -312,8 +371,7 @@ class SoDelivery extends Component
         {            
             $this->reCalculateSummary();
         }else{
-            $this->sumQuantity = 0;
-            $this->sumAmount = 0;
+            $this->reset(['sumQuantity','sumAmount']);
             $this->soHeader['discountamount'] = 0;
             $this->soHeader['salestax'] = 0;
             $this->soHeader['sototal'] = 0;

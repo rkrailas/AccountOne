@@ -78,7 +78,7 @@
                                             wire:model.defer="adjInventory.documentno">
                                         @error('documentno')
                                         <div class="invalid-feedback">
-                                            The Document No. has already been taken.
+                                            มีการใช้งานเลขที่เอกสารนี้แล้ว!
                                         </div>
                                         @enderror
                                     </div>
@@ -119,8 +119,13 @@
                                         <div class="row">
                                             <div class="col-8">
                                                 <input type="number" step="0.01" class="form-control form-control-sm"
-                                                    required style="text-align: right;"
-                                                    wire:model.lazy="adjInventory.adjquantity">
+                                                    required style="text-align: right;" {{$isSerial ? 'readonly' : ''}}
+                                                    @if($isSerial)
+                                                        wire:model="adjInventory.adjquantity"
+                                                    @else
+                                                        wire:model.lazy="adjInventory.adjquantity"
+                                                    @endif
+                                                    >
                                             </div>
                                             <div class="col-4">
                                                 <input type="text" class="form-control form-control-sm" readonly
@@ -132,12 +137,12 @@
                                         <label>ต้นทุน/หน่วย</label>
                                         <input type="number" step="0.01" class="form-control form-control-sm" required id="adjvalue"
                                             {{ $adjustType  == 'out'? 'readonly' : '' }}
+                                            {{ $isSerial ? 'readonly' : '' }}
                                             style="text-align: right;" wire:model.lazy="adjInventory.adjvalue">
                                     </div>
                                     <div class="col-4">
                                         <label>บัญชีเจ้าหนี้/ลูกหนี้</label>
-                                        <x-select2 id="account-select2" wire:model.defer="adjInventory.account">
-                                            <option value=" ">---โปรดเลือก---</option>
+                                        <x-select2 id="account-select2" wire:model.defer="adjInventory.account" required="true">
                                             @foreach($account_dd as $row)
                                             <option value='{{ $row->account }}'>
                                                 {{ $row->account . ': ' . $row->accnameother }}
@@ -155,8 +160,21 @@
                                     </div>
                                     <div class="col-4">
                                         <label>ทุนรวม</label>
-                                        <input type="text" class="form-control form-control-sm" readonly
-                                            style="text-align: right;" wire:model.defer="adjInventory.adjtotalvalue">
+                                        <input type="number" step="0.01" class="form-control form-control-sm" readonly
+                                            style="text-align: right;" wire:model="adjInventory.adjtotalvalue">
+                                    </div>
+                                    <div class="col-4">
+                                        @if($isSerial and $adjustType)
+                                            <label>รายละเอียดสินค้าแบบมี Serial No.</label>
+                                            <br><button type="button" class="btn btn-sm btn-info @error('adjquantity') is-invalid @enderror" 
+                                                wire:click.prevent="showSN">
+                                                Serial No.</button>
+                                            @error('adjquantity')
+                                            <div class="invalid-feedback">
+                                                กรุณาระบุ Serial No ของสินค้า!
+                                            </div>
+                                            @enderror
+                                        @endif
                                     </div>
                                 </div>
                             </div>

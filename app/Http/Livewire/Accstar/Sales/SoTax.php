@@ -29,7 +29,7 @@ class SoTax extends Component
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
     public $closed = false;
-    public $errorValidate, $errorInvoiceNo, $errorGLTran = false;
+    public $errorTaxNumber, $errorGLTran = false;
 
     public function updatingNumberOfPage()
     {
@@ -338,28 +338,30 @@ class SoTax extends Component
     {   
         if ($this->showEditModal == true){
             //ตรวจสอบเลขที่ใบกำกับ & ใบสำคัญซ้ำหรือไม่
-            $strsql = "select count(*) as count from taxdata where purchase=false and taxnumber='" . $this->soHeader['invoiceno'] . "'";
+            $strsql = "select count(*) as count from taxdata where purchase=false and iscancelled=false 
+                    and taxnumber='" . $this->soHeader['invoiceno'] . "'";
             $data = DB::select($strsql);
             if ($data[0]->count){
-                $this->errorInvoiceNo = true;
-                $this->errorValidate = true;
+                $this->errorTaxNumber = true;
+            }else{
+                $this->errorTaxNumber = false;
             }
 
             $strsql = "select count(*) as count from gltran where gltran='" . $this->soHeader['deliveryno'] . "'";
             $data = DB::select($strsql);
             if ($data[0]->count){
                 $this->errorGLTran = true;
-                $this->errorValidate = true;
+            }else{
+                $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
+                $data = DB::select($strsql);
+                if ($data[0]->count){
+                    $this->errorGLTran = true;
+                }else{
+                    $this->errorGLTran = false;
+                }
             }
 
-            $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
-            $data = DB::select($strsql);
-            if ($data[0]->count){
-                $this->errorGLTran = true;
-                $this->errorValidate = true;
-            }
-
-            if ($this->errorValidate){
+            if ($this->errorTaxNumber or $this->errorGLTran){
                 return;
             }
 
@@ -496,7 +498,7 @@ class SoTax extends Component
     public function edit($sNumber) //กดปุ่ม Edit ที่ List รายการ
     {
         $this->showEditModal = TRUE;
-        $this->reset(['soHeader','soDetails','sumQuantity','sumAmount','errorValidate','errorInvoiceNo','errorGLTran']);
+        $this->reset(['soHeader','soDetails','sumQuantity','sumAmount','errorTaxNumber','errorGLTran']);
 
         //soHeader
         $data = DB::table('sales')
@@ -535,11 +537,13 @@ class SoTax extends Component
         
         //soDetails
         $data2 = DB::table('salesdetaillog')
-            ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac','deliveryno')
+            ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','serialno'
+                    ,'id','inventoryac','deliveryno')
             ->where('snumber', $sNumber)
             ->where('soreturn', 'G')
             ->get();
-        $this->soDetails = json_decode(json_encode($data2), true); 
+        $this->soDetails = json_decode(json_encode($data2), true);
+        
 
         $this->reCalculateInGrid();
     

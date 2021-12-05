@@ -28,6 +28,100 @@ class SalesOrder extends Component
     public $itemNos_dd, $taxRates_dd, $salesAcs_dd, $customers_dd;
     public $sNumberDelete;
 
+    //Modal Serial No
+    public $serialDetails;
+    public $workingRow;
+    public $searchSN = "";
+
+    //Modal Item
+    public $listItem;
+    public $searchItem = "";
+
+    //.Event Item Modal
+    public function selectedItem($xindex, $xitemid) //หลังจากเลือก Item
+    {
+        $data = DB::table('inventory')
+            ->select('description', 'stocktype')
+            ->where('itemid', $xitemid) 
+            ->first();
+        $data = json_decode(json_encode($data), true);
+        $this->soDetails[$xindex]['itemid'] = $xitemid;
+        $this->soDetails[$xindex]['description'] = $data['description'];
+        $this->soDetails[$xindex]['stocktype'] = $data['stocktype'];
+
+        if ($data['stocktype'] == "4"){
+            $this->soDetails[$xindex]['quantity'] = 1;
+        }else{
+            $this->soDetails[$xindex]['serialno'] = "";
+        }
+
+        $this->dispatchBrowserEvent('hide-itemListForm');
+        $this->reset(['workingRow']);
+    }
+
+    public function updatedsearchItem() 
+    {
+        $this->getItemInModal();
+    }
+
+    public function getItemInModal()
+    {
+        $strsql = "select itemid, description, round(instock,2) as instock from inventory  
+                where itemid ilike '%" . $this->searchItem . "%'
+                or description ilike '%" . $this->searchItem . "%'
+                order by itemid";
+        $this->listItem = json_decode(json_encode(DB::select($strsql)), true);
+    }
+
+    public function showModalItem($xindex)
+    {
+        $this->reset(['searchItem']);
+        $this->workingRow = $xindex; //กำลังทำงานเป็น Row ไหน ของ soDetails
+        $this->getItemInModal();
+        $this->dispatchBrowserEvent('show-itemListForm');
+    }
+    //./Event Item Modal
+
+    //.Event SN Modal
+    public function updatedSearchSN() 
+    {
+        $this->getItemSNInModal();
+    }
+
+    public function selectedSN($xserialno)
+    {
+        $this->dispatchBrowserEvent('hide-serialNoOutForm');
+        $this->soDetails[$this->workingRow]['serialno'] = $xserialno;
+        $this->reset(['workingRow']);
+    }
+
+    public function getItemSNInModal()
+    {
+        //ดึงข้อมูล inventoryserial ที่ยังไม่ได้ขาย และจอง
+        $strsql = "select inv.serialno, loc.code || ' : ' || loc.other as location, round(inv.cost,2) as cost
+                ,col.code || ' : ' || col.other as color, inv.reference1, inv.reference2, aa.snumber
+                from inventoryserial inv
+                left join misctable loc on inv.location=loc.code and loc.tabletype='LO'
+                left join misctable col on inv.color=col.code and col.tabletype='CL'
+                left join (select a.snumber,b.serialno from sales a
+                    join salesdetail b on a.snumber=b.snumber
+                    where a.posted=false) aa on inv.serialno=aa.serialno
+                where inv.serialno ilike '%" . $this->searchSN . "%' 
+                and inv.sold=false and aa.snumber is null
+                and inv.itemid='" . $this->soDetails[$this->workingRow]['itemid'] . "'";
+        $this->serialDetails = DB::select($strsql);
+        $this->serialDetails = json_decode(json_encode($this->serialDetails), true);
+    }
+
+    public function showModalSN($xindex)
+    {
+        $this->reset(['searchSN']);
+        $this->workingRow = $xindex; //กำลังทำงานเป็น Row ไหน ของ soDetails
+        $this->getItemSNInModal();
+        $this->dispatchBrowserEvent('show-serialNoOutForm');
+    }
+    //./Event SN Modal
+
     public function updatingNumberOfPage()
     {
         $this->resetPage();
@@ -46,7 +140,7 @@ class SalesOrder extends Component
     public function addNew()
     {
         $this->showEditModal = FALSE;
-        $this->soHeader = [];
+        $this->reset(['soHeader', 'soDetails', 'sumQuantity', 'sumAmount', 'serialDetails', 'workingRow']);
         $this->soHeader = ([
             'snumber'=>'', 'sonumber'=>'', 'sodate'=>Carbon::now()->format('Y-m-d'), 'expirydate'=>Carbon::now()->addMonth()->format('Y-m-d')
             , 'deliveryno'=>'', 'deliverydate'=>Carbon::now()->addMonth()->format('Y-m-d'), 'refno'=>'', 'payby'=>'0'
@@ -58,7 +152,6 @@ class SalesOrder extends Component
         $this->soHeader['snumber'] = $xNumber;
         $this->soHeader['sonumber'] = $xNumber;
 
-        $this->soDetails =[];
         $this->addRowInGrid();
         $this->dispatchBrowserEvent('show-SalesOrderForm'); //แสดง Model Form
         $this->dispatchBrowserEvent('clear-select2');
@@ -73,14 +166,15 @@ class SalesOrder extends Component
     {   
         //สร้าง Row ว่างๆ ใน Gird
         $this->soDetails[] = ([
-            'itemid'=>'','description'=>'','quantity'=>0,'salesac'=>'','unitprice'=>0
-            ,'amount'=>0,'discountamount'=>0,'netamount'=>0, 'taxamount'=>0, 'taxrate'=>getTaxRate()
+            'itemid'=>'','description'=>'','quantity'=>0,'salesac'=>'','unitprice'=>0,'amount'=>0,'discountamount'=>0,'netamount'=>0
+            , 'taxamount'=>0, 'taxrate'=>getTaxRate(), 'stocktype'=>'', 'serialno'=>''
         ]);
     }
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {   
         if ($this->showEditModal == true){
+            //===Edit===
             DB::transaction(function () {
                 //Updaate Sales
                 DB::statement("UPDATE sales SET sodate=?, customerid=?, deliverydate=?, expirydate=?, refno=?, sototal=?, salestax=?
@@ -95,26 +189,27 @@ class SalesOrder extends Component
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete(); //ลบออกไปก่อน
                 foreach ($this->soDetails as $soDetails2)
                 {
-                    if ($this->soHeader['exclusivetax'] == true) //แปลงค่าก่อนบันทึก
+                    if ($soDetails2['itemid'])
                     {
-                        $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
-                    }
-
-                    $xquantity = $soDetails2['quantity'];
-                    $xquantityord = $soDetails2['quantity'];
-                    $xquantitydel = 0;
-                    $xquantitybac = $soDetails2['quantity'];
-
-                    DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount
-                    , quantity, quantityord, quantitydel, quantitybac
-                    , taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                    , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice'], $soDetails2['amount']
-                    , $xquantity, $xquantityord, $xquantitydel, $xquantitybac
-                    , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
-                    , $soDetails2['salesac'], 'Admin', Carbon::now()]);
-                }
-  
+                        if ($this->soHeader['exclusivetax'] == true){ //แปลงค่าก่อนบันทึก
+                            $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
+                        }
+    
+                        $xquantity = $soDetails2['quantity'];
+                        $xquantityord = $soDetails2['quantity'];
+                        $xquantitydel = 0;
+                        $xquantitybac = $soDetails2['quantity'];
+    
+                        DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount
+                        , quantity, quantityord, quantitydel, quantitybac, serialno
+                        , taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice'], $soDetails2['amount']
+                        , $xquantity, $xquantityord, $xquantitydel, $xquantitybac, $soDetails2['serialno']
+                        , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
+                        , $soDetails2['salesac'], 'Admin', Carbon::now()]);
+                    }                    
+                }  
                 $this->dispatchBrowserEvent('hide-SalesOrderForm',['message' => 'Save Successfully!']);
             });
         }else{
@@ -139,24 +234,25 @@ class SalesOrder extends Component
 
                 foreach ($this->soDetails as $soDetails2)
                 {
-                    if ($this->soHeader['exclusivetax'] == true) //แปลงค่าก่อนบันทึก
-                    {
-                        $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
+                    if ($soDetails2['itemid']){
+                        if ($this->soHeader['exclusivetax'] == true){ //แปลงค่าก่อนบันทึก
+                            $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
+                        }
+    
+                        $xquantity = $soDetails2['quantity'];
+                        $xquantityord = $soDetails2['quantity'];
+                        $xquantitydel = 0;
+                        $xquantitybac = $soDetails2['quantity'];
+    
+                        DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord,
+                         quantitydel, quantitybac, serialno, taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice']
+                        , $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac, $soDetails2['serialno']
+                        , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
+                        , $soDetails2['salesac'], 'Admin', Carbon::now()]);
                     }
-
-                    $xquantity = $soDetails2['quantity'];
-                    $xquantityord = $soDetails2['quantity'];
-                    $xquantitydel = 0;
-                    $xquantitybac = $soDetails2['quantity'];
-
-                    DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount
-                    , quantity, quantityord, quantitydel, quantitybac
-                    , taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                    , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice'], $soDetails2['amount']
-                    , $xquantity, $xquantityord, $xquantitydel, $xquantitybac
-                    , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
-                    , $soDetails2['salesac'], 'Admin', Carbon::now()]);
+                    
                 }
 
                 $this->dispatchBrowserEvent('hide-SalesOrderForm',['message' => 'Save Successfully!']);
@@ -190,11 +286,16 @@ class SalesOrder extends Component
             if ($itemName == "itemid")
             {
                 $data = DB::table('inventory')
-                    ->select('description')
+                    ->select('description', 'stocktype')
                     ->where('itemid', $this->soDetails[$index][$itemName]) 
                     ->first();
                 $data = json_decode(json_encode($data), true); 
                 $this->soDetails[$index]['description'] = $data['description'];
+                $this->soDetails[$index]['stocktype'] = $data['stocktype'];
+
+                if ($data['stocktype'] == "4"){
+                    $this->soDetails[$index]['quantity'] = 1;
+                }
             }
 
             //ตรวจสอบว่าเป้นการแก้ไข quantity หรือ unitprice หรือ discountamount
@@ -271,6 +372,7 @@ class SalesOrder extends Component
     public function edit($sNumber) //กดปุ่ม Edit ที่ List รายการ
     {
         $this->showEditModal = TRUE;
+        $this->reset(['soHeader','soDetails']);
 
         // soHeader
         $data = DB::table('sales')
@@ -293,14 +395,16 @@ class SalesOrder extends Component
         
         // soDetails
         $data2 = DB::table('salesdetail')
-            ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac')
+            ->select('salesdetail.itemid','salesdetail.description','salesdetail.quantity','salesdetail.salesac','salesdetail.unitprice'
+                    ,'salesdetail.discountamount','salesdetail.taxrate','salesdetail.taxamount','salesdetail.id','salesdetail.inventoryac'
+                    ,'inventory.stocktype','salesdetail.serialno')
+            ->join('inventory', 'salesdetail.itemid', '=', 'inventory.itemid')
             ->where('snumber', $sNumber)
             ->where('soreturn', 'N')
             ->get();
-        $this->soDetails = json_decode(json_encode($data2), true); 
+        $this->soDetails = json_decode(json_encode($data2), true);
 
         $this->reCalculateInGrid();
-
     
         $this->dispatchBrowserEvent('show-SalesOrderForm'); //แสดง Model Form
 
@@ -328,8 +432,7 @@ class SalesOrder extends Component
         {            
             $this->reCalculateSummary();
         }else{
-            $this->sumQuantity = 0;
-            $this->sumAmount = 0;
+            $this->reset(['sumQuantity','sumAmount']);
             $this->soHeader['discountamount'] = 0;
             $this->soHeader['salestax'] = 0;
             $this->soHeader['sototal'] = 0;

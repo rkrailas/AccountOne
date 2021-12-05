@@ -175,4 +175,6 @@
 
     @include('livewire.accstar.inventory._modalAdjustInventory')
     @include('livewire.accstar._modalGenGL')
+    @include('livewire.accstar.inventory._modalSerialNo')
+    @include('livewire.accstar.inventory._modalSerialNoOut')
 </div>

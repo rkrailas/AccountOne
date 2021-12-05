@@ -21,13 +21,95 @@ class AdjustInventory extends Component
     public $searchTerm = null;
 
     public $inventorys_dd, $account_dd, $location_dd;
-    public $adjInventory = []; //documentno,itemid,description,stocktype,category,location,adjustdate,adjquantity
-                            //,adjvalue(per unit),adjtotalvalue(total value),unitofmeasure,instock,instockvalue,account,averagecost
+    public $adjInventory = [];
+    public $serialDetails = [];
     public $adjustType;
+    public $isSerial = false;
+    public $sumSerialQty, $sumSerialCost = 0;
+    public $duplicate_sn, $listSN = [];
+    public $selectedRows = [];
 
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
 
+    public function closedModalSerialNo()
+    {
+        if ($this->adjustType == "in"){
+            //ตรวจสอบเลขที่ใบกำกับ & ใบสำคัญซ้ำหรือไม่
+            $xCondition = "";
+            for ($i = 0; $i < count($this->serialDetails); $i++) {
+                $xCondition = $xCondition . "'" . $this->serialDetails[$i]['serialno'] . "'";
+                if ($i <> count($this->serialDetails) - 1) {
+                    $xCondition = $xCondition . ',';
+                }
+            }
+
+            if ($xCondition){
+                $strsql = "select serialno from inventoryserial where sold=false and serialno in (" . $xCondition . ")";
+                $this->duplicate_sn = DB::select($strsql);
+                if (count($this->duplicate_sn)){
+                    return;
+                }
+            }
+
+            $this->adjInventory['adjquantity'] = $this->sumSerialQty;
+            $this->adjInventory['adjtotalvalue'] = round($this->sumSerialCost,2);
+            $this->dispatchBrowserEvent('hide-serialNoForm');
+
+        }else if ($this->adjustType == "out"){
+            $this->adjInventory['adjquantity'] = count($this->selectedRows);
+            $this->adjInventory['adjtotalvalue'] = round(DB::table('inventoryserial')
+                ->whereIn('serialno', $this->selectedRows)
+                ->sum('cost'),2);
+            $this->dispatchBrowserEvent('hide-serialNoOutForm');
+        }
+
+    }
+
+    public function updatedSerialDetails() //ตอนที่ Grid ของ Serial No มีการเปลี่ยนแปลง
+    {
+        $this->sumSerialQty = count($this->serialDetails);
+        $this->sumSerialCost = array_sum(array_column($this->serialDetails,'cost'));
+    }
+
+    public function removeRowInGrid($index) //กดปุ่มลบ Row ใน Grid
+    {        
+        unset($this->serialDetails[$index]);
+        $this->reset(['duplicate_sn']);
+        $this->updatedSerialDetails();
+    }
+
+    public function addRowInGrid() //กดปุ่มสร้าง Row ใน Grid
+    {   
+        //สร้าง Row ว่างๆ ใน Gird
+        $this->serialDetails[] = ([
+            'serialno'=>'','location'=>'','cost'=>0,'color'=>'','reference1'=>'','reference2'=>''
+            ]);
+    }
+
+    public function showSN()
+    {   
+        $this->reset(['serialDetails']);
+
+        if ($this->adjustType == "in"){
+            if (! $this->serialDetails) {
+                $this->addRowInGrid();
+            }
+            $this->dispatchBrowserEvent('show-serialNoForm'); //แสดง Model Form
+        }else if ($this->adjustType == "out"){
+            //Ouery ข้อมูล SN ขึ้นมา
+            $strsql = "select inv.serialno, loc.code || ' : ' || loc.other as location
+                    , round(inv.cost,2) as cost
+                    ,col.code || ' : ' || col.other as color, inv.reference1, inv.reference2
+                    from inventoryserial inv
+                    left join misctable loc on inv.location=loc.code and loc.tabletype='LO'
+                    left join misctable col on inv.color=col.code and col.tabletype='CL'
+                    where inv.sold=false and inv.itemid='" . $this->adjInventory['itemid'] . "'";
+            $this->serialDetails = DB::select($strsql);
+            $this->serialDetails = json_decode(json_encode($this->serialDetails), true);
+            $this->dispatchBrowserEvent('show-serialNoOutForm'); 
+        }
+    }
 
     public function showGL()
     {
@@ -246,14 +328,15 @@ class AdjustInventory extends Component
         }
     }
 
-    public function createAdjustInventory()
+    public function createAdjustInventory() //ตอน Save
     {
         $validateData = Validator::make($this->adjInventory, [
             'documentno' => 'required|unique:inventoryadjlog,documentno',
+            'adjquantity' => 'required',
         ])->validate();
-
-        //***ปรับปรุง-เข้า
+        
         if ($this->adjustType == "in"){ 
+            //===ปรับปรุง-เข้า===
             //Check data last update?
             $data = DB::table('inventory')
                     ->select('itemid','instock','instockvalue')
@@ -280,17 +363,42 @@ class AdjustInventory extends Component
                         $isadjustin = true;
                         DB::statement("INSERT INTO inventoryadjlog(itemid,documentno,adjquantity,adjvalue,location,isadjustin,employee_id,transactiondate)
                             VALUES(?,?,?,?,?,?,?,?)"
-                            ,[$this->adjInventory['itemid'],$this->adjInventory['documentno'],$this->adjInventory['adjquantity'],$this->adjInventory['adjvalue']
-                            ,$this->adjInventory['location'],$isadjustin,'Admin',Carbon::now()]);
+                            ,[$this->adjInventory['itemid'],$this->adjInventory['documentno'],$this->adjInventory['adjquantity']
+                            ,$this->adjInventory['adjvalue'],$this->adjInventory['location'],$isadjustin,'Admin',Carbon::now()]);
 
-                        //Insert purchasedetaillog
-                        DB::statement("INSERT INTO purchasedetaillog(ponumber,podate,itemid,description,quantity,quantityg,unitprice,amount
+                        //Insert purchasedetaillog & inventoryserial
+                        if ($this->isSerial) {
+                            //สินค้ามี Serial No.
+                            foreach ($this->serialDetails as $row){
+                                if ($row['serialno']) {
+                                    //Insert purchasedetaillog
+                                    DB::statement("INSERT INTO purchasedetaillog(ponumber,podate,itemid,description,quantity,quantityg,unitprice,amount
+                                    ,taxref,receiveno,cost,location,unitofmeasure,stocktype,poreturn,goodsin,journal,posted,employee_id,transactiondate)
+                                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                    ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'],$this->adjInventory['itemid'],$this->adjInventory['description']
+                                    ,1,1,$row['cost'],$row['cost'],$this->adjInventory['documentno'],$this->adjInventory['documentno'],$row['cost'],$row['location']
+                                    ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N',true,'AI',true,'Admin',Carbon::now()]);
+
+                                    //Insert inventoryserial
+                                    DB::statement("INSERT INTO inventoryserial(itemid,serialno,category,brand,cost,location,color,ponumber,orderdate
+                                            ,posted,taxref,employee_id,transactiondate)
+                                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                    ,[$this->adjInventory['itemid'],$row['serialno'],$this->adjInventory['category'],$this->adjInventory['brand']
+                                    ,$row['cost'],$row['location'],$row['color'],$this->adjInventory['documentno'],$this->adjInventory['adjustdate']
+                                    ,true,$this->adjInventory['documentno'],'Admin',Carbon::now()]);
+                                }                                
+                            }
+                        }else{
+                             //สินค้าไม่มี Serial No.
+                             //Insert purchasedetaillog
+                             DB::statement("INSERT INTO purchasedetaillog(ponumber,podate,itemid,description,quantity,quantityg,unitprice,amount
                                     ,taxref,receiveno,cost,location,unitofmeasure,stocktype,poreturn,goodsin,journal,posted,employee_id,transactiondate)
                             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                             ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'],$this->adjInventory['itemid'],$this->adjInventory['description']
                             ,$this->adjInventory['adjquantity'],$this->adjInventory['adjquantity'],$this->adjInventory['adjvalue'],$this->adjInventory['adjtotalvalue']
                             ,$this->adjInventory['documentno'],$this->adjInventory['documentno'],$this->adjInventory['adjvalue'],$this->adjInventory['location']
                             ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N',true,'AI',true,'Admin',Carbon::now()]);
+                        }
 
                         //gltran
                         $this->generateGl($this->adjInventory['documentno']);
@@ -298,15 +406,15 @@ class AdjustInventory extends Component
                         
                         $this->dispatchBrowserEvent('hide-adjustInventoryForm',['message' => 'Create Successfully!']);
                     });
-
                 }else{
                     $this->dispatchBrowserEvent('popup-alert', [
-                        'title' => 'ทำรายการใหม่ เพราะข้อมูลมีการเปลี่ยนแปลงระหว่างทำการ',
+                        'title' => 'กรุณาทำรายการใหม่ เนื่องจากมีข้อมูลเปลี่ยนแปลงระหว่างทำการ',
                     ]);
                 }
             }
-        }//***ปรับปรุง-ออก
+        }
         else if($this->adjustType == "out"){ 
+            //===ปรับปรุง-ออก===
             //Check data last update?
             $data = DB::table('inventory')
                     ->select('itemid','instock','instockvalue')
@@ -328,41 +436,58 @@ class AdjustInventory extends Component
                         where id=?" 
                         ,[$newInstock, $newInstockvalue, 'Admin', Carbon::now(), $this->adjInventory['id']]);
 
-                        //Update InventoryLocation
-                        // $data2 = DB::table('inventorylocation')
-                        //     ->select('itemid', 'location', 'instock')
-                        //     ->where('itemid', $this->adjInventory['itemid'],)
-                        //     ->where('location', $this->adjInventory['location'],)
-                        //     ->get();
-                        
-                        // if (count($data2) > 0){
-                        //     $data2 = json_decode(json_encode($data2[0]), true);
-                        //     $newInstockLocation = $data2['instock'] - $this->adjInventory['adjquantity'];
-                        //     DB::statement("UPDATE inventorylocation SET instock=?
-                        //     where itemid=? and location=?" 
-                        //     ,[$newInstockLocation, $this->adjInventory['itemid'], $this->adjInventory['location']]);
-                        // }
-
                         //Insert inventoryadjlog
                         $isadjustin = false;
+
+                        if ($this->adjInventory['stocktype'] == "4") {
+                            $this->adjInventory['averagecost'] = 0;
+                        }
+
                         DB::statement("INSERT INTO inventoryadjlog(itemid,documentno,adjquantity,adjvalue,location,isadjustin,employee_id,transactiondate)
                             VALUES(?,?,?,?,?,?,?,?)"
                             ,[$this->adjInventory['itemid'],$this->adjInventory['documentno'],$this->adjInventory['adjquantity']
                             ,$this->adjInventory['averagecost'],$this->adjInventory['location'],$isadjustin,'Admin',Carbon::now()]);
 
-                        //Insert salesdetaillog
-                        DB::statement("INSERT INTO salesdetaillog(snumber,sdate,itemid,description,quantity,amount,cost,location
-                                    ,unitofmeasure,stocktype,soreturn,goodsout,journal,posted,employee_id,transactiondate)
+                        //Insert salesdetaillog & inventoryserial
+                        if ($this->isSerial) {
+                            //สินค้ามี Serial No.
+                            foreach ($this->serialDetails as $row){
+                                //Insert salesdetaillog
+                                DB::statement("INSERT INTO salesdetaillog(snumber,sdate,itemid,description,quantity,amount,cost,location
+                                ,unitofmeasure,stocktype,soreturn,goodsout,journal,posted,employee_id,transactiondate)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'],$this->adjInventory['itemid'],$this->adjInventory['description']
+                                ,1,$row['cost'],$row['cost'],$row['location'],$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype']
+                                ,'N',true,'AO',true,'Admin',Carbon::now()]);
+                            
+                                //Update inventoryserial
+                                $sn = "";
+                                for ($i = 0; $i < count($this->selectedRows); $i++) {
+                                    $sn = $sn . "'" . $this->selectedRows[$i] . "'";
+                                    if ($i <> count($this->selectedRows) - 1) {
+                                        $sn = $sn . ',';
+                                    }
+                                }
+                                DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
+                                where serialno in (" . $sn . ")"
+                                ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'], true, 'Admin', Carbon::now()]);
+                            }
+                        }else{
+                            //สินค้าไม่มี Serial No.
+                            //Insert salesdetaillog
+                            DB::statement("INSERT INTO salesdetaillog(snumber,sdate,itemid,description,quantity,amount,cost,location
+                            ,unitofmeasure,stocktype,soreturn,goodsout,journal,posted,employee_id,transactiondate)
                             VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                             ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'],$this->adjInventory['itemid'],$this->adjInventory['description']
                             ,$this->adjInventory['adjquantity'],$this->adjInventory['adjtotalvalue'],$this->adjInventory['adjtotalvalue'],$this->adjInventory['location']
                             ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N',true,'AO',true,'Admin',Carbon::now()]);
+                        }
 
                         $this->dispatchBrowserEvent('hide-adjustInventoryForm',['message' => 'Create Successfully!']);
                     });
 
                 }else{
-                    $this->dispatchBrowserEvent('popup-alert', ['title' => 'ทำรายการใหม่ เพราะข้อมูลมีการเปลี่ยนแปลงระหว่างทำการ']);
+                    $this->dispatchBrowserEvent('popup-alert', ['title' => 'กรุณาทำรายการใหม่ เนื่องจากมีข้อมูลเปลี่ยนแปลงระหว่างทำการ']);
                 }
             }
         }
@@ -405,7 +530,7 @@ class AdjustInventory extends Component
         $data = DB::table('inventory')
         ->select('inventory.id','inventory.itemid','inventory.description','b.other as stocktypename','c.other as category','inventory.location'
                 ,'d.other as locationname','inventory.unitofmeasure','inventory.instock','inventory.instockvalue','inventory.stocktype'
-                ,'inventory.averagecost')
+                ,'inventory.brand','inventory.isserial','inventory.averagecost')
         ->leftJoin('misctable as b', function ($join) {
             $join->on('inventory.stocktype', '=', 'b.code')
                     ->where('b.tabletype', 'I1');
@@ -430,12 +555,19 @@ class AdjustInventory extends Component
             $this->adjInventory['adjtotalvalue'] = 0;
             $this->adjInventory['documentno'] = getGlNunber("GL");
             $this->adjInventory['adjustdate'] = Carbon::now()->format('Y-m-d');
+            $this->isSerial = $this->adjInventory['isserial'];
+
+            if ($this->adjInventory['stocktype'] == "4") {
+                $this->adjInventory['adjvalue'] = 0;
+            }
+            
         }
     }
 
     public function addNew()
     {
-        $this->reset(['adjInventory','adjustType', 'genGLs', 'sumDebit', 'sumCredit']);
+        $this->reset(['adjInventory','adjustType', 'genGLs', 'sumDebit', 'sumCredit','serialDetails','isSerial'
+                    ,'sumSerialQty','sumSerialCost','duplicate_sn','selectedRows']);
         $this->dispatchBrowserEvent('show-adjustInventoryForm');
         $this->dispatchBrowserEvent('clear-select2');
     }
@@ -457,6 +589,12 @@ class AdjustInventory extends Component
         $this->location_dd = DB::table('misctable')
         ->select('code','other')
         ->where('tabletype', 'LO')
+        ->orderBy('code')
+        ->get();
+
+        $this->color_dd = DB::table('misctable')
+        ->select('code','other')
+        ->where('tabletype', 'CL')
         ->orderBy('code')
         ->get();
 

@@ -121,5 +121,7 @@
     </div>
     <!-- /.List Sales Order -->
     @include('livewire.accstar.sales._modal-so-delivery-tax')
+    @include('livewire.accstar.sales._modal-list-item')
     @include('livewire.accstar._modalGenGL')
+    @include('livewire.accstar.sales._modal-sn-out')
 </div>

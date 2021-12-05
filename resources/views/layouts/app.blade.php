@@ -183,6 +183,16 @@
         })
     </script>
 
+    {{-- ป้องกันการกด Enter --}}
+    <script type="text/javascript">
+        window.document.onkeydown = CheckEnter;
+        function CheckEnter(){
+            if(event.keyCode == 13)
+                return false;
+            return true;
+        }
+    </script>
+
     @stack('js')
     <livewire:scripts />
 

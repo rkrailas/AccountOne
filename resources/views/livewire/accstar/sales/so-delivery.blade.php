@@ -119,4 +119,6 @@
     <!-- /.List Sales Order -->
     @include('livewire.accstar.sales._modal-so-delivery')
     @include('livewire.accstar._modalGenGL')
+    @include('livewire.accstar.sales._modal-sn-out')
+
 </div>

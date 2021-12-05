@@ -70,6 +70,13 @@
               </a>
             </li>
             <li class="nav-item">
+              <a href="{{ route('accstar.inventory.inventoryserialno') }}"
+                class="nav-link {{ request()->is('accstar/inventory/inventoryserialno') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
+                <p>ข้อมูลสินค้า Serial No</p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="{{ route('accstar.inventory.adjustinventory') }}" 
                 class="nav-link {{ request()->is('accstar/inventory/adjustinventory') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon-submenu"></i>

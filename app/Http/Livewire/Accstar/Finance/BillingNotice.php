@@ -52,7 +52,7 @@ class BillingNotice extends Component
 
     public function clearValue()
     {
-        $this->reset(['billingHeader','billingDetails','sNumberDelete','sumBalance','selectedRows']);
+        $this->reset(['billingHeader','billingDetails','sNumberDelete','sumBalance','selectedRows','selectPageRows']);
     }
 
     public function updatedbillingHeaderCustomerid()
