@@ -1,4 +1,4 @@
-<div class="modal fade bd-example-modal-xl" id="receiveOnSalesForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" 
+<div class="modal fade bd-example-modal-xl" id="receiveOnSalesServiceForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" 
     aria-hidden="true" data-backdrop="static" wire:ignore.self>
     <div class="modal-dialog" style="max-width: 85%;">
         <form autocomplete="off" wire:submit.prevent="createUpdateReceiveOnSales">
@@ -6,9 +6,9 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         @if($showEditModal)
-                        ใบสำคัญรับเงิน
+                        ใบสำคัญรับเงิน-ตามใบแจ้งหนี้ค่าบริการ
                         @else
-                        ใบสำคัญรับเงิน
+                        ใบสำคัญรับเงิน-ตามใบแจ้งหนี้ค่าบริการ
                         @endif
                     </h5>
                     <div class="float-right">
@@ -133,10 +133,10 @@
                                     </select>
                                 </div>
                                 <div class="col mb-1 form-group">
-                                    <label class=" mr-1">เลขอ้างอิง:</label>
+                                    <label class=" mr-1">เลขใบกำกับภาษี:</label>
                                     <input type="text" class="form-control form-control-sm mb-1 mr-1" wire:model.defer="bankHeader.documentref">
                                 </div>
-                                <div class="col mb-1 form-group"">
+                                <div class="col mb-1 form-group">
                                     <label class=" mr-1">เลขภาษีหัก:</label>
                                     <input type="text" class="form-control form-control-sm mb-1 mr-1" wire:model.defer="bankHeader.taxrunningno">
                                 </div>
@@ -332,21 +332,16 @@
 @push('js')
 
     <script>
-        window.addEventListener('show-receiveOnSalesForm', event => {
-            $('#receiveOnSalesForm').modal('show');
+        window.addEventListener('show-receiveOnSalesServiceForm', event => {
+            $('#receiveOnSalesServiceForm').modal('show');
         })
 
-        window.addEventListener('hide-receiveOnSalesForm', event => {
-            $('#receiveOnSalesForm').modal('hide');
+        window.addEventListener('hide-receiveOnSalesServiceForm', event => {
+            $('#receiveOnSalesServiceForm').modal('hide');
         })
 
         window.addEventListener('clear-select2', event => {
             clearSelect2('customer-dropdown');
-        })
-
-        window.addEventListener('bindToBillingNo', event => {
-            $('#billingno-dropdown').html(" ");
-            $('#billingno-dropdown').append(event.detail.newOption);
         })
     </script>
 

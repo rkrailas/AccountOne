@@ -37,9 +37,12 @@ class CancelReturnGoods extends Component
 
             //soDetails
             $data2 = DB::table('salesdetaillog')
-            ->select('itemid','description','quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac','cost')
-            ->where('snumber', $this->deleteNumber)
-            ->where('soreturn', 'Y')
+            ->select('salesdetaillog.itemid','salesdetaillog.description','salesdetaillog.quantity','salesdetaillog.salesac','salesdetaillog.unitprice'
+                    ,'salesdetaillog.discountamount','salesdetaillog.taxrate','salesdetaillog.taxamount','salesdetaillog.id','salesdetaillog.inventoryac'
+                    ,'salesdetaillog.cost', 'salesdetaillog.serialno', 'salesdetaillog.lotnumber', 'inventory.stocktype')
+            ->join('inventory', 'salesdetaillog.itemid', '=', 'inventory.itemid')
+            ->where('salesdetaillog.snumber', $this->deleteNumber)
+            ->where('salesdetaillog.soreturn', 'Y')
             ->get();
             $this->soDetails = json_decode(json_encode($data2), true); 
 
@@ -90,7 +93,7 @@ class CancelReturnGoods extends Component
                 where purchase=false and taxnumber=? and customerid=?" 
                 , [true, 'Admin', Carbon::now(), $this->soHeader['invoiceno'], $this->soHeader['customerid']]);
 
-            // 5. Updaate Inventory ???
+            // 5. Updaate Inventory inventoryserial & purchasedetaillog
             foreach ($this->soDetails as $soDetails2) {
                 $xinventory = DB::table('inventory')
                 ->select('instock','instockvalue','averagecost')
@@ -105,6 +108,37 @@ class CancelReturnGoods extends Component
                     DB::statement("UPDATE inventory SET instock=?, instockvalue=?, cost=?, averagecost=?, employee_id=?, transactiondate=?
                         where itemid=?" 
                         , [$xinstock, $xinstockvalue, $newAVG, $newAVG, 'Admin', Carbon::now(), $soDetails2['itemid']]);
+
+                    // inventoryserial & purchasedetaillog
+                    if($soDetails2['stocktype'] == "4"){
+                        DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
+                                where itemid=? and serialno=?"
+                        ,[$this->soHeader['snumber'],$this->soHeader['sodate'], true, 'Admin', Carbon::now()
+                        ,$soDetails2['itemid'],$soDetails2['serialno']]);
+                    }elseif($soDetails2['stocktype'] == "9"){
+                        //Loop เพื่อตัดสินค้าออก
+                        $xcount = 0;
+                        while ($xcount < $soDetails2['quantity']) {
+                            $strsql = "select id,sold,quantity,quantity-sold as balance 
+                                    from purchasedetaillog 
+                                    where itemid='" . $soDetails2['itemid'] . "'
+                                    and lotnumber='" . $soDetails2['lotnumber'] . "'
+                                    and quantity-sold > 0
+                                    order by id";
+                            $data1 = DB::select($strsql);
+                            if ($data1[0]->balance <= $soDetails2['quantity'] - $xcount) {   
+                                DB::statement("UPDATE purchasedetaillog SET sold=sold+?,employee_id=?,transactiondate=?
+                                            where id =" . $data1[0]->id
+                                ,[$data1[0]->balance, 'Admin', Carbon::now()]);                                
+                                $xcount = $xcount + $data1[0]->balance;
+                            }else{
+                                DB::statement("UPDATE purchasedetaillog SET sold=sold+?,employee_id=?,transactiondate=?
+                                where id =" . $data1[0]->id
+                                ,[$soDetails2['quantity'] - $xcount, 'Admin', Carbon::now()]);
+                                $xcount = $xcount + ($soDetails2['quantity'] - $xcount);
+                            }
+                        }
+                    }
                 }
             }
 

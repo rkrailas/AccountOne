@@ -27,9 +27,13 @@
             <div class="row mb-2">
                 <div class="col">
                     <div class="d-flex justify-content-between mb-2">
-                        <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle"
+                        <div>
+                            <button wire:click.prevent="addNew" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle"
                                 mr-1></i>
                             สร้างข้อมูลใหม่</button>
+                            <button wire:click.prevent="refreshData" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sync-alt"></i>
+                                ดึงข้อมูลใหม่</button>
+                        </div>                        
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
@@ -124,4 +128,5 @@
     @include('livewire.accstar.sales._modal-list-item')
     @include('livewire.accstar._modalGenGL')
     @include('livewire.accstar.sales._modal-sn-out')
+    @include('livewire.accstar.inventory._modalLotNumberOut')
 </div>

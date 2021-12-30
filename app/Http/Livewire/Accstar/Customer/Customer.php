@@ -29,6 +29,11 @@ class Customer extends Component
     //     return Excel::download(new CustomersExport($this->searchTerm), 'Customers.pdf');
     // }
 
+    public function refreshData()
+    {
+        $this->resetPage();
+    }
+
     public function exportExcel(){
         return Excel::download(new CustomersExport($this->searchTerm), 'Customers.xlsx');
     }

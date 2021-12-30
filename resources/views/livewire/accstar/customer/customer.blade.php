@@ -22,9 +22,11 @@
                 <div class="col">
                     <div class="d-flex justify-content-between mb-2">
                         <div>
-                            <button wire:click.prevent="addNew" class="btn btn-primary"><i class="fa fa-plus-circle mr-1"></i>
+                            <button wire:click.prevent="addNew" class="btn btn-sm btn-primary"><i class="fa fa-plus-circle mr-1"></i>
                                 สร้างลูกค้า</button>
-                            <button wire:click.prevent="exportExcel" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i>
+                            <button wire:click.prevent="refreshData" class="btn btn-sm btn-primary"><i class="fas fa-sync-alt"></i>
+                                ดึงข้อมูลใหม่</button>
+                            <button wire:click.prevent="exportExcel" class="btn btn-sm btn-success"><i class="fas fa-file-excel mr-1"></i>
                                 Excel</button>
                         </div>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">

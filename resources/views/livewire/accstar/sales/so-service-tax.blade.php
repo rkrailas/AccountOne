@@ -9,12 +9,12 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">ปรับปรุงราคาขาย</h1>
+                    <h1 class="m-0 text-dark">ใบแจ้งหนี้ค่าบริการ</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">ระบบขาย</li>
-                        <li class="breadcrumb-item active">ปรับปรุงราคาขาย</li>
+                        <li class="breadcrumb-item active">ใบแจ้งหนี้ค่าบริการ</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -53,10 +53,10 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">เลขที่ปรับปรุง
-                                    <span wire:click="sortBy('sales.sonumber')" class="float-right text-sm" style="cursor: pointer;">
-                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.sonumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.sonumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                <th scope="col">ใบสั่งขาย
+                                    <span wire:click="sortBy('sales.snumber')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.snumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.snumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">วันที่
@@ -70,17 +70,11 @@
                                         <i class="fa fa-arrow-up {{ $sortBy === 'customer.name' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'customer.name' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
-                                </th>
+                                </th>                                    
                                 <th scope="col">ยอดเงิน
                                     <span wire:click="sortBy('sales.sototal')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.sototal' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sototal' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
-                                    </span>
-                                </th>
-                                <th scope="col">ใบกำกับอ้างอิง
-                                    <span wire:click="sortBy('sales.refno')" class="float-right text-sm" style="cursor: pointer;">
-                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.refno' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.refno' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">แก้ไขล่าสุด
@@ -96,17 +90,16 @@
                             @foreach ($salesOrders as $salesOrder)
                             <tr>
                                 <td scope="col">{{ $loop->iteration + $salesOrders->firstitem()-1  }}</td>
-                                <td scope="col">{{ $salesOrder->sonumber }} </td>
+                                <td scope="col">{{ $salesOrder->snumber }} </td>
                                 <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->sodate)->format('Y-m-d') }} </td>
                                 <td scope="col">{{ $salesOrder->name }} </td>
                                 <td scope="col">{{ number_format($salesOrder->sototal,2) }} </td>
-                                <td scope="col">{{ $salesOrder->refno }} </td>
                                 <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->transactiondate)->format('Y-m-d') }} </td>
                                 <td>
-                                    <a href="" wire:click.prevent="edit('{{ $salesOrder->sonumber }}')">
+                                    <a href="" wire:click.prevent="edit('{{ $salesOrder->snumber }}')">
                                         <i class="fa fa-edit mr-2"></i>
                                     </a>
-                                    <a href="" wire:click.prevent="confirmDelete('{{ $salesOrder->sonumber }}')">
+                                    <a href="" wire:click.prevent="confirmDelete('{{ $salesOrder->snumber }}')">
                                         <i class="fa fa-trash text-danger"></i>
                                     </a>
                                 </td>
@@ -131,6 +124,7 @@
         </div>
     </div>
     <!-- /.List Sales Order -->
-    @include('livewire.accstar.sales._modal-adjust-so-delivery-tax')
+    @include('livewire.accstar.sales._modal-so-service-tax')
+    @include('livewire.accstar.sales._modal-list-item-service')
     @include('livewire.accstar._modalGenGL')
 </div>

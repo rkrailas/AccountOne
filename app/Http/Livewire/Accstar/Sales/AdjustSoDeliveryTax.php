@@ -32,6 +32,11 @@ class AdjustSoDeliveryTax extends Component
     public $taxNumber;
     public $errorValidate, $errorTaxNumber, $errorGLTran = false;
 
+    public function refreshData()
+    {
+        $this->resetPage();
+    }
+    
     public function resetValuesInModel()
     {
         $this->taxNumber = "";

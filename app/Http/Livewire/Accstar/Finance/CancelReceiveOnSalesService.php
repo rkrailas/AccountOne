@@ -6,7 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class CancelReceiveOnSales extends Component
+class CancelReceiveOnSalesService extends Component
 {
     protected $listeners = ['deleteConfirmed' => 'delete'];
     
@@ -27,7 +27,7 @@ class CancelReceiveOnSales extends Component
             from bank 
             left join taxtable t on bank.taxscheme = t.code and t.taxtype='2'
             left join taxtable t1 on bank.taxscheme1 = t1.code and t1.taxtype='2'
-            where posted=true and bookid='R1'
+            where posted=true and bookid='RV'
             and gltran='" . $this->deleteNumber . "'";
         $data = DB::select($strsql);
 
@@ -46,13 +46,16 @@ class CancelReceiveOnSales extends Component
             $this->bankHeader['feeamt'] = round($this->bankHeader['feeamt'],2);
 
             $this->calPlusDeduct();
-            // bankDetails
+            // bankDetails ???ถึงตรงนี้
             $strsql = "select bankdetail.id, bankdetail.taxref, bankdetail.description, bankdetail.balance, bankdetail.amount, bankdetail.tax
-            , taxdata.amount as oriamount, taxdata.taxamount as oritax, bankdetail.taxdataid
+            , taxdata.amount as oriamount, taxdata.taxamount as oritax, bankdetail.taxdataid, bankdetail.gltran
             from bankdetail
-            join taxdata on bankdetail.taxdataid = taxdata.id
-            where bankdetail.gltran = '" . $this->deleteNumber . "'";
+            join bank on bankdetail.gltran = bank.gltran
+            join taxdata on bank.documentref = taxdata.taxnumber and bank.customerid = taxdata.customerid
+            where bank.bookid='RV' and bank.iscancelled=false
+            and bankdetail.gltran = '" . $this->deleteNumber . "'";
             $data = DB::select($strsql);
+            dd($strsql);
 
             if(count($data) > 0){
                 $this->bankDetails = json_decode(json_encode($data), true); 
@@ -88,12 +91,16 @@ class CancelReceiveOnSales extends Component
     {   
         DB::transaction(function() 
         {
-            // 1. Update taxdata
+            // 1. Delete taxdata & Update taxdataservice
             foreach ($this->bankDetails as $bankDetails2) {
-                DB::statement("UPDATE taxdata SET 
-                            paidamount=paidamount - " . $bankDetails2['amount'] .
-                            ", paiddate=null, employee_id='Admin', transactiondate=Now()
-                            where id = " . $bankDetails2['taxdataid']
+                DB::statement("UPDATE taxdata SET iscancelled=true, employee_id='Admin', transactiondate=Now() 
+                        where purchase=false and iscancelled=false 
+                        and reference='" . $bankDetails2['gltran'] . "'
+                        and taxnumber ='" . $bankDetails2['taxref'] . "'");
+
+                DB::statement("UPDATE taxdataservice SET paidamount = paidamount - " . $bankDetails2['amount'] . 
+                        ", paiddate=null, paidtaxamount = paidtaxamount - " . $bankDetails2['tax'] . 
+                        ", employee_id='Admin', transactiondate=Now() where id = " . $bankDetails2['taxdataid']
                 );
             }
 
@@ -192,6 +199,6 @@ class CancelReceiveOnSales extends Component
             
         }
 
-        return view('livewire.accstar.finance.cancel-receive-on-sales');
+        return view('livewire.accstar.finance.cancel-receive-on-sales-service');
     }
 }

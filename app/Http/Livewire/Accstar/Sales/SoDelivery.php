@@ -16,7 +16,7 @@ class SoDelivery extends Component
     protected $listeners = ['deleteConfirmed' => 'delete'];
 
     public $sortDirection = "desc";
-    public $sortBy = "sales.snumber";
+    public $sortBy = "sales.transactiondate";
     public $numberOfPage = 10;
     public $searchTerm = null;
     
@@ -29,11 +29,48 @@ class SoDelivery extends Component
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
     public $closed = false;
+    public $errorSoDetail = false;
 
-    //Modal Serial No
-    public $serialDetails;
-    public $workingRow;
-    public $searchSN = "";
+    public $serialDetails, $workingRow, $searchSN; //Modal Serial No
+    public $lotNumbers, $searchLotNumber; //Modal Lot Number
+
+    public function refreshData()
+    {
+        $this->resetPage();
+    }
+
+    //.Event Lot Modal
+    public function showLotNumber($xindex)
+    {   
+        $this->workingRow = $xindex; //กำลังทำงานเป็น Row ไหน ของ soDetails
+        $this->getLotNumber();
+        $this->dispatchBrowserEvent('show-lotNumberOutForm'); 
+    }
+
+    public function selectedLotNumber($xLotNumber)
+    {
+        $this->soDetails[$this->workingRow]['lotnumber'] = $xLotNumber;
+        $this->dispatchBrowserEvent('hide-lotNumberOutForm');
+    }
+
+    public function getLotNumber()
+    {
+        $this->reset(['lotNumbers']);
+        $strsql = "select lotnumber, sum(quantity-sold) as instock
+                from purchasedetaillog
+                where quantity-sold > 0
+                and itemid='" . $this->soDetails[$this->workingRow]['itemid'] . "'
+                and (lotnumber ilike '%" . $this->searchLotNumber . "%'
+                    or ponumber ilike '%" . $this->searchLotNumber . "%')
+                group by lotnumber";
+        $this->lotNumbers = json_decode(json_encode(DB::select($strsql)), true);
+    }
+
+    public function updatedSearchLotNumber()
+    {
+        $this->getLotNumber();
+    }
+    //./Event Lot Modal
 
     //.Event SN Modal
     public function updatedSearchSN() 
@@ -98,6 +135,37 @@ class SoDelivery extends Component
 
     public function createUpdateSalesOrder() //Save Button 
     {   
+        //.ตรวจสอบอความถูกต้องให้ soDetail
+        if($this->soHeader['posted'] == true){
+            foreach ($this->soDetails as $soDetails2){
+                //ถ้าเป็นสินค้ามี SN/Lot Number จะต้องเลือก SN/Lot Number แล้ว
+                if ($soDetails2['stocktype'] == "4" and $soDetails2['serialno'] == ""){
+                    $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Serial No. ของสินค้า !',]);
+                    return;
+                }elseif ($soDetails2['stocktype'] == "9" and $soDetails2['lotnumber'] == ""){
+                    $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Lot Number ของสินค้า !',]);
+                    return;
+                }
+
+                if ($soDetails2['stocktype'] == "9" ){
+                    $strsql = "select sum(quantity-sold) as balance
+                            from purchasedetaillog 
+                            where itemid='" . $soDetails2['itemid'] . "'
+                            and lotnumber='" . $soDetails2['lotnumber'] . "'";
+                    $data1 = DB::select($strsql);
+                    if ($data1[0]->balance < $soDetails2['quantity']){
+                        $this->dispatchBrowserEvent('popup-alert', ['title' => 'สินค้าคงเหลือของ Lot ' . $soDetails2['lotnumber'] . ' ไม่พอ !',]);
+                        return;
+                    }
+                }
+            }  
+        }
+
+        if ($this->errorSoDetail){
+            return;
+        }
+        //./ตรวจสอบอความถูกต้องให้ soDetail
+
         if ($this->showEditModal == true){
             DB::transaction(function () {
                 // Sales
@@ -112,7 +180,7 @@ class SoDelivery extends Component
                     , $this->soHeader['snumber']]);
                 }
         
-                // SalesDetail & SalesDetaillog
+                // SalesDetail & SalesDetaillog & PurchaseDetailLog
                 foreach ($this->soDetails as $soDetails2)
                 {
                     if ($this->soHeader['exclusivetax'] == true){ //แปลงค่าก่อนบันทึก
@@ -121,10 +189,12 @@ class SoDelivery extends Component
 
                     //ปิดรายการ
                     if($this->closed == true){
-
-                        //ตรวจสอบถ้าเป็นสินค้ามี SN จะต้องเลือก SN แล้ว
-                        if ($soDetails2['stocktype'] == 4 and $soDetails2['serialno'] == ""){
-                            $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Serial No. ของสินค้า!',]);
+                        //ตรวจสอบ SN และ Lot ของสินค้า
+                        if ($soDetails2['stocktype'] == "4" and $soDetails2['serialno'] == ""){
+                            $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Serial No.!',]);
+                            return;
+                        }elseif ($soDetails2['stocktype'] == "9" and $soDetails2['lotnumber'] == "") {
+                            $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Lot Number!',]);
                             return;
                         }
 
@@ -134,9 +204,11 @@ class SoDelivery extends Component
                             $quantitybac = $soDetails2['quantityord'] - $xquantitydel;
 
                             //SalesDetail
-                            DB::statement("UPDATE salesdetail SET quantity=?, quantitydel=?, quantitybac=?, serialno=?, employee_id=?, transactiondate=?
+                            DB::statement("UPDATE salesdetail SET quantity=?, quantitydel=?, quantitybac=?, serialno=?, lotnumber=?
+                                , employee_id=?, transactiondate=?
                                 where id=?" 
-                                , [$xquantity, $xquantitydel, $quantitybac, $soDetails2['serialno'], 'Admin', Carbon::now(), $soDetails2['id']]);
+                                , [$xquantity, $xquantitydel, $quantitybac, $soDetails2['serialno'], $soDetails2['lotnumber']
+                                , 'Admin', Carbon::now(), $soDetails2['id']]);
     
                             //Product Cost
                             $costAmt = 0;
@@ -151,11 +223,12 @@ class SoDelivery extends Component
                             //SalesDetailLog
                             DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description, quantity, unitprice
                                 , amount, taxrate, taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, serialno
-                                , employee_id, transactiondate)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                , lotnumber, employee_id, transactiondate)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
                                 , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'], $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], $soDetails2['serialno'], 'Admin', Carbon::now()]);
+                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], $soDetails2['serialno'], $soDetails2['lotnumber']
+                                , 'Admin', Carbon::now()]);
     
                             //Inventory
                             $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
@@ -165,12 +238,37 @@ class SoDelivery extends Component
                                 where itemid=?" 
                                 , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
 
-                            // inventoryserial
-                            DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
+                            if ($soDetails2['stocktype'] == '4'){
+                                // inventoryserial
+                                DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
                                 where itemid=? and serialno=?"
                                 ,[$this->soHeader['snumber'],$this->soHeader['sodate'], true, 'Admin', Carbon::now(),$soDetails2['itemid']
                                 ,$soDetails2['serialno']]);
-
+                            }elseif ($soDetails2['stocktype'] == '9'){
+                                //purchasedetaillog ???ต้องเขียนด้วย Concept ใหม่
+                                //Loop เพื่อตัดสินค้าออก
+                                $xcount = 0;
+                                while ($xcount < $soDetails2['quantity']) {
+                                    $strsql = "select id,sold,quantity,quantity-sold as balance 
+                                            from purchasedetaillog 
+                                            where itemid='" . $soDetails2['itemid'] . "'
+                                            and lotnumber='" . $soDetails2['lotnumber'] . "'
+                                            and quantity-sold > 0
+                                            order by id";
+                                    $data1 = DB::select($strsql);
+                                    if ($data1[0]->balance <= $soDetails2['quantity'] - $xcount) {   
+                                        DB::statement("UPDATE purchasedetaillog SET sold=sold+?,employee_id=?,transactiondate=?
+                                                    where id =" . $data1[0]->id
+                                        ,[$data1[0]->balance, 'Admin', Carbon::now()]);                                
+                                        $xcount = $xcount + $data1[0]->balance;
+                                    }else{
+                                        DB::statement("UPDATE purchasedetaillog SET sold=sold+?,employee_id=?,transactiondate=?
+                                        where id =" . $data1[0]->id
+                                        ,[$soDetails2['quantity'] - $xcount, 'Admin', Carbon::now()]);
+                                        $xcount = $xcount + ($soDetails2['quantity'] - $xcount);
+                                    }
+                                }
+                            }
                         }else{ //รายการที่ไม่ได้ส่ง Update SalesDetail Reset quantity ของรายการที่่ไม่ได้ส่งกลับมาให้เท่ากับ quantitybac
                             DB::statement("UPDATE salesdetail SET quantity=?, employee_id=?, transactiondate=?
                                 where id=?" 
@@ -178,10 +276,11 @@ class SoDelivery extends Component
                         }                        
                     }else{
                         //Update Salesdetail
-                        DB::statement("UPDATE salesdetail SET quantity=?, amount=?, taxamount=?, soreturn=?, serialno=?, employee_id=?, transactiondate=?
-                        where id=?" 
-                        , [$soDetails2['quantity'], $soDetails2['amount'], $soDetails2['taxamount'], 'G', $soDetails2['taxamount']
-                        , 'Admin', Carbon::now(), $soDetails2['id']]);
+                        DB::statement("UPDATE salesdetail SET quantity=?, amount=?, taxamount=?, soreturn=?, serialno=?, lotnumber=?
+                            , employee_id=?, transactiondate=?
+                            where id=?" 
+                            , [$soDetails2['quantity'], $soDetails2['amount'], $soDetails2['taxamount'], 'G', $soDetails2['serialno']
+                            , $soDetails2['lotnumber'],'Admin', Carbon::now(), $soDetails2['id']]);
                     }
                 }
 
@@ -342,8 +441,8 @@ class SoDelivery extends Component
         
         // .soDetails
         $data2 = DB::table('salesdetail as sd')
-            ->select('sd.itemid','sd.description','sd.quantity','sd.quantitybac','sd.quantitydel','sd.quantityord','sd.salesac','sd.unitprice'
-                    ,'sd.discountamount','sd.taxrate','sd.taxamount','sd.id','sd.inventoryac','sd.serialno','inv.stocktype')
+            ->select('sd.id','sd.itemid','sd.description','sd.quantity','sd.quantitybac','sd.quantitydel','sd.quantityord','sd.salesac','sd.unitprice'
+                    ,'sd.discountamount','sd.taxrate','sd.taxamount','sd.inventoryac','sd.serialno','sd.lotnumber','inv.stocktype')
             ->leftJoin('inventory as inv', 'sd.itemid', '=', 'inv.itemid')
             ->where('sd.snumber', $sNumber)
             ->where('sd.quantitybac', '>', 0)
@@ -406,8 +505,8 @@ class SoDelivery extends Component
 
         // .getSalesOrder
         $salesOrders = DB::table('sales')
-            ->selectRaw("sales.id, snumber, sodate, sototal, refno
-                        , customer.customerid || ' : ' || name as name")
+            ->selectRaw("sales.id, snumber, sodate, sototal, refno, deliverydate
+                        , customer.customerid || ' : ' || name as name, sales.transactiondate")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', FALSE)
             ->where('soreturn','N')

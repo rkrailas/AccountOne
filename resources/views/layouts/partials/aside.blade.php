@@ -77,6 +77,13 @@
               </a>
             </li>
             <li class="nav-item">
+              <a href="{{ route('accstar.inventory.inventorylotno') }}"
+                class="nav-link {{ request()->is('accstar/inventory/inventorylotno') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
+                <p>ข้อมูลสินค้า Lot Number</p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="{{ route('accstar.inventory.adjustinventory') }}" 
                 class="nav-link {{ request()->is('accstar/inventory/adjustinventory') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon-submenu"></i>
@@ -140,6 +147,13 @@
           </a>
           <ul class="nav nav-treeview">            
             <li class="nav-item">
+              <a href="{{ route('accstar.sales.soservicetax') }}"
+                class="nav-link {{ request()->is('accstar/sales/soservicetax') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu"></i>
+                <p>ใบแจ้งหนี้ค่าบริการ</p>
+              </a>
+            </li>
+            <li class="nav-item">
               <a href="{{ route('accstar.sales.sodeliverytax') }}"
                 class="nav-link {{ request()->is('accstar/sales/sodeliverytax') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon-submenu"></i>
@@ -200,7 +214,7 @@
               <a href="{{ route('accstar.sales.cancelsodelivery') }}"
                 class="nav-link {{ request()->is('accstar/sales/cancelsodelivery') ? 'active' : '' }}">
                 <i class="nav-icon-submenu fas fa-times"></i>
-                <p>ยกเลิก-ใบส่งสินค้า</p>
+                <p>ยกเลิก-ส่งสินค้าเท่านั้น</p>
               </a>
             </li>
             <li class="nav-item">
@@ -258,6 +272,13 @@
                 <p>รับชำระเงินตามใบเรียกเก็บเงิน</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.finance.receiveonsalesservice') }}"
+                class="nav-link {{ request()->is('accstar/finance/receiveonsalesservice') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon-submenu"></i></i>
+                <p>รับชำระเงินค่าบริการ</p>
+              </a>
+            </li>
             <li class="nav-item"> 
               <a href="{{ route('accstar.finance.billingnotice') }}" 
               class="nav-link {{ request()->is('accstar/finance/billingnotice') ? 'active' : '' }}">
@@ -270,6 +291,13 @@
                 class="nav-link {{ request()->is('accstar/finance/cancelreceiveonsales') ? 'active' : '' }}">
                 <i class="fas fa-times nav-icon-submenu" aria-hidden="true"></i>
                 <p>ยกเลิก-รับชำระเงินตามใบเรียกฯ</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('accstar.finance.cancelreceiveonsalesservice') }}"
+                class="nav-link {{ request()->is('accstar/finance/cancelreceiveonsalesservice') ? 'active' : '' }}">
+                <i class="fas fa-times nav-icon-submenu" aria-hidden="true"></i>
+                <p>ยกเลิก-รับชำระเงินค่าบริการ</p>
               </a>
             </li>
             <li class="nav-item">

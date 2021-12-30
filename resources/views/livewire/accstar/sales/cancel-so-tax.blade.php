@@ -147,40 +147,31 @@
                                     {{ $loop->iteration }}
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" readonly
-                                        wire:model.defer="soDetails.{{$index}}.itemid">
+                                    {{ $soDetails[$index]['itemid'] }}
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" readonly
-                                        wire:model.defer="soDetails.{{$index}}.description">
+                                    {{ $soDetails[$index]['description'] }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['quantity'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['unitprice'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        readonly style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['amount'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.discountamount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['discountamount'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['taxrate'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['taxamount'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['netamount'],2) }}
                                 </td>
                             </tr>
                             @endforeach

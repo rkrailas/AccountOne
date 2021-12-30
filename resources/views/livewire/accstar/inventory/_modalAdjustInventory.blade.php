@@ -1,5 +1,5 @@
 <div wire:ignore.self class="modal" id="adjustInventoryForm" data-backdrop="static">
-    <div class="modal-dialog" style="max-width: 85%;">
+    <div class="modal-dialog" style="max-width: 80%;">
         <form autocomplete="off" wire:submit.prevent="createAdjustInventory">
             <div class="modal-content">
                 <div class="modal-header">
@@ -165,15 +165,32 @@
                                     </div>
                                     <div class="col-4">
                                         @if($isSerial and $adjustType)
-                                            <label>รายละเอียดสินค้าแบบมี Serial No.</label>
-                                            <br><button type="button" class="btn btn-sm btn-info @error('adjquantity') is-invalid @enderror" 
+                                            <label>Serial No.</label>
+                                            <br><button type="button" class="btn btn-sm btn-info" 
                                                 wire:click.prevent="showSN">
-                                                Serial No.</button>
-                                            @error('adjquantity')
-                                            <div class="invalid-feedback">
-                                                กรุณาระบุ Serial No ของสินค้า!
-                                            </div>
-                                            @enderror
+                                                เลือก Serial No.</button>
+                                        @endif
+
+                                        @if($isLotNumber and $adjustType == "in")
+                                            <label>Lot Number</label>
+                                            <input type="text"
+                                                class="form-control form-control-sm"
+                                                wire:model.defer="adjInventory.lotnumber">
+                                        @endif
+
+                                        @if($isLotNumber and $adjustType == "out")
+                                            <label>Lot Number</label>
+                                            <br>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-sm btn-info" wire:click.prevent="showLotNumber">
+                                                    เลือก Lot Number
+                                                </button>
+                                                <div class="input-group-append">
+                                                    <input type="text" readonly
+                                                    class="form-control form-control-sm"
+                                                    wire:model.defer="adjInventory.lotnumber">
+                                                </div>
+                                            </div>                                            
                                         @endif
                                     </div>
                                 </div>
@@ -206,6 +223,8 @@
         clearSelect2('itemid-select2');
         clearSelect2('account-select2');
     })
+
+
 </script>
 
 @endpush

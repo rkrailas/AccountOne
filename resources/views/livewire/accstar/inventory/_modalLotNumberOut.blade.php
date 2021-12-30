@@ -1,20 +1,20 @@
-<div class="modal fade bd-example-modal-xl" id="serialNoOutForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
-    <div class="modal-dialog modal-dialog-scrollable" style="max-width: 85%;">
+<div class="modal fade bd-example-modal-xl" id="lotNumberOutForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable">
         <form autocomplete="off">
             <div class="modal-content ">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
-                        กำหนดสินค้าแบบมี Serial No
+                        สินค้าแบบมี Lot Number
                     </h5>
                     <div class="float-right">
-                        <button type="button" class="btn btn-secondary" wire:click.prevent="closedModalSerialNo">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
                             <i class="fa fa-times mr-1"></i>Closed</button>
                     </div>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-2">
                         <div class="col">
-                            <input wire:model.lazy="searchSN" type="text" class="form-control form-control-sm border-0" id="searchSN"
+                            <input wire:model.lazy="searchLotNumber" type="text" class="form-control form-control-sm border-0" id="searchLotNumber"
                                 placeholder="ค้นหา">
                             <div wire:loading.delay wire:target="searchSN">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -26,39 +26,30 @@
                     <!-- .Grid -->
                     <div class="row mb-2">
                         <div class="col">
-                            <table class="table table-striped myGridTB" id="table" style="width: 1000px;">
+                            <table class="table table-striped myGridTB" id="table" style="width: 500px;">
                                 <thead>
                                     <tr class="text-center">
                                         <th></th>
                                         <th scope="col">#</th>
-                                        <th scope="col">Serial No</th>
-                                        <th scope="col">สถานที่เก็บ</th>
-                                        <th scope="col">ต้นทุน</th>
-                                        <th scope="col">สี</th>
-                                        <th scope="col">อ้างอิง 1</th>
-                                        <th scope="col">อ้างอิง 2</th>
+                                        <th scope="col">Lot Number</th>
+                                        <th scope="col">คงเหลือ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if ($serialDetails)
-                                        @foreach($serialDetails as $index => $row)
+                                    @if ($lotNumbers)
+                                        @foreach($lotNumbers as $index => $row)
                                         <tr>
-                                            <td style="vertical-align: middle;">
-                                                <div d-inline ml-2>
-                                                    <input wire:model="selectedRows" type="checkbox" value="{{ $serialDetails[$index]['serialno'] }}"
-                                                        id="{{ $serialDetails[$index]['serialno'] }}">
-                                                    <label for="{{ $serialDetails[$index]['serialno'] }}"></label>
-                                                </div>
+                                            <td>
+                                                <a style="cursor: pointer;"
+                                                    wire:click.prevent="selectedLotNumber('{{ $lotNumbers[$index]['lotnumber'] }}')">
+                                                    <i class="far fa-check-square"></i>
+                                                </a>
                                             </td>
                                             <td scope="row" class="align-middle text-center">
                                                 {{ $loop->iteration }}
                                             </td>
-                                            <td>{{ $serialDetails[$index]['serialno'] }} </td>
-                                            <td>{{ $serialDetails[$index]['location'] }} </td>
-                                            <td class="text-right pr-5">{{ number_format($serialDetails[$index]['cost'],2) }} </td>
-                                            <td>{{ $serialDetails[$index]['color'] }} </td>
-                                            <td>{{ $serialDetails[$index]['reference1'] }} </td>
-                                            <td>{{ $serialDetails[$index]['reference2'] }} </td>
+                                            <td>{{ $lotNumbers[$index]['lotnumber'] }} </td>
+                                            <td class="text-right pr-5">{{ number_format($lotNumbers[$index]['instock'],2) }} </td>
                                         </tr>
                                         @endforeach
                                     @endif                                    
@@ -87,17 +78,17 @@
 
 @push('js')
 <script>
-    window.addEventListener('show-serialNoOutForm', event => {
-        $('#serialNoOutForm').modal('show');
+    window.addEventListener('show-lotNumberOutForm', event => {
+        $('#lotNumberOutForm').modal('show');
     })
 
-    window.addEventListener('hide-serialNoOutForm', event => {
-        $('#serialNoOutForm').modal('hide');
+    window.addEventListener('hide-lotNumberOutForm', event => {
+        $('#lotNumberOutForm').modal('hide');
     })
 
     $(document).ready(function(){
-        $("#serialNoOutForm").on('shown.bs.modal', function(){
-            $(this).find('#searchSN').focus();
+        $("#lotNumberOutForm").on('shown.bs.modal', function(){
+            $(this).find('#searchLotNumber').focus();
         });
     })
 </script>

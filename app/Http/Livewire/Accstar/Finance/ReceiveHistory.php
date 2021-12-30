@@ -14,8 +14,8 @@ class ReceiveHistory extends Component
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
-    public $sortDirection = "asc";
-    public $sortBy = "bank.gjournaldt";
+    public $sortDirection = "desc";
+    public $sortBy = "bank.transactiondate";
     public $numberOfPage = 10;
     public $searchTerm = null;
     public $sDate, $eDate;
@@ -125,7 +125,7 @@ class ReceiveHistory extends Component
         ->selectRaw("bank.gltran, bank.gjournaldt, customer.customerid || ' : ' || customer.name as customer
                     , sum(bankdetail.balance) as balance, sum(bankdetail.amount) as paidamount
                     , bank.witholdtax + bank.witholdtax1 as witholdtax
-                    , bank.fincharge - bank.findiscount - bank.feeamt as plus_deduct")
+                    , bank.fincharge - bank.findiscount - bank.feeamt as plus_deduct, bank.transactiondate")
         ->Join('bankdetail','bank.gltran','=','bankdetail.gltran')
         ->Join('customer','bank.customerid','=','customer.customerid')
         ->Where('bank.posted',true)
@@ -137,7 +137,7 @@ class ReceiveHistory extends Component
                     ->orWhere('customer.name', 'ilike', '%'.$this->searchTerm.'%');
             })
         ->groupBy('bank.gltran', 'bank.gjournaldt', 'customer.customerid', 'customer.name', 'bank.witholdtax', 'bank.witholdtax1'
-                    ,'bank.fincharge', 'bank.findiscount', 'bank.feeamt')
+                    ,'bank.fincharge', 'bank.findiscount', 'bank.feeamt', 'bank.transactiondate')
         ->orderBy($this->sortBy,$this->sortDirection)
         ->paginate($this->numberOfPage);
         

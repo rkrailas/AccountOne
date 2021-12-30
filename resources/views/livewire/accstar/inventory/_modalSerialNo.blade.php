@@ -50,54 +50,56 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($serialDetails as $index => $serialDetail)
-                                    <tr>
-                                        <td scope="row" class="align-middle text-center">
-                                            {{ $loop->iteration }}
-                                        </td>                                        
-                                        <td>
-                                            <input type="text" class="form-control form-control-sm" 
-                                                wire:model.defer="serialDetails.{{$index}}.serialno">
-                                        </td>
-                                        <td>
-                                            <select class="form-control form-control-sm" required
-                                                wire:model.defer="serialDetails.{{$index}}.location">
-                                                <option value="">--- โปรดเลือก ---</option>
-                                                @foreach($location_dd as $row)
-                                                <option value="{{ $row->code }}">{{ $row->code }}:
-                                                    {{ $row->other }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" 
-                                            wire:model.lazy="serialDetails.{{$index}}.cost">
-                                        </td>
-                                        <td>
-                                            <select class="form-control form-control-sm" required
-                                                wire:model.defer="serialDetails.{{$index}}.color">
-                                                <option value="">--- โปรดเลือก ---</option>
-                                                @foreach($color_dd as $row)
-                                                <option value="{{ $row->code }}">{{ $row->code }}:
-                                                    {{ $row->other }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control form-control-sm" wire:model.defer="serialDetails.{{$index}}.reference1">
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control form-control-sm" wire:model.defer="serialDetails.{{$index}}.reference2">
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            <a href="" wire:click.prevent="removeRowInGrid({{ $index }})">
-                                                <i class="fa fa-trash text-danger"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
+                                    @if ($serialDetails)
+                                        @foreach($serialDetails as $index => $serialDetail)
+                                        <tr>
+                                            <td scope="row" class="align-middle text-center">
+                                                {{ $loop->iteration }}
+                                            </td>                                        
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm" 
+                                                    wire:model.defer="serialDetails.{{$index}}.serialno">
+                                            </td>
+                                            <td>
+                                                <select class="form-control form-control-sm" required
+                                                    wire:model.defer="serialDetails.{{$index}}.location">
+                                                    <option value="">--- โปรดเลือก ---</option>
+                                                    @foreach($location_dd as $row)
+                                                    <option value="{{ $row->code }}">{{ $row->code }}:
+                                                        {{ $row->other }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" 
+                                                wire:model.lazy="serialDetails.{{$index}}.cost">
+                                            </td>
+                                            <td>
+                                                <select class="form-control form-control-sm" required
+                                                    wire:model.defer="serialDetails.{{$index}}.color">
+                                                    <option value="">--- โปรดเลือก ---</option>
+                                                    @foreach($color_dd as $row)
+                                                    <option value="{{ $row->code }}">{{ $row->code }}:
+                                                        {{ $row->other }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm" wire:model.defer="serialDetails.{{$index}}.reference1">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm" wire:model.defer="serialDetails.{{$index}}.reference2">
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <a href="" wire:click.prevent="removeRowInGrid({{ $index }})">
+                                                    <i class="fa fa-trash text-danger"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                                 <tfoot>
                                     <tr style="text-align: right; color: blue; font-weight: bold;">

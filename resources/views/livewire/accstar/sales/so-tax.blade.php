@@ -26,7 +26,9 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col">
-                    <div class="d-flex justify-content-end mb-2">
+                    <div class="d-flex justify-content-between mb-2">
+                        <button wire:click.prevent="refreshData" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sync-alt"></i>
+                            ดึงข้อมูลใหม่</button>
                         <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
                             <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
@@ -69,7 +71,13 @@
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.sototal' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sototal' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
-                                </th>                                    
+                                </th>
+                                <th scope="col">แก้ไขล่าสุด
+                                    <span wire:click="sortBy('sales.transactiondate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.transactiondate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.transactiondate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -81,6 +89,7 @@
                                 <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->sodate)->format('Y-m-d') }} </td>
                                 <td scope="col">{{ $salesOrder->name }} </td>
                                 <td scope="col">{{ number_format($salesOrder->sototal,2) }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->transactiondate)->format('Y-m-d') }} </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $salesOrder->snumber }}')">
                                         <i class="fa fa-edit mr-2"></i>

@@ -38,9 +38,10 @@ class CancelSoDeliveryTax extends Component
             $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
 
             $strsql = "select sl.itemid,sl.quantity,sl.salesac,sl.unitprice,sl.discountamount,sl.taxrate,sl.taxamount
-                    ,sl.id,sl.inventoryac,sl.soreturn,sl.cost,sl.serialno
+                    ,sl.id,sl.inventoryac,sl.soreturn,sl.cost,sl.serialno, sl.lotnumber, inv.stocktype, sl.ram_salesdetail_id
                     ,CASE 
                         WHEN inv.stocktype = '4' THEN sl.description || ' (' || sl.serialno || ')'
+                        WHEN inv.stocktype = '9' THEN sl.description || ' (' || sl.lotnumber || ')'
                         ELSE sl.description
                     END as description
                     from salesdetaillog sl
@@ -92,7 +93,7 @@ class CancelSoDeliveryTax extends Component
                 where snumber=?" 
                 , ['Admin', Carbon::now(), $this->soHeader['snumber']]);
 
-            //5. Update Inventory & Inventoryserial
+            //5. Update Inventory & Inventoryserial & Purchasedetaillog
             foreach ($this->soDetails as $soDetails2){
                 $strsql = "select instock, instockvalue from inventory where itemid='" . $soDetails2['itemid'] . "'";
                 $data =  DB::select($strsql);
@@ -105,11 +106,32 @@ class CancelSoDeliveryTax extends Component
                         $newInstock,$newInstockValue,'Admin',Carbon::now(),$soDetails2['itemid']
                     ]);
 
-                    DB::statement("UPDATE inventoryserial SET sold=?,snumber=?,solddate=?,employee_id=?,transactiondate=? 
-                                where itemid=? and serialno=?" 
-                    ,[
-                        false,null,null,'Admin',Carbon::now(),$soDetails2['itemid'],$soDetails2['serialno']
-                    ]);
+                    if($soDetails2['stocktype'] == "4") {
+                        DB::statement("UPDATE inventoryserial SET sold=?,snumber=?,solddate=?,employee_id=?,transactiondate=? where itemid=? and serialno=?" 
+                        ,[false,null,null,'Admin',Carbon::now(),$soDetails2['itemid'],$soDetails2['serialno']]);
+                    }elseif($soDetails2['stocktype'] == "9") {
+                        $xcount = 0;
+                        while ($xcount < $soDetails2['quantity']) {
+                            $strsql = "select id,sold,quantity
+                                    from purchasedetaillog 
+                                    where itemid='" . $soDetails2['itemid'] . "'
+                                    and lotnumber='" . $soDetails2['lotnumber'] . "'
+                                    and sold > 0
+                                    order by id desc";
+                            $data1 = DB::select($strsql);
+                            if ($soDetails2['quantity'] - $xcount <= $data1[0]->sold) {   
+                                DB::statement("UPDATE purchasedetaillog SET sold=sold-?,employee_id=?,transactiondate=?
+                                            where id =" . $data1[0]->id
+                                ,[$soDetails2['quantity'] - $xcount, 'Admin', Carbon::now()]);                                
+                                $xcount = $xcount + $data1[0]->sold;
+                            }else{
+                                DB::statement("UPDATE purchasedetaillog SET sold=sold-?,employee_id=?,transactiondate=?
+                                where id =" . $data1[0]->id
+                                ,[$data1[0]->sold, 'Admin', Carbon::now()]);
+                                $xcount = $xcount + $data1[0]->sold;
+                            }
+                        }
+                    }
                 }
             }
 

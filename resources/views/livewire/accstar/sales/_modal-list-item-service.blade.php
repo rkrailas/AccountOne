@@ -36,7 +36,6 @@
                                         <th scope="col">#</th>
                                         <th scope="col">รหัสสินค้า</th>
                                         <th scope="col">คำอธิบาย</th>
-                                        <th scope="col">คงเหลือ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -52,7 +51,6 @@
                                             <td scope="row"> {{ $loop->iteration }} </td>
                                             <td>{{ $listItem[$index]['itemid'] }}</td>
                                             <td>{{ $listItem[$index]['description'] }}</td>
-                                            <td>{{ $listItem[$index]['instock'] }}</td>
                                         </tr>
                                         @endforeach
                                     @else 

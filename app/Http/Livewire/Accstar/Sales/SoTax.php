@@ -31,6 +31,11 @@ class SoTax extends Component
     public $closed = false;
     public $errorTaxNumber, $errorGLTran = false;
 
+    public function refreshData()
+    {
+        $this->resetPage();
+    }
+
     public function updatingNumberOfPage()
     {
         $this->resetPage();
@@ -379,7 +384,7 @@ class SoTax extends Component
                                 ,isinputtax,totalamount,employee_id,transactiondate)
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                         , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
-                        , $this->soHeader['gltran'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['name'].'-'.$this->soHeader['snumber']
+                        , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['name'].'-'.$this->soHeader['snumber']
                         , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
                         , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
     
@@ -393,7 +398,7 @@ class SoTax extends Component
     
                     //gltran
                     //$this->generateGl(getGlNunber('SO'));
-                    $this->generateGl($this->soHeader['gltran']);
+                    $this->generateGl($this->soHeader['deliveryno']);
                     DB::table('gltran')->insert($this->genGLs);
                 });
             }else{
@@ -597,7 +602,8 @@ class SoTax extends Component
 
         //getSalesOrder
         $salesOrders = DB::table('sales')
-            ->selectRaw("sales.id, sales.snumber, sales.sodate, customer.customerid || ' : ' || customer.name as name, sales.sototal")
+            ->selectRaw("sales.id, sales.snumber, sales.sodate, customer.customerid || ' : ' || customer.name as name
+                    , sales.sototal, sales.transactiondate")
             ->join('salesdetaillog', 'sales.snumber', '=', 'salesdetaillog.snumber')
             ->leftJoin('customer', 'sales.customerid', 'customer.customerid')
             ->where('salesdetaillog.soreturn', 'G')
@@ -610,7 +616,7 @@ class SoTax extends Component
                         ->orWhere('sales.sototal', 'like', '%'.$this->searchTerm.'%')
                         ->orWhere('salesdetaillog.deliveryno', 'like', '%'.$this->searchTerm.'%');
                 })
-            ->groupBy('sales.id','sales.snumber','sales.sodate','customer.customerid','customer.name','sales.sototal')
+            ->groupBy('sales.id','sales.snumber','sales.sodate','customer.customerid','customer.name','sales.sototal','sales.transactiondate')
             ->orderBy($this->sortBy,$this->sortDirection)
             ->paginate($this->numberOfPage);
 

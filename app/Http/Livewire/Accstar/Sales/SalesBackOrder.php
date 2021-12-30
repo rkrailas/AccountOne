@@ -55,7 +55,7 @@ class SalesBackOrder extends Component
         $salesBackOrders = DB::table('salesdetail')
         ->selectRaw("sales.sonumber, sales.sodate, inventory.itemid || ' : ' || inventory.description as item
                     , salesdetail.quantityord, salesdetail.quantitybac, salesdetail.amount
-                    , customer.customerid || ' : ' || customer.name as customer")
+                    , customer.customerid || ' : ' || customer.name as customer, salesdetail.transactiondate")
         ->Join('sales','salesdetail.snumber','=','sales.sonumber')
         ->Join('customer','sales.customerid','=','customer.customerid')
         ->Join('inventory','salesdetail.itemid','=','inventory.itemid')

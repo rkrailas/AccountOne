@@ -26,10 +26,10 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col">
-                    <button type="button" class="btn btn-danger" {{ $btnDelete ? '' : 'disabled' }} 
+                    <button type="button" class="btn btn-sm btn-danger" {{ $btnDelete ? '' : 'disabled' }} 
                         wire:click="confirmDelete">
                         <i class="fas fa-trash-alt mr-1"></i>ยกเลิกเอกสาร</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" wire:click="pressCancel">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal" wire:click="pressCancel">
                         <i class="fa fa-times mr-1"></i>ยกเลิก</button>
                 </div>
             </div>
@@ -147,40 +147,31 @@
                                     {{ $loop->iteration }}
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" readonly
-                                        wire:model.defer="soDetails.{{$index}}.itemid">
+                                    {{ $soDetails[$index]['itemid'] }}
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm" readonly
-                                        wire:model.defer="soDetails.{{$index}}.description">
+                                    {{ $soDetails[$index]['description'] }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['quantity'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['unitprice'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        readonly style="text-align: right;" wire:model="soDetails.{{$index}}.amount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['amount'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.discountamount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['discountamount'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.taxrate">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['taxrate'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.taxamount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['taxamount'],2) }}
                                 </td>
-                                <td>
-                                    <input type="number" step="0.01" class="form-control form-control-sm" readonly
-                                        style="text-align: right;" wire:model="soDetails.{{$index}}.netamount">
+                                <td style="text-align: right;">
+                                    {{ number_format($soDetails[$index]['netamount'],2) }}
                                 </td>
                             </tr>
                             @endforeach

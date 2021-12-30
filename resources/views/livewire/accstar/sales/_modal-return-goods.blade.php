@@ -159,6 +159,7 @@
                                         <th scope="col">รหัส</th>
                                         <th scope="col" style="width: 25%;">รายละเอียด</th>
                                         <th scope="col" style="width: 7%;">จำนวน</th>
+                                        <th scope="col" style="width: 7%;">คืน</th>
                                         <th scope="col">ต่อหน่วย</th>
                                         <th scope="col" style="width: 5%;">%ภาษี</th>
                                         <th scope="col">ภาษี</th>
@@ -175,28 +176,32 @@
                                             <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.itemid">
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control form-control-sm" wire:model.defer="soDetails.{{$index}}.description">
+                                            <input type="text" class="form-control form-control-sm" readonly wire:model.defer="soDetails.{{$index}}.description">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantityori">
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.quantity">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.unitprice">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.taxrate">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.lazy="soDetails.{{$index}}.taxrate">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.taxamount">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" class="form-control form-control-sm" required style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
+                                            <input type="number" step="0.01" class="form-control form-control-sm" readonly style="text-align: right;" wire:model.defer="soDetails.{{$index}}.netamount">
                                         </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr style="text-align: right; color: blue; font-weight: bold;">
+                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td>ยอดรวม</td>

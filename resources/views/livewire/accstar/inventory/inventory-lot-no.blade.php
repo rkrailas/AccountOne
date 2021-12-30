@@ -9,7 +9,7 @@
                                 class="fas fa-bars"></i></a>
                     </div>
                     <!-- /.ปุ่มซ่อนเมนู -->
-                    <h1 class="m-0 text-dark">ประวัติการรับชำระ</h1>
+                    <h1 class="m-0 text-dark">ข้อมูลสินค้า Lot Number</h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -41,6 +41,14 @@
                                     </div>
                                     <x-datepicker wire:model.defer="eDate" id="่eDate" :error="'date'" required />
                                 </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" wire:model.defer="haveStock">
+                                    <label class="form-check-label">มีคงเหลือ</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" wire:model.defer="isSummary">
+                                    <label class="form-check-label">รวมยอด</label>
+                                </div>
                                 <button wire:click.prevent="refreshData" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sync-alt"></i>
                                 ดึงข้อมูลใหม่</button>
                                 <button wire:click.prevent="exportExcel" class="btn btn-sm btn-success"><i class="fas fa-file-excel mr-1"></i>
@@ -66,93 +74,89 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">
-                                    ใบสำคัญรับ
-                                    <span wire:click="sortBy('bank.gltran')" class="float-right text-sm"
+                                <th scope="col">                                    
+                                    รหัสสินค้า
+                                    <span wire:click="sortBy('pug.itemid')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'bank.gltran' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'pug.itemid' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'bank.gltran' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
-                                    </span>
-                                </th>
-                                <th scope="col">
-                                    วันที่
-                                    <span wire:click="sortBy('bank.gjournaldt')" class="float-right text-sm"
-                                        style="cursor: pointer;">
-                                        <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'bank.gjournaldt' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'bank.gjournaldt' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'pug.itemid' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
                                 <th scope="col">                                    
-                                    ผู้ซื้อ
-                                    <span wire:click="sortBy('customer.customerid')" class="float-right text-sm"
+                                    รายละเอียด
+                                    <span wire:click="sortBy('inv.description')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'customer.customerid' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'inv.description' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'customer.customerid' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'inv.description' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">
-                                    ยอดเงิน
-                                </th>
-                                <th scope="col">
-                                    หัก ณ ที่จ่าย
-                                </th>
-                                <th scope="col">
-                                    เพิ่ม/ลด
-                                </th>
-                                <th scope="col">
-                                    ยอดสุทธิ
-                                </th>
-                                <th scope="col">
-                                    แก้ไขล่าสุด
-                                    <span wire:click="sortBy('bank.transactiondate')" class="float-right text-sm"
+                                <th scope="col">                                    
+                                    Lot Number
+                                    <span wire:click="sortBy('pug.lotnumber')" class="float-right text-sm"
                                         style="cursor: pointer;">
                                         <i
-                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'bank.transactiondate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'pug.lotnumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i
-                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'bank.transactiondate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'pug.lotnumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">
-                                    Action
+                                <th scope="col">                                    
+                                    ใบสั่งซื้อ
+                                    <span wire:click="sortBy('pug.ponumber')" class="float-right text-sm"
+                                        style="cursor: pointer;">
+                                        <i
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'pug.ponumber' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'pug.ponumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
+                                <th scope="col">                                    
+                                    วันที่สั่งซื้อ
+                                    <span wire:click="sortBy('pug.podate')" class="float-right text-sm"
+                                        style="cursor: pointer;">
+                                        <i
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'pug.podate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'pug.podate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
+                                <th scope="col">                                    
+                                    จำนวนคงเหลือ
+                                    <span wire:click="sortBy('pug.instock')" class="float-right text-sm"
+                                        style="cursor: pointer;">
+                                        <i
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'pug.instock' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'pug.instock' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if(count($receiveJournals) > 0)
-                            @foreach ($receiveJournals as $row)
+                            @if($lotNumbers)
+                            @foreach ($lotNumbers as $row)
                             <tr>
-                                <td scope="col">{{ $loop->iteration + $receiveJournals->firstitem()-1  }}</td>
-                                <td scope="col">{{ $row->gltran }} </td>
-                                <td scope="col">{{ \Carbon\Carbon::parse($row->gjournaldt)->format('Y-m-d') }} </td>
-                                <td scope="col">{{ $row->customer }} </td>
-                                <td scope="col" class="text-right">{{ number_format($row->balance, 2) }} </td>
-                                <td scope="col" class="text-right">{{ number_format($row->witholdtax, 2) }} </td>
-                                <td scope="col" class="text-right">{{ number_format($row->plus_deduct, 2) }} </td>
-                                <td scope="col" class="text-right">{{ number_format($row->balance - $row->witholdtax + $row->plus_deduct, 2) }} </td>
-                                <td scope="col">{{ \Carbon\Carbon::parse($row->transactiondate)->format('Y-m-d') }} </td>
-                                <td>
-                                    <a href="" wire:click.prevent="edit('{{ $row->gltran }}')">
-                                        <i class="fas fa-search mr-2"></i>
-                                    </a>
-                                </td>
+                                <td scope="col">{{ $loop->iteration + $lotNumbers->firstitem()-1 }}</td>
+                                <td scope="col">{{ $row->itemid  }} </td>
+                                <td scope="col">{{ $row->description }} </td>
+                                <td scope="col">{{ $row->lotnumber }} </td>
+                                <td scope="col">{{ $row->ponumber }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($row->podate)->format('Y-m-d') }} </td>
+                                <td scope="col" class="text-right pr-5">{{ number_format($row->instock,2) }} </td>
                             </tr>
                             @endforeach
                             @endif
                         </tbody>
-                        <tfoot>
-                        </tfoot>
                     </table>
                 </div>
             </div>
             <div class="row">
-                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $receiveJournals->links() }} <span
-                        class="ml-2">จำนวน {{ number_format($receiveJournals->Total(),0) }} รายการ</span>
+                <div class="col-10 d-flex justify-content-start align-items-baseline">{{ $lotNumbers->links() }} <span
+                        class="ml-2">จำนวน {{ number_format($lotNumbers->Total(),0) }} รายการ</span>
                     <div class="col">
                         <select class="form-control form-control-sm" style="width: 80px;" wire:model.lazy="numberOfPage">
                             <option value="10" selected>10</option>
@@ -164,6 +168,4 @@
             </div>
         </div>
     </div>
-
-    @include('livewire.accstar.finance._modalReceiveHistory')
 </div>

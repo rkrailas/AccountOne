@@ -62,7 +62,7 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <table class="table table-hover">
+                    <table class="table table-hover small">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -137,6 +137,16 @@
                                     </span>
                                 </th>
                                 <th scope="col">ส่งสินค้าพร้อมฯ</th>
+                                <th scope="col">                                    
+                                    แก้ไขล่าสุด
+                                    <span wire:click="sortBy('taxdata.transactiondate')" class="float-right text-sm"
+                                        style="cursor: pointer;">
+                                        <i
+                                            class="fa fa-xs fa-arrow-up {{ $sortBy === 'taxdata.transactiondate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i
+                                            class="fa fa-xs fa-arrow-down {{ $sortBy === 'taxdata.transactiondate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th>
                                 <th scope="col">
                                     Action
                                 </th>
@@ -159,6 +169,7 @@
                                         <i class="fas fa-check"></i> 
                                     @endif
                                 </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($row->transactiondate)->format('Y-m-d') }} </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $row->sonumber }}')">
                                         <i class="fas fa-search mr-2"></i>
@@ -173,7 +184,7 @@
                                 <td colspan="6"></td>
                                 <td class="text-right font-weight-bold">{{ number_format($sumAmount2, 2) }}</td>
                                 <td class="text-right font-weight-bold">{{ number_format($sumTaxAmount, 2) }}</td>
-                                <td colspan="2"></td>
+                                <td colspan="3"></td>
                             </tr>
                         </tfoot>
                     </table>

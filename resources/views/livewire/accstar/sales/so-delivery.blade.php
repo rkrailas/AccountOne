@@ -26,8 +26,10 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col">
-                    <div class="d-flex justify-content-end mb-2">
-                        <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">
+                    <div class="d-flex justify-content-between mb-2">
+                        <button wire:click.prevent="refreshData" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sync-alt"></i>
+                            ดึงข้อมูลใหม่</button>
+                        <div class="d-flex justify-content-center align-items-center border bg-while pr-0 pl-0">                            
                             <input wire:model.lazy="searchTerm" type="text" class="form-control form-control-sm border-0"
                                 placeholder="Search"> <!-- lazy=Lost Focus ถึงจะ Postback  -->
                             <div wire:loading.delay wire:target="searchTerm">
@@ -52,7 +54,7 @@
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.snumber' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">วันที่ใบ
+                                <th scope="col">วันที่
                                     <span wire:click="sortBy('sales.sodate')" class="float-right text-sm" style="cursor: pointer;">
                                         <i class="fa fa-arrow-up {{ $sortBy === 'sales.sodate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.sodate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
@@ -70,10 +72,16 @@
                                         <i class="fa fa-arrow-down {{ $sortBy === 'sales.refno' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>
-                                <th scope="col">ยอดเงิน
-                                    <span wire:click="sortBy('sales.sototal')" class="float-right text-sm" style="cursor: pointer;">
-                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.sototal' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
-                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.sototal' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                <th scope="col">วันที่ส่งสินค้า
+                                    <span wire:click="sortBy('sales.deliverydate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.deliverydate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.deliverydate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
+                                    </span>
+                                </th> 
+                                <th scope="col">แก้ไขล่าสุด
+                                    <span wire:click="sortBy('sales.transactiondate')" class="float-right text-sm" style="cursor: pointer;">
+                                        <i class="fa fa-arrow-up {{ $sortBy === 'sales.transactiondate' && $sortDirection === 'asc' ? '' : 'text-muted'}}"></i>
+                                        <i class="fa fa-arrow-down {{ $sortBy === 'sales.transactiondate' && $sortDirection === 'desc' ? '' : 'text-muted'}}"></i>
                                     </span>
                                 </th>                                    
                                 <th scope="col">Action</th>
@@ -87,7 +95,8 @@
                                 <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->sodate)->format('Y-m-d') }} </td>
                                 <td scope="col">{{ $salesOrder->name }} </td>
                                 <td scope="col">{{ $salesOrder->refno }} </td>
-                                <td scope="col">{{ number_format($salesOrder->sototal,2) }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->deliverydate)->format('Y-m-d') }} </td>
+                                <td scope="col">{{ \Carbon\Carbon::parse($salesOrder->transactiondate)->format('Y-m-d') }} </td>
                                 <td>
                                     <a href="" wire:click.prevent="edit('{{ $salesOrder->snumber }}')">
                                         <i class="fa fa-edit mr-2"></i>
@@ -120,5 +129,6 @@
     @include('livewire.accstar.sales._modal-so-delivery')
     @include('livewire.accstar._modalGenGL')
     @include('livewire.accstar.sales._modal-sn-out')
+    @include('livewire.accstar.inventory._modalLotNumberOut')
 
 </div>

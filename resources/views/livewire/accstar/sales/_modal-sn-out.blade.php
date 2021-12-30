@@ -14,7 +14,7 @@
                 <div class="modal-body">
                     <div class="row mb-2">
                         <div class="col">
-                            <input wire:model.lazy="searchSN" type="text" class="form-control form-control-sm border-0"
+                            <input wire:model.lazy="searchSN" type="text" class="form-control form-control-sm border-0" id="searchSN"
                                 placeholder="ค้นหา">
                             <div wire:loading.delay wire:target="searchSN">
                                 <div class="la-ball-clip-rotate la-dark la-sm">
@@ -96,6 +96,12 @@
 
     window.addEventListener('hide-serialNoOutForm', event => {
         $('#serialNoOutForm').modal('hide');
+    })
+
+    $(document).ready(function(){
+        $("#serialNoOutForm").on('shown.bs.modal', function(){
+            $(this).find('#searchSN').focus();
+        });
     })
 </script>
 

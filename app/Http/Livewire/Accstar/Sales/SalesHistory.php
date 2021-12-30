@@ -14,8 +14,8 @@ class SalesHistory extends Component
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
 
-    public $sortDirection = "asc";
-    public $sortBy = "sales.sodate";
+    public $sortDirection = "desc";
+    public $sortBy = "taxdata.transactiondate";
     public $numberOfPage = 10;
     public $searchTerm = null;
     public $sDate, $eDate;
@@ -48,7 +48,7 @@ class SalesHistory extends Component
                     , to_char(duedate,'YYYY-MM-DD') as dueydate")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('snumber', $sNumber)
-            ->where('soreturn', 'N')
+            //->where('soreturn', 'N')
             ->get();
         $this->soHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
         $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
@@ -58,11 +58,20 @@ class SalesHistory extends Component
         
         // soDetails
         $data2 = DB::table('salesdetail')
-            ->select('itemid','description','quantityord as quantity','salesac','unitprice','discountamount','taxrate','taxamount','id','inventoryac')
+            ->select('salesdetail.itemid' ,'salesdetail.description' ,'salesdetail.quantityord as quantity' ,'salesdetail.salesac' ,'salesdetail.unitprice'
+                    , 'salesdetail.discountamount' ,'salesdetail.taxrate' ,'salesdetail.taxamount' ,'salesdetail.id' ,'salesdetail.inventoryac'
+                    , 'salesdetail.serialno' ,'salesdetail.lotnumber' ,'inventory.stocktype')
+            ->join('inventory', 'salesdetail.itemid', '=', 'inventory.itemid')
             ->where('snumber', $sNumber)
             ->where('soreturn', '<>', 'C')
             ->get();
-        $this->soDetails = json_decode(json_encode($data2), true); 
+        $this->soDetails = json_decode(json_encode($data2), true);
+        
+        if($this->soDetails[0]['stocktype'] == "4"){
+            $this->soDetails[0]['description'] = $this->soDetails[0]['description'] . " (" . $this->soDetails[0]['serialno'] . ")";
+        }elseif($this->soDetails[0]['stocktype'] == "9"){
+            $this->soDetails[0]['description'] = $this->soDetails[0]['description'] . " (" . $this->soDetails[0]['lotnumber'] . ")";
+        }
 
         $this->reCalculateInGrid();
     
@@ -156,8 +165,8 @@ class SalesHistory extends Component
         }
 
         $salesOrders = DB::table('taxdata')
-        ->selectRaw("sales.sonumber, sales.sodate, customer.customerid || ': ' || customer.name as customername
-                    , taxdata.taxnumber, taxdata.taxdate, taxdata.amount, taxdata.taxamount, sales.ram_sodeliverytax")
+        ->selectRaw("sales.sonumber, sales.sodate, customer.customerid || ': ' || customer.name as customername, taxdata.taxnumber
+                , taxdata.taxdate, taxdata.amount, taxdata.taxamount, sales.ram_sodeliverytax, taxdata.transactiondate")
         ->Join('sales','taxdata.reference','=','sales.sonumber')
         ->Join('customer','taxdata.customerid','=','customer.customerid')
         ->Where('taxdata.purchase',false)

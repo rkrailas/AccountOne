@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class SoDeliveryTax extends Component
+class SoServiceTax extends Component
 {
     use WithPagination; // .Require for Pagination
     protected $paginationTheme = 'bootstrap'; // .Require for Pagination
@@ -30,48 +30,14 @@ class SoDeliveryTax extends Component
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
     public $errorValidate, $errorTaxNumber, $errorGLTran, $errorSoDetail = false;
+    public $listItem, $searchItem, $workingRow; //Modal Item
 
-    public $serialDetails, $workingRow, $searchSN; //Modal Serial No
-    public $listItem, $searchItem; //Modal Item
-    public $lotNumbers, $searchLotNumber; //Modal Lot Number
 
-    public function refreshData()
-    {
-        $this->resetPage();
-    }
-
-    //.Event Lot Modal
-    public function showLotNumber($xindex)
-    {   
-        $this->workingRow = $xindex; //กำลังทำงานเป็น Row ไหน ของ soDetails
-        $this->getLotNumber();
-        $this->dispatchBrowserEvent('show-lotNumberOutForm'); 
-    }
-
-    public function selectedLotNumber($xLotNumber)
-    {
-        $this->soDetails[$this->workingRow]['lotnumber'] = $xLotNumber;
-        $this->dispatchBrowserEvent('hide-lotNumberOutForm');
-    }
-
-    public function getLotNumber()
-    {
-        $this->reset(['lotNumbers']);
-        $strsql = "select lotnumber, sum(quantity-sold) as instock
-                    from purchasedetaillog
-                    where quantity-sold > 0
-                    and itemid='" . $this->soDetails[$this->workingRow]['itemid'] . "'
-                    and (lotnumber ilike '%" . $this->searchLotNumber . "%'
-                        or ponumber ilike '%" . $this->searchLotNumber . "%')
-                    group by lotnumber";
-        $this->lotNumbers = json_decode(json_encode(DB::select($strsql)), true);
-    }
-
-    public function updatedSearchLotNumber()
-    {
-        $this->getLotNumber();
-    }
-    //./Event Lot Modal
+    //SoService
+    //soreturn = V
+    //'taxnumber','taxdate','journaldate','reference','gltran','customerid','description','amountcur','amount','taxamount','paidamount'
+    //,'paiddate','paidtaxamount','duedate','findiscount','remark','purchase','posted','returngoods','iscancelled','isinputtax','isupdated'
+    //,'istaxinvoice','location','totalamount','currencyrate1','reference1','refdate1','employee_id','transactiondate',
 
     //.Event Item Modal
     public function selectedItem($xindex, $xitemid) //หลังจากเลือก Item
@@ -84,13 +50,7 @@ class SoDeliveryTax extends Component
         $this->soDetails[$xindex]['itemid'] = $xitemid;
         $this->soDetails[$xindex]['description'] = $data['description'];
         $this->soDetails[$xindex]['stocktype'] = $data['stocktype'];
-
-        if ($data['stocktype'] == "4"){
-            $this->soDetails[$xindex]['quantity'] = 1;
-        }else{
-            $this->soDetails[$xindex]['serialno'] = "";
-        }
-
+        $this->soDetails[$xindex]['quantity'] = 1;
         $this->dispatchBrowserEvent('hide-itemListForm');
         $this->reset(['workingRow']);
     }
@@ -102,9 +62,10 @@ class SoDeliveryTax extends Component
 
     public function getItemInModal()
     {
-        $strsql = "select itemid, description, round(instock,2) as instock from inventory  
-                where itemid ilike '%" . $this->searchItem . "%'
-                or description ilike '%" . $this->searchItem . "%'
+        $strsql = "select itemid, description from inventory  
+                where stocktype='5'
+                and ( itemid ilike '%" . $this->searchItem . "%'
+                or description ilike '%" . $this->searchItem . "%')
                 order by itemid";
         $this->listItem = json_decode(json_encode(DB::select($strsql)), true);
     }
@@ -118,45 +79,10 @@ class SoDeliveryTax extends Component
     }
     //./Event Item Modal
 
-    //.Event SN Modal
-    public function updatedSearchSN() 
+    public function refreshData()
     {
-        $this->getItemSNInModal();
+        $this->resetPage();
     }
-
-    public function selectedSN($xserialno)
-    {
-        $this->dispatchBrowserEvent('hide-serialNoOutForm');
-        $this->soDetails[$this->workingRow]['serialno'] = $xserialno;
-        $this->reset(['workingRow']);
-    }
-
-    public function getItemSNInModal()
-    {
-        //ดึงข้อมูล inventoryserial ที่ยังไม่ได้ขาย และจอง
-        $strsql = "select inv.serialno, loc.code || ' : ' || loc.other as location, round(inv.cost,2) as cost
-                ,col.code || ' : ' || col.other as color, inv.reference1, inv.reference2, aa.snumber
-                from inventoryserial inv
-                left join misctable loc on inv.location=loc.code and loc.tabletype='LO'
-                left join misctable col on inv.color=col.code and col.tabletype='CL'
-                left join (select a.snumber,b.serialno from sales a
-                    join salesdetail b on a.snumber=b.snumber
-                    where a.posted=false) aa on inv.serialno=aa.serialno
-                where inv.serialno ilike '%" . $this->searchSN . "%' 
-                and inv.sold=false and aa.snumber is null
-                and inv.itemid='" . $this->soDetails[$this->workingRow]['itemid'] . "'";
-        $this->serialDetails = DB::select($strsql);
-        $this->serialDetails = json_decode(json_encode($this->serialDetails), true);
-    }
-
-    public function showModalSN($xindex)
-    {
-        $this->reset(['searchSN']);
-        $this->workingRow = $xindex; //กำลังทำงานเป็น Row ไหน ของ soDetails
-        $this->getItemSNInModal();
-        $this->dispatchBrowserEvent('show-serialNoOutForm');
-    }
-    //./Event SN Modal
 
     public function updatingNumberOfPage()
     {
@@ -173,20 +99,18 @@ class SoDeliveryTax extends Component
         }
     }
 
-    public function showGL()
+    public function showGL() 
     {
         $this->generateGl();
         $this->dispatchBrowserEvent('show-myModal2'); //แสดง Model Form
     }
 
-    public function generateGl($xgltran = '')
+    public function generateGl($xgltran = '') //??? ถึงตรงนี้
     {
         // Concept
             //Dr.ลูกหนี้การค้า
             //  Cr.ขายสินค้า
-            //  Cr.ภาษีขาย
-            //Dr.ต้นทุนขาย (Perpetual)
-            //  Cr.สินค้าคงเหลือ (Perpetual)
+            //  Cr.ภาษีขาย-รอเรียกเก็บ
         
         $this->genGLs = [];
         $this->sumDebit = 0;
@@ -327,114 +251,6 @@ class SoDeliveryTax extends Component
             , 'transactiondate'=>Carbon::now()
         ]);
 
-
-        // .Perpetual 
-        $data = DB::table('company')
-            ->select('perpetual')
-            ->limit(1)
-            ->get();
-
-        if($data[0]->perpetual){ 
-            // 4.Cr.สินค้าคงเหลือ // select salesdetail.inventoryac Or inventory.inventoryac
-            $totalCostAmt = 0;
-
-            for($i=0; $i<count($this->soDetails);$i++)
-            {
-                $invAcc = "";
-                $invAccName = "";
-
-                $invAcc = $this->soDetails[$i]['inventoryac'];
-
-                if ($invAcc == ""){
-                    $data = DB::table('inventory')
-                    ->select("inventoryac")
-                    ->where('itemid', $this->soDetails[$i]['itemid'])
-                    ->get();
-                    if ($data->count() > 0) {
-                        $invAcc = $data[0]->inventoryac;
-                    }                    
-                }
-        
-                if ($invAcc != ""){
-                    $data = DB::table('account')
-                        ->select("accnameother")
-                        ->where('account', $invAcc)
-                        ->where('detail', true)
-                        ->get();
-                    if ($data->count() > 0) {
-                        $invAccName = $data[0]->accnameother;
-                    }
-                }
-
-                // หาต้นทุนสินค้า
-                $data = DB::table('inventory')
-                ->select("averagecost")
-                ->where('itemid', $this->soDetails[$i]['itemid'])
-                ->get();
-                if ($data->count() > 0) {
-                    $costAmt = round($this->soDetails[$i]['quantity'] * $data[0]->averagecost, 2);
-                }else{
-                    $costAmt = 0;
-                }                
-                $totalCostAmt = $totalCostAmt + $costAmt;
-
-                //ตรวจสอบว่า glcredit ว่าติดลบหรือไม่
-                if ($costAmt >= 0){
-                    $xGLDebit = 0;
-                    $xGLCredit = $costAmt;
-                }else{
-                    $xGLDebit = $costAmt * -1;
-                    $xGLCredit = 0;
-                }
-        
-                $this->genGLs[] = ([
-                    'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
-                    , 'gldescription'=> $this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit
-                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-                    , 'transactiondate'=>Carbon::now()
-                ]);  
-            }
-
-            // 5.Dr.ต้นทุนขาย controldef.account where id='CG'
-            $costAcc = "";
-            $costAccName = "";
-
-            $data = DB::table('controldef')
-            ->select("account")
-            ->where('id', 'CG')
-            ->get();
-            if ($data->count() > 0) {
-                $costAcc = $data[0]->account;
-            }              
-    
-            if ($costAcc != ""){          
-                $data = DB::table('account')
-                    ->select("accnameother")
-                    ->where('account', $costAcc)
-                    ->where('detail', true)
-                    ->get();
-                if ($data->count() > 0) {
-                    $costAccName = $data[0]->accnameother;
-                }                  
-            }
-
-            //ตรวจสอบว่า gldebit ว่าติดลบหรือไม่
-            if ($totalCostAmt >= 0){
-                $xGLDebit = $totalCostAmt;
-                $xGLCredit = 0;
-            }else{
-                $xGLDebit = 0;
-                $xGLCredit = $totalCostAmt * -1;
-            }
-    
-            $this->genGLs[] = ([
-                'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
-                , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
-                , 'transactiondate'=>Carbon::now()
-            ]);
-        }
-
         // Summary Debit & Credit
         for($i=0; $i<count($this->genGLs);$i++)
         {
@@ -447,25 +263,24 @@ class SoDeliveryTax extends Component
         array_multisort($gldebit, SORT_DESC, $this->genGLs);
     }
 
-    public function addNew() //กดปุ่ม สร้างข้อมูลใหม่
+    public function addNew() //กดปุ่ม สร้างข้อมูลใหม่ 
     {
         $this->showEditModal = FALSE;
             $this->errorGLTran = true;
-        $this->reset(['soHeader', 'soDetails', 'sumQuantity', 'sumAmount', 'serialDetails', 'workingRow'
-                    , 'errorTaxNumber', 'errorGLTran', 'errorSoDetail']);
+        $this->reset(['soHeader', 'soDetails', 'sumQuantity', 'sumAmount', 'workingRow', 'errorTaxNumber', 'errorGLTran', 'errorSoDetail']);
         $xsnumber = getDocNunber("SO");
         $this->soHeader = ([
             'snumber'=>$xsnumber, 'sonumber'=>$xsnumber, 'sodate'=>Carbon::now()->format('Y-m-d')
-            , 'invoiceno'=>getTaxNunber("SO"), 'invoicedate'=>Carbon::now()->format('Y-m-d')
+            , 'invoiceno'=>getTaxSvNunber("SO"), 'invoicedate'=>Carbon::now()->format('Y-m-d')
             , 'deliveryno'=>getGlNunber("SO"), 'journaldate'=>Carbon::now()->format('Y-m-d'), 'deliverydate'=>Carbon::now()->addMonth()->format('Y-m-d')
-            ,'payby'=>'0', 'duedate'=>Carbon::now()->addMonth()->format('Y-m-d')
+            , 'payby'=>'0', 'duedate'=>Carbon::now()->addMonth()->format('Y-m-d')
             , 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>getTaxRate()
             , 'salestax'=>0, 'discountamount'=>0, 'sototal'=>0, 'customerid'=>'', 'shipcost'=>0, 'shipname'=>''
             , 'posted'=>false, 'sonote' => ''
         ]); //ใบสำคัญ > deliveryno & journaldate , ใบกำกับ > invoiceno & invoicedate
         $this->soHeader['sonote'] = 'ขายสินค้าตามใบกำกับ-' . $this->soHeader['invoiceno'];
         $this->addRowInGrid();
-        $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('show-soServiceTaxForm'); //แสดง Model Form
         $this->dispatchBrowserEvent('clear-select2');
     }
 
@@ -478,7 +293,7 @@ class SoDeliveryTax extends Component
     {   
         //สร้าง Row ว่างๆ ใน Gird
         $this->soDetails[] = ([
-            'itemid'=>'','description'=>'','quantity'=>0,'salesac'=>'','unitprice'=>0,'amount'=>0,'discountamount'=>0,'netamount'=>0
+            'itemid'=>'','description'=>'','quantity'=>1,'salesac'=>'','unitprice'=>0,'amount'=>0,'discountamount'=>0,'netamount'=>0
             , 'taxamount'=>0, 'taxrate'=>getTaxRate(), 'stocktype'=>'', 'serialno'=>'', 'lotnumber'=>''
         ]);
 
@@ -514,31 +329,6 @@ class SoDeliveryTax extends Component
             }
         }
 
-        if($this->soHeader['posted'] == true){
-            foreach ($this->soDetails as $soDetails2){
-                //ถ้าเป็นสินค้ามี SN/Lot Number จะต้องเลือก SN/Lot Number แล้ว
-                if ($soDetails2['stocktype'] == "4" and $soDetails2['serialno'] == ""){
-                    $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Serial No. ของสินค้า !',]);
-                    return;
-                }elseif ($soDetails2['stocktype'] == "9" and $soDetails2['lotnumber'] == ""){
-                    $this->dispatchBrowserEvent('popup-alert', ['title' => 'คุณยังไม่ระบุ Lot Number ของสินค้า !',]);
-                    return;
-                }
-
-                if ($soDetails2['stocktype'] == "9" ){
-                    $strsql = "select sum(quantity-sold) as balance
-                            from purchasedetaillog 
-                            where itemid='" . $soDetails2['itemid'] . "'
-                            and lotnumber='" . $soDetails2['lotnumber'] . "'";
-                    $data1 = DB::select($strsql);
-                    if ($data1[0]->balance < $soDetails2['quantity']){
-                        $this->dispatchBrowserEvent('popup-alert', ['title' => 'สินค้าคงเหลือของ Lot ' . $soDetails2['lotnumber'] . ' ไม่พอ !',]);
-                        return;
-                    }
-                }
-            }  
-        }
-
         if ($this->errorTaxNumber or $this->errorGLTran or $this->errorSoDetail){
             return;
         }
@@ -555,19 +345,11 @@ class SoDeliveryTax extends Component
                         if ($this->soHeader['exclusivetax'] == true){ //แปลงค่าก่อนบันทึก
                             $soDetails2['amount'] = $soDetails2['amount'] + $soDetails2['taxamount'];
                         }
-    
-                        //ปิดรายการหรือไม่
-                        if($this->soHeader['posted'] == true){
-                            $xquantity = 0;
-                            $xquantityord = $soDetails2['quantity'];
-                            $xquantitydel = $soDetails2['quantity'];
-                            $xquantitybac = 0;
-                        }else{
-                            $xquantity = $soDetails2['quantity'];
-                            $xquantityord = $soDetails2['quantity'];
-                            $xquantitydel = 0;
-                            $xquantitybac = $soDetails2['quantity'];
-                        }
+
+                        $xquantity = 1; // ถ้าสินค้าบริการ จำนวนเป็น 1 เสมอ
+                        $xquantityord = 0;
+                        $xquantitydel = 0;
+                        $xquantitybac = 0;
     
                         DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord
                         , quantitydel, quantitybac, serialno, taxrate, taxamount, discountamount, soreturn, salesac, lotnumber
@@ -580,67 +362,17 @@ class SoDeliveryTax extends Component
                         
                         //ถ้าปิดรายการ
                         if ($this->soHeader['posted'] == true) {
-                            // หาต้นทุนสินค้า
-                            $costAmt = 0;
-                            $xinventory = DB::table('inventory')
-                                ->select('averagecost','instock','instockvalue')
-                                ->where('itemid', $soDetails2['itemid'])
-                                ->get();
-                            if ($xinventory->count() > 0) {
-                                $costAmt = round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
-                            }
-                            
                             // Salesdetaillog
                             DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description, quantity, unitprice, amount
-                                , quantityord, quantitydel, quantitybac, taxrate, taxamount, taxnumber, discountamount, cost, soreturn
-                                , journal, posted, serialno, lotnumber, ram_salesdetail_id, employee_id, transactiondate)
-                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                                , quantityord, quantitydel, quantitybac, taxrate, taxamount, taxnumber, discountamount, soreturn, journal, posted
+                                , employee_id, transactiondate)
+                                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
                                 , $soDetails2['description'], $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount']
                                 , $soDetails2['quantity'] , $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $this->soHeader['invoiceno'], $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['serialno']
-                                , $soDetails2['lotnumber'], $soDetails2['id'], 'Admin', Carbon::now()]);
-    
-                            // Inventory
-                            $xinstock = $xinventory[0]->instock - $soDetails2['quantity'];
-                            $xinstockvalue = $xinventory[0]->instockvalue - round($soDetails2['quantity'] * $xinventory[0]->averagecost, 2);
-    
-                            DB::statement("UPDATE inventory SET instock=?, instockvalue=?, employee_id=?, transactiondate=?
-                                where itemid=?" 
-                                , [$xinstock, $xinstockvalue, 'Admin', Carbon::now(), $soDetails2['itemid']]);
-    
-                            // inventoryserial & purchasedetaillog
-                            if($soDetails2['stocktype'] == "4"){
-                                DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
-                                        where itemid=? and serialno=?"
-                                ,[$this->soHeader['snumber'],$this->soHeader['sodate'], true, 'Admin', Carbon::now()
-                                ,$soDetails2['itemid'],$soDetails2['serialno']]);
-                            }elseif($soDetails2['stocktype'] == "9"){
-                                //Loop เพื่อตัดสินค้าออก
-                                $xcount = 0;
-                                while ($xcount < $soDetails2['quantity']) {
-                                    $strsql = "select id,sold,quantity,quantity-sold as balance 
-                                            from purchasedetaillog 
-                                            where itemid='" . $soDetails2['itemid'] . "'
-                                            and lotnumber='" . $soDetails2['lotnumber'] . "'
-                                            and quantity-sold > 0
-                                            order by id";
-                                    $data1 = DB::select($strsql);
-                                    if ($data1[0]->balance <= $soDetails2['quantity'] - $xcount) {   
-                                        DB::statement("UPDATE purchasedetaillog SET sold=sold+?,employee_id=?,transactiondate=?
-                                                    where id =" . $data1[0]->id
-                                        ,[$data1[0]->balance, 'Admin', Carbon::now()]);                                
-                                        $xcount = $xcount + $data1[0]->balance;
-                                    }else{
-                                        DB::statement("UPDATE purchasedetaillog SET sold=sold+?,employee_id=?,transactiondate=?
-                                        where id =" . $data1[0]->id
-                                        ,[$soDetails2['quantity'] - $xcount, 'Admin', Carbon::now()]);
-                                        $xcount = $xcount + ($soDetails2['quantity'] - $xcount);
-                                    }
-                                }
-                            }
+                                , $this->soHeader['invoiceno'], $soDetails2['discountamount'], 'V', 'SO', true, 'Admin', Carbon::now()]);
                         }
-                    }                    
+                    }
                 }
 
                 // Sales
@@ -654,12 +386,11 @@ class SoDeliveryTax extends Component
                 , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $this->soHeader['posted']
                 , $this->soHeader['sonote'], $this->soHeader['snumber']]);
 
-                // ปิดรายการ
+                // ปิดรายการ 
                 if ($this->soHeader['posted']){
-                    // Taxdata
-                    DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
-                            ,description,amountcur,amount,taxamount,duedate,purchase,posted
-                            ,isinputtax,totalamount,employee_id,transactiondate)
+                    // Taxdataservice
+                    DB::statement("INSERT INTO taxdataservice(taxnumber,taxdate,journaldate,reference,gltran,customerid,description,amountcur,amount
+                            ,taxamount,duedate,purchase,posted,isinputtax,totalamount,employee_id,transactiondate)
                     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                     , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
                     , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['customerid'].'-'.$this->soHeader['snumber']
@@ -671,7 +402,7 @@ class SoDeliveryTax extends Component
                     DB::table('gltran')->insert($this->genGLs);
                 }
 
-                $this->dispatchBrowserEvent('hide-soDeliveryTaxForm',['message' => 'Save Successfully!']);
+                $this->dispatchBrowserEvent('hide-soServiceTaxForm',['message' => 'Save Successfully!']);
             });
         }else{
             //New
@@ -684,13 +415,13 @@ class SoDeliveryTax extends Component
                 // Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate, deliveryno, deliverydate, payby
                             , duedate, journaldate, exclusivetax, taxontotal, salesaccount, expirydate, sototal, salestax, closed, employee_id
-                            , transactiondate, posted, sonote, ram_sodeliverytax) 
+                            , transactiondate, posted, sonote, soreturn) 
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , [$this->soHeader['snumber'], $this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
                 , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
                 , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
-                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted'], $this->soHeader['sonote'], true]); //ram_sodeliverytax > แยก Type ของ SO
+                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted'], $this->soHeader['sonote'], 'V']);
 
                 //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
@@ -710,17 +441,15 @@ class SoDeliveryTax extends Component
                         }
     
                         DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord
-                        , quantitydel, quantitybac, taxrate, taxamount, discountamount, soreturn, salesac, serialno, lotnumber
-                        , employee_id, transactiondate)
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        , quantitydel, quantitybac, taxrate, taxamount, discountamount, soreturn, salesac, employee_id, transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                         , [$this->soHeader['snumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
                         , $soDetails2['unitprice'], $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac
-                        , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'N'
-                        , $soDetails2['salesac'], $soDetails2['serialno'], $soDetails2['lotnumber']
-                        , 'Admin', Carbon::now()]);
+                        , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], 'V'
+                        , $soDetails2['salesac'], 'Admin', Carbon::now()]);
                     }                    
                 }
-                $this->dispatchBrowserEvent('hide-soDeliveryTaxForm',['message' => 'Save Successfully!']);
+                $this->dispatchBrowserEvent('hide-soServiceTaxForm',['message' => 'Save Successfully!']);
             });
         }
     }
@@ -835,7 +564,7 @@ class SoDeliveryTax extends Component
                         , taxontotal, posted, salesaccount, taxrate, salestax, discountamount, sototal, customer.customerid, shipcost, sonote")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('snumber', $sNumber)
-            ->where('soreturn', 'N')
+            ->where('soreturn', 'V')
             ->get();
         $this->soHeader = json_decode(json_encode($data[0]), true);   //Convert เป็น Arrat 1 มิติ
         $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
@@ -850,14 +579,14 @@ class SoDeliveryTax extends Component
                     ,'inventory.stocktype','salesdetail.serialno','salesdetail.lotnumber')
             ->join('inventory', 'salesdetail.itemid', '=', 'inventory.itemid')
             ->where('snumber', $sNumber)
-            ->where('soreturn', 'N')
+            ->where('soreturn', 'V')
             ->orderBy('id')
             ->get();
         $this->soDetails = json_decode(json_encode($data2), true); 
 
         $this->reCalculateInGrid();
 
-        $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('show-soServiceTaxForm'); //แสดง Model Form
         //$this->dispatchBrowserEvent('clear-select2');
 
         //Bind Customer
@@ -924,14 +653,7 @@ class SoDeliveryTax extends Component
                         , customer.customerid || ' : ' || name as name")
             ->leftJoin('customer', 'sales.customerid', '=', 'customer.customerid')
             ->where('posted', FALSE)
-            ->where('soreturn','N')
-            ->where('ram_sodeliverytax',true)
-            // ไม่แน่ใจว่า Where ไปทำไม 23/11/64
-            // ->whereIn('snumber',function ($query) {
-            //     $query->select('snumber')->from('salesdetail')
-            //     ->where('quantitybac', '>' , 0)
-            //     ->where('soreturn', 'N');
-            // })        
+            ->where('soreturn','V')
             ->Where(function($query) 
                 {
                     $query->where('snumber', 'like', '%'.$this->searchTerm.'%')
@@ -944,7 +666,7 @@ class SoDeliveryTax extends Component
             ->paginate($this->numberOfPage);
         // /.getSalesOrder
 
-        return view('livewire.accstar.sales.so-delivery-tax',[
+        return view('livewire.accstar.sales.so-service-tax',[
             'salesOrders' => $salesOrders
         ]);
     }

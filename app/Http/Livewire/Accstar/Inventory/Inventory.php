@@ -29,6 +29,11 @@ class Inventory extends Component
     public $stocktype_dd, $category_dd, $brand_dd, $model_dd, $location_dd, $unitofmeasure_dd, $account_dd;
     public $photo;
 
+    public function refreshData()
+    {
+        $this->resetPage();
+    }
+
     public function showImage($imageUlr){
         $this->dispatchBrowserEvent('popup-image', [
             'imageUrl' => $imageUlr ,
@@ -177,15 +182,15 @@ class Inventory extends Component
                 $inventory_images = $this->product['ram_inventory_image'];
             }
 
-            DB::statement("UPDATE inventory SET itemid=?,description=?,stocktype=?,category=?,brand=?,model=?,location=?,unitofmeasure=?,unitofmeasures=?
+            DB::statement("UPDATE inventory SET itemid=?,description=?,stocktype=?,category=?,brand=?,model=?,location=?,unitofmeasure=?
                 ,averagecost=?,salesprice=?,inventoryac=?,salesac=?,purchasertac=?,salesrtac=?,costtype=?,stdcost=?,reorderlevel=?,reorderqty=?
                 ,employee_id=?, transactiondate=?, ram_inventory_image=?, isserial=?
                 where id=?" 
-                ,[$this->product['itemid'],$this->product['description'],$this->product['stocktype'],$this->product['category'],$this->product['brand']
-                ,$this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['unitofmeasures']
-                ,$this->product['averagecost'],$this->product['salesprice'],$this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac']
-                ,$this->product['salesrtac'],$this->product['costtype'],$this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty']
-                ,'Admin', Carbon::now(), $inventory_images, $this->product['id'], $this->product['isserial']]);
+                , [$this->product['itemid'],$this->product['description'],$this->product['stocktype'],$this->product['category'],$this->product['brand']
+                , $this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['averagecost'],$this->product['salesprice']
+                , $this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac'],$this->product['salesrtac'],$this->product['costtype']
+                , $this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty'],'Admin', Carbon::now(), $inventory_images
+                , $this->product['isserial'], $this->product['id']]);
         });
 
         $this->dispatchBrowserEvent('hide-inventoryForm', ['message' => 'Updated Successfully!']);

@@ -30,8 +30,13 @@ class ReturnGoods extends Component
     public $genGLs = [];
     public $sumDebit, $sumCredit = 0;
     public $taxNumber;
-    public $errorValidate, $errorTaxNumber, $errorGLTran = false;
+    public $errorTaxNumber, $errorGLTran = false;
 
+    public function refreshData()
+    {
+        $this->resetPage();
+    }
+    
     public function resetValuesInModel()
     {
         $this->taxNumber = "";
@@ -56,7 +61,7 @@ class ReturnGoods extends Component
         $data =  DB::select($strsql);
         if (count($data)) {
             $this->dispatchBrowserEvent('popup-alert', [
-                'title' => 'ใบกำกับภาษีนำไปรับคืนแล้ว !',
+                'title' => 'ใบกำกับภาษีนี้รับคืนสินค้าแล้ว !',
             ]);
             $this->resetValuesInModel();
         } else {
@@ -122,9 +127,16 @@ class ReturnGoods extends Component
                 $this->dispatchBrowserEvent('bindToSelect', ['newOption' => $newOption, 'selectName' => '#salesaccount-select2']);
                 
                 //soDetailsLog
-                $data2 = DB::table('salesdetaillog')
-                    ->selectRaw('itemid,description,quantity,salesac,unitprice,taxrate,taxamount,id
-                            ,inventoryac,cost / quantity as cost') //แปลง cost ให้เป็นต่อหน่วย
+                $data2 = DB::table('salesdetaillog as sl')
+                    ->selectRaw("sl.itemid, sl.quantity, sl.salesac, sl.unitprice, sl.taxrate, sl.taxamount, sl.id, sl.serialno, sl.lotnumber
+                            , inv.stocktype, sl.quantity as quantityori
+                            , CASE 
+                                WHEN inv.stocktype = '4' THEN sl.description || ' (' || sl.serialno || ')'
+                                WHEN inv.stocktype = '9' THEN sl.description || ' (' || sl.lotnumber || ')'
+                                ELSE sl.description
+                            END as description
+                            , sl.inventoryac, sl.cost / sl.quantity as cost") //แปลง cost ให้เป็นต่อหน่วย
+                    ->join('inventory as inv','sl.itemid','=','inv.itemid')
                     ->where('snumber', $xSNumber)
                     ->where('soreturn', 'N')
                     ->get();
@@ -347,32 +359,31 @@ class ReturnGoods extends Component
 
     public function createUpdateSalesOrder() //กดปุ่ม Save 
     {
-        //ตรวจสอบเลขที่ใบสั่งขาย ใบกำกับ ใบสำคัญซ้ำหรือไม่
+        //.ตรวจสอบเลขที่ใบสั่งขาย ใบกำกับ ใบสำคัญซ้ำหรือไม่
+        $this->reset(['errorTaxNumber','errorGLTran']);
         $strsql = "select count(*) as count from taxdata where purchase=false and taxnumber='" . $this->soHeader['invoiceno'] . "'";
         $data = DB::select($strsql);
         if ($data[0]->count){
-            $this->errorInvoiceNo = true;
-            $this->errorValidate = true;
+            $this->errorTaxNumber = true;
         }
 
         $strsql = "select count(*) as count from gltran where gltran='" . $this->soHeader['deliveryno'] . "'";
         $data = DB::select($strsql);
         if ($data[0]->count){
             $this->errorGLTran = true;
-            $this->errorValidate = true;
         }
 
         $strsql = "select count(*) as count from glmast where gltran='" . $this->soHeader['deliveryno'] . "'";
         $data = DB::select($strsql);
         if ($data[0]->count){
             $this->errorGLTran = true;
-            $this->errorValidate = true;
         }
 
-        if ($this->errorValidate){
+        if ($this->errorTaxNumber or $this->errorGLTran){
             return;
         }
-        
+        //./ตรวจสอบเลขที่ใบสั่งขาย ใบกำกับ ใบสำคัญซ้ำหรือไม่
+
         if ($this->showEditModal == true) {
             //===Edit===
             DB::transaction(function () {
@@ -411,6 +422,7 @@ class ReturnGoods extends Component
 
                 //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['sonumber'])->delete();
+                
                 foreach ($this->soDetails as $soDetails2) {
                     if ($this->soHeader['exclusivetax'] == true) //แปลงค่าก่อนบันทึก
                     {
@@ -420,18 +432,20 @@ class ReturnGoods extends Component
                     //Closed = True (update salesdetail > quantitydel=quantityord, quantity=0, quantitybac=0)
                     if ($this->soHeader['closed'] == true) {
                         $xquantity = 0;
-                        $xquantityord = $soDetails2['quantity'];
+                        $xquantityord = $soDetails2['quantityori'];
                         $xquantitydel = $soDetails2['quantity'];
                         $xquantitybac = 0;
 
                         //SalesDetail
                         DB::statement("INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord
-                        , quantitydel, quantitybac, taxrate, taxamount, salesac, cost, soreturn, employee_id, transactiondate)
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        , quantitydel, quantitybac, taxrate, taxamount, salesac, cost, soreturn, serialno, lotnumber
+                        , employee_id, transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                             [
                                 $this->soHeader['sonumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
                                 , $soDetails2['unitprice'], $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac
                                 , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['salesac'], $soDetails2['cost'], 'Y'
+                                , $soDetails2['serialno'], $soDetails2['lotnumber']
                                 , 'Admin', Carbon::now()
                             ] //cost = per unit
                         );
@@ -440,45 +454,82 @@ class ReturnGoods extends Component
                         $costAmt = $soDetails2['quantity'] * $soDetails2['cost'];
 
                         //SalesDetailLog
-                        DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description, quantity, unitprice
-                            , amount, taxrate, taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id
+                        DB::statement("INSERT INTO salesdetaillog(snumber, sdate, deliveryno, itemid, description, quantity, unitprice, amount, taxrate
+                            , taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, serialno, lotnumber
                             , employee_id, transactiondate)
-                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                             , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
                             , $soDetails2['description'], $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount']
                             , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], $costAmt, 'Y', 'SO'
-                            , true, $soDetails2['id'], 'Admin', Carbon::now()]);
+                            , true, $soDetails2['id'], $soDetails2['serialno'], $soDetails2['lotnumber']
+                            , 'Admin', Carbon::now()]);
 
                         //Inventory
                         $xinventory = DB::table('inventory')
                             ->select('instock','instockvalue','averagecost')
                             ->where('itemid', $soDetails2['itemid'])
                             ->get();
+                        
                         if ($xinventory->count() > 0) {
                             $xinstock = $xinventory[0]->instock + $soDetails2['quantity']; //บวกจำนวนกลับ
-                            $newAVG = round(($xinventory[0]->instockvalue + $costAmt) / $xinstock, 2); //หา AVG Cost ใหม่
-                            $xinstockvalue = $xinstock * $newAVG;
+
+                            if ($xinstock == 0){ //??? ยังไม่รู้ว่าให้คำนวณอย่างไร
+                                $newAVG = 0;
+                                $xinstockvalue = 0;
+                            }else{
+                                $newAVG = round(($xinventory[0]->instockvalue + $costAmt) / $xinstock, 2); //หา AVG Cost ใหม่
+                                $xinstockvalue = $xinstock * $newAVG;
+                            }
 
                             DB::statement("UPDATE inventory SET instock=?, instockvalue=?, cost=?, averagecost=?, employee_id=?, transactiondate=?
                                 where itemid=?" 
                                 , [$xinstock, $xinstockvalue, $newAVG, $newAVG, 'Admin', Carbon::now(), $soDetails2['itemid']]);
                         }
+
+                        // inventoryserial & purchasedetaillog
+                        if($soDetails2['stocktype'] == "4") {
+                            DB::statement("UPDATE inventoryserial SET sold=?,snumber=?,solddate=?,employee_id=?,transactiondate=? 
+                                        where itemid=? and serialno=?" 
+                            ,[false,null,null,'Admin',Carbon::now(),$soDetails2['itemid'],$soDetails2['serialno']]);
+                        }elseif($soDetails2['stocktype'] == "9") {
+                            $xcount = 0;
+                            while ($xcount < $soDetails2['quantity']) {
+                                $strsql = "select id,sold,quantity
+                                        from purchasedetaillog 
+                                        where itemid='" . $soDetails2['itemid'] . "'
+                                        and lotnumber='" . $soDetails2['lotnumber'] . "'
+                                        and sold > 0
+                                        order by id desc";
+                                $data1 = DB::select($strsql);
+                                if ($soDetails2['quantity'] - $xcount <= $data1[0]->sold) {   
+                                    DB::statement("UPDATE purchasedetaillog SET sold=sold-?,employee_id=?,transactiondate=?
+                                                where id =" . $data1[0]->id
+                                    ,[$soDetails2['quantity'] - $xcount, 'Admin', Carbon::now()]);                                
+                                    $xcount = $xcount + $data1[0]->sold;
+                                }else{
+                                    DB::statement("UPDATE purchasedetaillog SET sold=sold-?,employee_id=?,transactiondate=?
+                                    where id =" . $data1[0]->id
+                                    ,[$data1[0]->sold, 'Admin', Carbon::now()]);
+                                    $xcount = $xcount + $data1[0]->sold;
+                                }
+                            }
+                        }
                     } else {
                         //SalesDetail (cost = per unit)
                         $xquantity = $soDetails2['quantity'];
-                        $xquantityord = $soDetails2['quantity'];
+                        $xquantityord = $soDetails2['quantityori'];
                         $xquantitydel = 0;
                         $xquantitybac = $soDetails2['quantity'];
 
                         DB::statement(
                             "INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord, quantitydel, quantitybac
-                            , taxrate, taxamount, salesac, cost, soreturn, employee_id, transactiondate)
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                            , taxrate, taxamount, salesac, cost, soreturn, serialno, lotnumber, employee_id, transactiondate)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                             [
                                 $this->soHeader['sonumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description']
                                 , $soDetails2['unitprice'], $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac
                                 , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['salesac'], $soDetails2['cost'], 'Y' 
-                                , 'Admin', Carbon::now()
+                                , $soDetails2['serialno'], $soDetails2['lotnumber'], 'Admin', Carbon::now()
                             ]
                         );
                     }
@@ -496,9 +547,8 @@ class ReturnGoods extends Component
             DB::transaction(function () {
                 //Insert Sales
                 DB::statement(
-                    "INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate
-                            , deliveryno, deliverydate, payby, duedate, journaldate, exclusivetax, taxontotal
-                            , salesaccount, expirydate, sototal, salestax, closed, refno, soreturn, sonote
+                    "INSERT INTO sales(snumber, sonumber, sodate, customerid, invoiceno, invoicedate, deliveryno, deliverydate, payby, duedate
+                            , journaldate, exclusivetax, taxontotal, salesaccount, expirydate, sototal, salestax, closed, refno, soreturn, sonote
                             , employee_id, transactiondate) 
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     [
@@ -518,18 +568,19 @@ class ReturnGoods extends Component
                     }
 
                     $xquantity = $soDetails2['quantity'];
-                    $xquantityord = $soDetails2['quantity'];
+                    $xquantityord = $soDetails2['quantityori'];
                     $xquantitydel = 0;
                     $xquantitybac = $soDetails2['quantity'];
 
                     DB::statement(
                         "INSERT INTO salesdetail(snumber, sdate, itemid, description, unitprice, amount, quantity, quantityord, quantitydel, quantitybac
-                        , taxrate, taxamount, soreturn, salesac, cost, employee_id, transactiondate)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        , taxrate, taxamount, soreturn, salesac, cost, serialno, lotnumber, employee_id, transactiondate)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         [
                             $this->soHeader['sonumber'], $this->soHeader['sodate'], $soDetails2['itemid'], $soDetails2['description'], $soDetails2['unitprice']
                             , $soDetails2['amount'], $xquantity, $xquantityord, $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
-                            , 'Y', $soDetails2['salesac'], $soDetails2['cost'], 'Admin', Carbon::now()
+                            , 'Y', $soDetails2['salesac'], $soDetails2['cost'], $soDetails2['serialno'], $soDetails2['lotnumber']
+                            , 'Admin', Carbon::now()
                         ]
                     );
                 }
@@ -610,6 +661,7 @@ class ReturnGoods extends Component
             }
 
             $this->soDetails[$i]['netamount'] = round($this->soDetails[$i]['amount'] + $this->soDetails[$i]['taxamount'], 2);
+            $this->soDetails[$i]['quantityori'] = round($this->soDetails[$i]['quantityori'], 2);
             $this->soDetails[$i]['quantity'] = round($this->soDetails[$i]['quantity'], 2);
             $this->soDetails[$i]['unitprice'] = round($this->soDetails[$i]['unitprice'], 2);
             $this->soDetails[$i]['taxrate'] = round($this->soDetails[$i]['taxrate'], 2);
@@ -673,9 +725,13 @@ class ReturnGoods extends Component
 
         //soDetails
         $data2 = DB::table('salesdetail')
-            ->select('itemid', 'description', 'quantity', 'salesac', 'unitprice', 'discountamount', 'taxrate', 'taxamount', 'id', 'inventoryac', 'cost')
-            ->where('snumber', $sNumber)
-            ->where('soreturn', 'Y')
+            ->select('salesdetail.itemid', 'salesdetail.description', 'salesdetail.quantity', 'salesdetail.salesac', 'salesdetail.unitprice'
+                    , 'salesdetail.discountamount', 'salesdetail.taxrate', 'salesdetail.taxamount', 'salesdetail.id', 'salesdetail.inventoryac'
+                    , 'salesdetail.cost', 'salesdetail.serialno', 'salesdetail.lotnumber', 'inventory.stocktype'
+                    , 'salesdetail.quantityord as quantityori')
+            ->join('inventory', 'salesdetail.itemid', '=', 'inventory.itemid')
+            ->where('salesdetail.snumber', $sNumber)
+            ->where('salesdetail.soreturn', 'Y')
             ->get();
         $this->soDetails = json_decode(json_encode($data2), true);
 
