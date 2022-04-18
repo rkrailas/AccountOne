@@ -23,21 +23,21 @@
             <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
             <li class="nav-item">
-                <a href="{{ route('accstar.customer') }}"  
-                    class="nav-link {{ request()->is('accstar/customer') ? 'active' : '' }}">
+                <a href="{{ route('customer') }}"  
+                    class="nav-link {{ request()->is('customer') ? 'active' : '' }}">
                     <i class="nav-icon far fa-address-book"></i>
                     <p>ลูกค้า</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('accstar.gljournal') }}" 
-                    class="nav-link {{ request()->is('accstar/gjournal') ? 'active' : '' }}">
+                <a href="{{ route('gljournal') }}" 
+                    class="nav-link {{ request()->is('gjournal') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-book"></i>
                     <p>ใบสำคัญ</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('accstar.sodeliverytax') }}" class="nav-link {{ request()->is('accstar/sodeliverytax') ? 'active' : '' }}">
+                <a href="{{ route('sodeliverytax') }}" class="nav-link {{ request()->is('sodeliverytax') ? 'active' : '' }}">
                     <i class="nav-icon fa fa-shopping-cart"></i>
                     <p>ส่งสินค้าพร้อมใบกำกับ</p>
                 </a>
@@ -45,7 +45,7 @@
             <li class="nav-item">
                 <form method="POST">
                     @csrf
-                    <a href="{{ route('accstar.sodeliverytax') }}" 
+                    <a href="{{ route('sodeliverytax') }}" 
                         onClick="event.preventDefault(); this.closest('form').submit();" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt"></i>
                         <p>

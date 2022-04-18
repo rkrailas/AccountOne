@@ -9,7 +9,7 @@ class Test3 extends Component
 {
     public $myOption = "Option4", $myOption2 = "";
     public $account_dd;
-    public $myaccount;
+    public $account_code = [], $myWhere;
     public $soDetails;
     public $itemNos_dd;
 
@@ -44,6 +44,25 @@ class Test3 extends Component
         $this->soDetails = [];
     }
 
+    public function getAccount()
+    {
+        //dd($this->account_code);
+        $this->reset(['myWhere']);
+
+        if ($this->account_code) {            
+            $xCondition = "";
+            foreach ($this->account_code as $index => $row)
+            {
+                $xCondition = $xCondition . "'" . $row . "'";
+
+                if ($index < count($this->account_code) - 1){
+                    $xCondition = $xCondition . ",";
+                }
+            }
+            $this->myWhere = " WHERE account in (" . $xCondition . ")";
+        }
+    }
+
     public function render()
     {
         $this->account_dd = DB::table('account')
@@ -57,10 +76,11 @@ class Test3 extends Component
         ->orderby('itemid')
         ->get();
 
-        $strsql = "select account from buyer where customerid='VP0290'";
-        $data = DB::select($strsql);
-        $this->myaccount = $data[0]->account;
+        $strsql = "select account, accname from account" . $this->myWhere;
+        $listAccount = DB::select($strsql);
 
-        return view('livewire.test3');
+        return view('livewire.test3',[
+            'listAccount' => $listAccount,
+        ]);
     }
 }

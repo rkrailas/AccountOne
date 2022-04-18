@@ -2,7 +2,7 @@
 
 {{-- {{ $attributes }} --}}
 <div wire:ignore>
-    <select id="{{ $id }}" style="width: 100%" {{ $required == 'true' ? 'required' : '' }}> 
+    <select id="{{ $id }}" multiple="multiple" style="width: 100%" {{ $required == 'true' ? 'required' : '' }}> 
         {{ $slot }}
     </select>
 </div>
@@ -23,6 +23,7 @@
             height: calc(1.8125rem + 2px) !important;
         }
         .select2-selection__arrow {
+            height: 0px !important;
         }
         </style>
     @endpush

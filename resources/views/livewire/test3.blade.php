@@ -4,26 +4,19 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Select myOption</label>
-                    <x-select2 id="account-select2" wire:model="myaccount">
-                        <option value=" ">---โปรดเลือก---</option>
+                    <x-select2-multiple id="account-select2" wire:model="account_code">
                         @foreach($account_dd as $row)
-                        <option value='{{ $row->account }}' @if ($myaccount==$row->account)
-                            selected="selected"
-                            @endif
-                            >
+                        <option value='{{ $row->account }}'>
                             {{ $row->account . ' : ' . $row->accnameother}}
                         </option>
                         @endforeach
-                    </x-select2>
-                    {{-- <select id="select-testing" class="selectpicker" data-live-search="true" title="Please select"
-                        wire:model="myaccount">
-                        @foreach($account_dd as $row)
-                        <option>
-                            {{ $row->account . ' : ' . $row->accnameother}}
-                        </option>
-                        @endforeach
-                    </select> --}}
+                    </x-select2-multiple>                    
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-primary" wire:click="getAccount">Search</button>
             </div>
         </div>
         <div class="row">
@@ -31,42 +24,20 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
+                        <th scope="col">Account Code</th>
+                        <th scope="col">Account Name</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @if ($listAccount)
+                    @foreach($listAccount as $index => $row)
                     <tr>
-                        <th scope="row">1</th>
-                        <td>
-                            <x-select2 id="account-select22" wire:model="myaccount">
-                                <option value=" ">---โปรดเลือก---</option>
-                                @foreach($account_dd as $row)
-                                <option value='{{ $row->account }}' @if ($myaccount==$row->account)
-                                    selected="selected"
-                                    @endif
-                                    >
-                                    {{ $row->account . ' : ' . $row->accnameother}}
-                                </option>
-                                @endforeach
-                            </x-select2>
-                        </td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
+                        <th scope="row">{{ $index }}</th>
+                        <td>{{ $listAccount[$index]->account }}</td>
+                        <td>{{ $listAccount[$index]->accname }}</td>
                     </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Larry</td>
-                        <td>the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
+                    @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>
