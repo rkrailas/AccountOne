@@ -1,5 +1,5 @@
-<div wire:ignore.self class="modal" id="adjustInventoryForm" data-backdrop="static">
-    <div class="modal-dialog" style="max-width: 80%;">
+<div class="modal" id="adjustInventoryForm" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <form autocomplete="off" wire:submit.prevent="createAdjustInventory">
             <div class="modal-content">
                 <div class="modal-header">

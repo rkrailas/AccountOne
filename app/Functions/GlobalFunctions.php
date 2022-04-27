@@ -2,6 +2,22 @@
 
     use Illuminate\Support\Facades\DB;
 
+    function convertToBoolean($myBoolean)
+    {
+        if(empty($myBoolean)) {
+            $myBoolean = 'false';
+        }
+        else {
+            if ($myBoolean) {
+                $myBoolean = 'true';
+            } else {
+                $myBoolean = 'false';
+            }
+        }
+
+        return $myBoolean;
+    }
+
     function getTaxRate()
     {
         return 7;

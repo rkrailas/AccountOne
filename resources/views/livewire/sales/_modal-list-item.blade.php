@@ -1,6 +1,5 @@
-<div class="modal fade bd-example-modal-xl" id="itemListForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" 
-    aria-hidden="true" data-backdrop="static" wire:ignore.self>
-    <div class="modal-dialog modal-dialog-scrollable" style="max-width:60%;">
+<div class="modal" id="itemListForm" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <form autocomplete="off">
             <div class="modal-content ">
                 <div class="modal-header">

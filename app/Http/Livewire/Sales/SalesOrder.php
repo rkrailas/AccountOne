@@ -178,7 +178,7 @@ class SalesOrder extends Component
         $this->soHeader = ([
             'snumber'=>'', 'sonumber'=>'', 'sodate'=>Carbon::now()->format('Y-m-d'), 'expirydate'=>Carbon::now()->addMonth()->format('Y-m-d')
             , 'deliveryno'=>'', 'deliverydate'=>Carbon::now()->addMonth()->format('Y-m-d'), 'refno'=>'', 'payby'=>'0'
-            , 'exclusivetax'=>TRUE, 'taxontotal'=>FALSE, 'salesaccount'=>'', 'taxrate'=>getTaxRate()
+            , 'exclusivetax'=>true, 'taxontotal'=>false, 'salesaccount'=>'', 'taxrate'=>getTaxRate()
             , 'salestax'=>0, 'discountamount'=>0, 'sototal'=>0, 'customerid'=>'', 'shipcost'=>0, 'shipname'=>'','full_address'=>''
             , 'closed'=>false, 'duedate'=>Carbon::now()->addMonth()->format('Y-m-d')
         ]);
@@ -216,8 +216,8 @@ class SalesOrder extends Component
                 where snumber=?" 
                 , [$this->soHeader['sodate'], $this->soHeader['customerid'], $this->soHeader['deliverydate'], $this->soHeader['expirydate']
                 , $this->soHeader['refno'], $this->soHeader['sototal'], $this->soHeader['salestax']
-                , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount']
-                , 'Admin', Carbon::now(), $this->soHeader['closed'], $this->soHeader['duedate'], $this->soHeader['snumber']]);
+                , convertToBoolean($this->soHeader['exclusivetax']), convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount']
+                , 'Admin', Carbon::now(), convertToBoolean($this->soHeader['closed']), $this->soHeader['duedate'], $this->soHeader['snumber']]);
             
                 //SalesDetail 
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete(); //ลบออกไปก่อน
@@ -255,14 +255,14 @@ class SalesOrder extends Component
             DB::transaction(function () {
                 //Sales
                 DB::statement("INSERT INTO sales(snumber, sonumber, sodate, customerid, expirydate, deliverydate, refno
-                            , exclusivetax, taxontotal, salesaccount, sototal, salestax, closed, duedate, employee_id, transactiondate)
+                , exclusivetax, taxontotal, salesaccount, sototal, salestax, closed, duedate, employee_id, transactiondate)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , [$this->soHeader['snumber'], $this->soHeader['sonumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                 , $this->soHeader['expirydate'], $this->soHeader['deliverydate'], $this->soHeader['refno']
-                , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount']
-                , $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['closed'], $this->soHeader['duedate']
+                , convertToBoolean($this->soHeader['exclusivetax']), convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount']
+                , $this->soHeader['sototal'], $this->soHeader['salestax'], convertToBoolean($this->soHeader['closed']), $this->soHeader['duedate']
                 , 'Admin', Carbon::now()]);
-
+                
                 //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
 
@@ -427,7 +427,7 @@ class SalesOrder extends Component
         $this->soHeader['discountamount'] = round($this->soHeader['discountamount'],2);
         $this->soHeader['shipcost'] = round($this->soHeader['shipcost'],2);
         $this->soHeader['salestax'] = round($this->soHeader['salestax'],2);
-        $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);  
+        $this->soHeader['sototal'] = round($this->soHeader['sototal'],2);
         
         // soDetails
         $data2 = DB::table('salesdetail')

@@ -1,5 +1,5 @@
-<div wire:ignore.self class="modal" id="inventoryForm" data-backdrop="static">
-    <div class="modal-dialog" style="max-width: 85%;">
+<div class="modal" id="inventoryForm" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <form autocomplete="off" enctype="multipart/form-data"
             wire:submit.prevent="{{ $showEditModal ? 'updateInventory' : 'createInventory' }}">
             <div class="modal-content">

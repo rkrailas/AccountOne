@@ -1,5 +1,5 @@
-<div class="modal fade bd-example-modal-xl" id="soDeliveryTaxForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
-    <div class="modal-dialog modal-dialog-scrollable" style="max-width: 95%;">
+<div class="modal" id="soDeliveryTaxForm" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <form autocomplete="off" wire:submit.prevent="createUpdateSalesOrder">
             <div class="modal-content ">
                 <div class="modal-header">

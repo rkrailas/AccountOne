@@ -145,7 +145,7 @@ class ReturnGoods extends Component
 
                 $this->reCalculateInGrid();
 
-                //$this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+                //$this->dispatchBrowserEvent('show-returnGoodsForm'); //แสดง Model Form
             } else {
                 $this->dispatchBrowserEvent('popup-alert', [
                     'title' => 'ไม่พบใบกำกับภาษี !',
@@ -341,7 +341,7 @@ class ReturnGoods extends Component
     {
         $this->showEditModal = FALSE;
         $this->resetValuesInModel();
-        $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('show-returnGoodsForm'); //แสดง Model Form
         $this->dispatchBrowserEvent('clear-select2');
     }
 
@@ -536,7 +536,7 @@ class ReturnGoods extends Component
                     }
                 }
 
-                $this->dispatchBrowserEvent('hide-soDeliveryTaxForm', ['message' => 'Save Successfully!']);
+                $this->dispatchBrowserEvent('hide-returnGoodsForm', ['message' => 'Save Successfully!']);
             });
         } else {
             //===New===
@@ -586,7 +586,7 @@ class ReturnGoods extends Component
                     );
                 }
 
-                $this->dispatchBrowserEvent('hide-soDeliveryTaxForm', ['message' => 'Save Successfully!']);
+                $this->dispatchBrowserEvent('hide-returnGoodsForm', ['message' => 'Save Successfully!']);
             });
         };
     }
@@ -738,7 +738,7 @@ class ReturnGoods extends Component
 
         $this->reCalculateInGrid();
 
-        $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('show-returnGoodsForm'); //แสดง Model Form
         //$this->dispatchBrowserEvent('clear-select2');
 
         //Bind salesaccount

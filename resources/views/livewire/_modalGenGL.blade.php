@@ -1,5 +1,5 @@
-<div class="modal" id="myModal2" data-backdrop="static">
-    <div class="modal-dialog" style="max-width: 60%;">
+<div class="modal" id="myModal2" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">การบันทึกบัญชี</h4>

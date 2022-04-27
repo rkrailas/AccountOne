@@ -691,7 +691,8 @@ class SoDeliveryTax extends Component
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
                 , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
                 , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
-                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted'], $this->soHeader['sonote'], true]); //ram_sodeliverytax > แยก Type ของ SO
+                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted']
+                , $this->soHeader['sonote'], true]); //ram_sodeliverytax > แยก Type ของ SO
 
                 //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();

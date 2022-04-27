@@ -333,7 +333,7 @@ class AdjustSoDeliveryTax extends Component
     {
         $this->showEditModal = FALSE;
         $this->resetValuesInModel();
-        $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('show-adjustSoDeliveryTaxForm'); //แสดง Model Form
         $this->dispatchBrowserEvent('clear-select2');
     }
 
@@ -449,7 +449,7 @@ class AdjustSoDeliveryTax extends Component
                     );
                 }
 
-                $this->dispatchBrowserEvent('hide-soDeliveryTaxForm', ['message' => 'Save Successfully!']);
+                $this->dispatchBrowserEvent('hide-adjustSoDeliveryTaxForm', ['message' => 'Save Successfully!']);
             });
         } else {
             //===New===
@@ -501,7 +501,7 @@ class AdjustSoDeliveryTax extends Component
                     );
                 }
 
-                $this->dispatchBrowserEvent('hide-soDeliveryTaxForm', ['message' => 'Save Successfully!']);
+                $this->dispatchBrowserEvent('hide-adjustSoDeliveryTaxForm', ['message' => 'Save Successfully!']);
             });
         };
     }
@@ -651,7 +651,7 @@ class AdjustSoDeliveryTax extends Component
 
         $this->reCalculateInGrid();
 
-        $this->dispatchBrowserEvent('show-soDeliveryTaxForm'); //แสดง Model Form
+        $this->dispatchBrowserEvent('show-adjustSoDeliveryTaxForm'); //แสดง Model Form
         //$this->dispatchBrowserEvent('clear-select2');
 
         //Bind salesaccount

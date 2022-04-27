@@ -1,5 +1,5 @@
-<div class="modal fade bd-example-modal-xl" id="formJournal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
-    <div class="modal-dialog modal-xl">
+<div class="modal" id="formJournal" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <form autocomplete="off" wire:submit.prevent="createUpdateJournal">
             <div class="modal-content">
                 <div class="modal-header">

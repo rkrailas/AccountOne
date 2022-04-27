@@ -226,9 +226,10 @@ class SoDelivery extends Component
                                 , amount, taxrate, taxamount, discountamount, cost, soreturn, journal, posted, ram_salesdetail_id, serialno
                                 , lotnumber, employee_id, transactiondate)
                                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                                , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid'], $soDetails2['description']
+                                , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
+                                , $soDetails2['description']
                                 , $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount'], $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', true, $soDetails2['id'], $soDetails2['serialno'], $soDetails2['lotnumber']
+                                , $soDetails2['discountamount'], $costAmt, 'G', 'SO', 'true', $soDetails2['id'], $soDetails2['serialno'], $soDetails2['lotnumber']
                                 , 'Admin', Carbon::now()]);
     
                             //Inventory

@@ -111,7 +111,7 @@ class SoTax extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $buyAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();            
             if ($data->count() > 0) {
                 $buyAccName = $data[0]->accnameother;
@@ -130,7 +130,7 @@ class SoTax extends Component
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
             , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
 
@@ -158,7 +158,7 @@ class SoTax extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $salesAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $salesAccName = $data[0]->accnameother;
@@ -177,7 +177,7 @@ class SoTax extends Component
             $this->genGLs[] = ([
                 'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName
                 , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => '', 'department' => ''
-                , 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => '', 'transactiondate' => Carbon::now()
+                , 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => '', 'transactiondate' => Carbon::now()
             ]);
         }
   
@@ -197,7 +197,7 @@ class SoTax extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $taxAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();
             if ($data->count() > 0) {
                 $taxAccName = $data[0]->accnameother;
@@ -216,7 +216,7 @@ class SoTax extends Component
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
             , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
 
@@ -251,7 +251,7 @@ class SoTax extends Component
                     $data = DB::table('account')
                         ->select("accnameother")
                         ->where('account', $invAcc)
-                        ->where('detail', true)
+                        ->where('detail', 'true')
                         ->get();
                     if ($data->count() > 0) {
                         $invAccName = $data[0]->accnameother;
@@ -282,7 +282,7 @@ class SoTax extends Component
                 $this->genGLs[] = ([
                     'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
                     , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit
-                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
                     , 'transactiondate'=>Carbon::now()
                 ]);  
             }
@@ -303,7 +303,7 @@ class SoTax extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $costAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $costAccName = $data[0]->accnameother;
@@ -322,7 +322,7 @@ class SoTax extends Component
             $this->genGLs[] = ([
                 'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
                 , 'gldescription'=> $this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
         }
@@ -375,19 +375,18 @@ class SoTax extends Component
             DB::statement("UPDATE sales SET invoiceno=?,invoicedate=?,deliveryno=?,journaldate=?,sonote=?,posted=?,employee_id=?,transactiondate=?
             where snumber=?" 
             , [$this->soHeader['invoiceno'],$this->soHeader['invoicedate'],$this->soHeader['deliveryno'],$this->soHeader['journaldate']
-            , $this->soHeader['sonote'], true, 'Admin', Carbon::now(), $this->soHeader['snumber']]);
+            , $this->soHeader['sonote'], 'true', 'Admin', Carbon::now(), $this->soHeader['snumber']]);
 
             if ($this->closed){
                 DB::transaction(function () {    
                     // Taxdata
-                    DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid
-                                ,description,amountcur,amount,taxamount,duedate,purchase,posted
-                                ,isinputtax,totalamount,employee_id,transactiondate)
+                    DB::statement("INSERT INTO taxdata(taxnumber,taxdate,journaldate,reference,gltran,customerid,description,amountcur,amount
+                        ,taxamount,duedate,purchase,posted,isinputtax,totalamount,employee_id,transactiondate)
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                         , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
                         , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['name'].'-'.$this->soHeader['snumber']
-                        , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
-                        , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
+                        , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], 'FALSE', 'TRUE'
+                        , 'TRUE', $this->soHeader['sototal'], 'Admin', Carbon::now()]);
     
                     // Salesdetaillog 
                     foreach ($this->soDetails as $soDetails2)

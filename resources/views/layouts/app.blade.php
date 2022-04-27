@@ -65,6 +65,12 @@
             margin-left: 1em;
         }
 
+        .modal-body {
+            height: 500px;
+            width: 1200px;
+            overflow-y: auto;
+        }
+
         /* .font14 {
             font-size: 14px;
         }
@@ -122,7 +128,7 @@
         <!-- /.content-wrapper -->
 
         <!-- Main Footer -->
-        @include('layouts.partials.footer')
+        {{-- @include('layouts.partials.footer') --}}
     </div>
     <!-- ./wrapper -->
 

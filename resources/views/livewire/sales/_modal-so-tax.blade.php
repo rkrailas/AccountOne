@@ -1,5 +1,6 @@
 <div class="modal fade bd-example-modal-xl" id="soTaxForm" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" wire:ignore.self>
-    <div class="modal-dialog modal-dialog-scrollable" style="max-width: 95%;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"> 
+    {{-- <div class="modal-dialog modal-xl">  --}}
         <form autocomplete="off" wire:submit.prevent="createUpdateSalesOrder">
             <div class="modal-content ">
                 <div class="modal-header">
@@ -22,7 +23,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="row ">
+                    <div class="row">
                         <div class="col-3">
                             <label class="">เลขที่ใบสั่งขาย:</label>
                             <input type="text" class="form-control form-control-sm mb-1" readonly wire:model.defer="soHeader.snumber">
@@ -100,7 +101,7 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col">
+                        <div class="col-12">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" disabled wire:model.defer="soHeader.exclusivetax" wire:change="checkExclusiveTax">
                                 <label class="form-check-label" for="exclusiveTax">ราคาไม่รวมภาษี</label>
@@ -115,7 +116,7 @@
                     <!-- .Grid -->
                     <div class="row mb-2">
                         <div class="col">
-                            <table class="table table-striped myGridTB" style="width: 1200px;">
+                            <table class="table table-striped myGridTB">
                                 <thead>
                                     <tr class="text-center">
                                         <th scope="col"></th>
