@@ -218,7 +218,7 @@ class AdjustInventory extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $invAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();            
                 if ($data->count() > 0) {
                     $invAccName = $data[0]->accnameother;
@@ -237,7 +237,7 @@ class AdjustInventory extends Component
             $this->genGLs[] = ([
                 'gjournal'=>'GL', 'gltran'=>$xgltran, 'gjournaldt'=>$this->adjInventory['adjustdate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
                 , 'gldescription'=>'', 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
 
@@ -253,7 +253,7 @@ class AdjustInventory extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $apAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();            
                 if ($data->count() > 0) {
                     $apAccName = $data[0]->accnameother;
@@ -272,7 +272,7 @@ class AdjustInventory extends Component
             $this->genGLs[] = ([
                 'gjournal' => 'GL', 'gltran' => $xgltran, 'gjournaldt' => $this->adjInventory['adjustdate'], 'glaccount' => $apAcc, 'glaccname' => $apAccName
                 , 'gldescription' => '', 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => ''
-                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => ''
+                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => ''
                 , 'employee_id' => '', 'transactiondate' => Carbon::now()
             ]);
 
@@ -289,7 +289,7 @@ class AdjustInventory extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $arAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();            
                 if ($data->count() > 0) {
                     $arAccName = $data[0]->accnameother;
@@ -308,7 +308,7 @@ class AdjustInventory extends Component
             $this->genGLs[] = ([
                 'gjournal'=>'GL', 'gltran'=>$xgltran, 'gjournaldt'=>$this->adjInventory['adjustdate'], 'glaccount'=>$arAcc, 'glaccname'=>$arAccName
                 , 'gldescription'=>'', 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
 
@@ -338,7 +338,7 @@ class AdjustInventory extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $invAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();            
                 if ($data->count() > 0) {
                     $invAccName = $data[0]->accnameother;
@@ -357,7 +357,7 @@ class AdjustInventory extends Component
             $this->genGLs[] = ([
                 'gjournal' => 'GL', 'gltran' => $xgltran, 'gjournaldt' => $this->adjInventory['adjustdate'], 'glaccount' => $invAcc, 'glaccname' => $invAccName
                 , 'gldescription' => '', 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => ''
-                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => ''
+                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => ''
                 , 'employee_id' => '', 'transactiondate' => Carbon::now()
             ]);
 
@@ -440,7 +440,7 @@ class AdjustInventory extends Component
                     DB::statement("INSERT INTO inventoryadjlog(itemid,documentno,adjquantity,adjvalue,location,isadjustin,employee_id,transactiondate)
                         VALUES(?,?,?,?,?,?,?,?)"
                         ,[$this->adjInventory['itemid'],$this->adjInventory['documentno'],$this->adjInventory['adjquantity']
-                        ,$this->adjInventory['adjvalue'],$this->adjInventory['location'],$isadjustin,'Admin',Carbon::now()]);
+                        ,$this->adjInventory['adjvalue'],$this->adjInventory['location'],convertToBoolean($isadjustin),'Admin',Carbon::now()]);
 
                     //Insert purchasedetaillog & inventoryserial
                     if ($this->isSerial) {
@@ -453,7 +453,7 @@ class AdjustInventory extends Component
                                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                                 ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'],$this->adjInventory['itemid'],$this->adjInventory['description']
                                 ,1,1,$row['cost'],$row['cost'],$this->adjInventory['documentno'],$this->adjInventory['documentno'],$row['cost'],$row['location']
-                                ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N',true,'AI',true,'Admin',Carbon::now()]);
+                                ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N','true','AI','true','Admin',Carbon::now()]);
 
                                 //Insert inventoryserial
                                 DB::statement("INSERT INTO inventoryserial(itemid,serialno,category,brand,cost,location,color,ponumber,orderdate
@@ -474,8 +474,8 @@ class AdjustInventory extends Component
                         ,[$this->adjInventory['documentno'],$this->adjInventory['adjustdate'],$this->adjInventory['itemid'],$this->adjInventory['description']
                         ,$this->adjInventory['adjquantity'],$this->adjInventory['adjquantity'],$this->adjInventory['adjvalue'],$this->adjInventory['adjtotalvalue']
                         ,$this->adjInventory['documentno'],$this->adjInventory['documentno'],$this->adjInventory['adjvalue'],$this->adjInventory['location']
-                        ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N',true,'AI',$this->adjInventory['lotnumber']
-                        ,true,'Admin',Carbon::now()]);
+                        ,$this->adjInventory['unitofmeasure'],$this->adjInventory['stocktype'],'N','true','AI',$this->adjInventory['lotnumber']
+                        ,'true','Admin',Carbon::now()]);
                     }
 
                     //gltran
@@ -529,7 +529,7 @@ class AdjustInventory extends Component
                     DB::statement("INSERT INTO inventoryadjlog(itemid,documentno,adjquantity,adjvalue,location,isadjustin,employee_id,transactiondate)
                         VALUES(?,?,?,?,?,?,?,?)"
                         ,[$this->adjInventory['itemid'],$this->adjInventory['documentno'],$this->adjInventory['adjquantity']
-                        ,$this->adjInventory['averagecost'],$this->adjInventory['location'],$isadjustin,'Admin',Carbon::now()]);
+                        ,$this->adjInventory['averagecost'],$this->adjInventory['location'],convertToBoolean($isadjustin),'Admin',Carbon::now()]);
 
                     //3.Insert salesdetaillog & inventoryserial & purchasedetaillog
                     if ($this->isSerial) {

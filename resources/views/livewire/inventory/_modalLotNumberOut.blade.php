@@ -26,7 +26,7 @@
                     <!-- .Grid -->
                     <div class="row mb-2">
                         <div class="col">
-                            <table class="table table-striped myGridTB" id="table" style="width: 500px;">
+                            <table class="table table-striped myGridTB" id="table" style="width: 700px;">
                                 <thead>
                                     <tr class="text-center">
                                         <th></th>

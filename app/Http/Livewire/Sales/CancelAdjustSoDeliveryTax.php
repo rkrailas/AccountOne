@@ -72,8 +72,8 @@ class CancelAdjustSoDeliveryTax extends Component
         {
             // 1. Update taxdata.iscancelled=true
             DB::statement("UPDATE taxdata SET iscancelled=?, employee_id=?, transactiondate=? 
-                where purchase=false and taxnumber=? and customerid=?" 
-                , [true, 'Admin', Carbon::now(), $this->soHeader['invoiceno'], $this->soHeader['customerid']]);
+                where purchase=? and taxnumber=? and customerid=?" 
+                , ['true', 'Admin', Carbon::now(), 'false', $this->soHeader['invoiceno'], $this->soHeader['customerid']]);
 
             //2. Update salesdetail
             DB::statement("UPDATE salesdetail SET soreturn=?, employee_id=?, transactiondate=? 

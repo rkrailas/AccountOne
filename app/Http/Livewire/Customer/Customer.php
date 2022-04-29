@@ -81,9 +81,10 @@ class Customer extends Component
                         ,address11,address12,city1,state1,zipcode1,phone1,fax1,email1,contact1,notes1,employee_id,transactiondate)
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                         ,[$this->state['customerid'],$this->state['name'],$this->state['names'],$this->state['name1'],$this->state['taxid'],$this->state['branchno']
-                        ,$this->state['debtor'],$this->state['creditor'],$this->state['corporate'],$this->state['address11']
-                        ,$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1'],$this->state['phone1']
-                        ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1'],'Admin', Carbon::now()]);
+                        ,convertToBoolean($this->state['debtor']),convertToBoolean($this->state['creditor']),convertToBoolean($this->state['corporate'])
+                        ,$this->state['address11'],$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1']
+                        ,$this->state['phone1'],$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1'],'Admin'
+                        , Carbon::now()]);
                 
                         DB::statement("INSERT INTO buyer(customerid,creditlimit,discountday,discount,dueday,generaldiscount,termdiscount
                         ,account,tax,tax1,pricelevel,employee_id,transactiondate)
@@ -97,8 +98,8 @@ class Customer extends Component
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)" 
                         ,[$this->state['customerid'],$this->state['creditlimit_ap'],$this->state['discountday_ap'],$this->state['discount_ap']
                         ,$this->state['dueday_ap'],$this->state['generaldiscount_ap'],$this->state['termdiscount_ap'],$this->state['account_ap']
-                        ,$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap'],$this->state['discountontotal_ap']
-                        ,$this->state['exclusivetax_ap'],'Admin', Carbon::now()]);
+                        ,$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap'],convertToBoolean($this->state['discountontotal_ap'])
+                        ,convertToBoolean($this->state['exclusivetax_ap']),'Admin', Carbon::now()]);
                 });
         
                 $this->dispatchBrowserEvent('hide-customerForm');
@@ -114,9 +115,9 @@ class Customer extends Component
                 , employee_id=?, transactiondate=?
                 where customerid=?" 
                 ,[$this->state['name'],$this->state['names'],$this->state['name1'],$this->state['taxid'],$this->state['branchno']
-                ,$this->state['debtor'],$this->state['creditor'],$this->state['corporate'],$this->state['address11']
-                ,$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1'],$this->state['phone1']
-                ,$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1']
+                ,convertToBoolean($this->state['debtor']),convertToBoolean($this->state['creditor']),convertToBoolean($this->state['corporate'])
+                ,$this->state['address11'],$this->state['address12'],$this->state['city1'],$this->state['state1'],$this->state['zipcode1']
+                ,$this->state['phone1'],$this->state['fax1'],$this->state['email1'],$this->state['contact1'],$this->state['notes1']
                 ,'Admin', Carbon::now(), $this->state['customerid']]);
             
             DB::statement("UPDATE buyer SET creditlimit=?, discountday=?, discount=?, dueday=?, generaldiscount=?
@@ -131,7 +132,8 @@ class Customer extends Component
                 where customerid=?" 
                 ,[$this->state['creditlimit_ap'],$this->state['discountday_ap'],$this->state['discount_ap'],$this->state['dueday_ap'],$this->state['generaldiscount_ap']
                 ,$this->state['termdiscount_ap'],$this->state['account_ap'],$this->state['tax_ap'],$this->state['tax1_ap'],$this->state['pricelevel_ap']
-                ,$this->state['discountontotal_ap'],$this->state['exclusivetax_ap'], 'Admin', Carbon::now(),$this->state['customerid']]);
+                ,convertToBoolean($this->state['discountontotal_ap']),convertToBoolean($this->state['exclusivetax_ap']), 'Admin'
+                , Carbon::now(),$this->state['customerid']]);
         });
 
         $this->dispatchBrowserEvent('hide-customerForm');

@@ -113,7 +113,7 @@ class BillingNotice extends Component
                     DB::statement("INSERT INTO billingnotice(billingno,customerid,billingdate,duedate,notes,amount,closed,employee_id,transactiondate)
                     VALUES(?,?,?,?,?,?,?,?,?)"
                     , [$this->billingHeader['billingno'], $this->billingHeader['customerid'], $this->billingHeader['billingdate']
-                    , $this->billingHeader['duedate'], $this->billingHeader['notes'], $data['amount'], true, 'Admin', Carbon::now()]); 
+                    , $this->billingHeader['duedate'], $this->billingHeader['notes'], $data['amount'], 'true', 'Admin', Carbon::now()]); 
     
                     // Billingnoticedetail (billingno,balance,amount,taxref,taxdataid,employee_id,transactiondate)
                     // ตัดเฉพาะส่วนที่เลือก

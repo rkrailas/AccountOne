@@ -219,7 +219,7 @@ class SoDeliveryTax extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $buyAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();            
             if ($data->count() > 0) {
                 $buyAccName = $data[0]->accnameother;
@@ -238,7 +238,7 @@ class SoDeliveryTax extends Component
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
             , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
 
@@ -265,7 +265,7 @@ class SoDeliveryTax extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $salesAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $salesAccName = $data[0]->accnameother;
@@ -284,7 +284,7 @@ class SoDeliveryTax extends Component
             $this->genGLs[] = ([
                 'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName
                 , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => ''
-                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => ''
+                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => ''
                 , 'employee_id' => '', 'transactiondate' => Carbon::now()
             ]);
         }
@@ -305,7 +305,7 @@ class SoDeliveryTax extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $taxAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();
             if ($data->count() > 0) {
                 $taxAccName = $data[0]->accnameother;
@@ -324,7 +324,7 @@ class SoDeliveryTax extends Component
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
             , 'gldescription'=> $this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
 
@@ -360,7 +360,7 @@ class SoDeliveryTax extends Component
                     $data = DB::table('account')
                         ->select("accnameother")
                         ->where('account', $invAcc)
-                        ->where('detail', true)
+                        ->where('detail', 'true')
                         ->get();
                     if ($data->count() > 0) {
                         $invAccName = $data[0]->accnameother;
@@ -391,7 +391,7 @@ class SoDeliveryTax extends Component
                 $this->genGLs[] = ([
                     'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$invAcc, 'glaccname'=>$invAccName
                     , 'gldescription'=> $this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit
-                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+                    , 'jobid'=>'', 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
                     , 'transactiondate'=>Carbon::now()
                 ]);  
             }
@@ -412,7 +412,7 @@ class SoDeliveryTax extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $costAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $costAccName = $data[0]->accnameother;
@@ -431,7 +431,7 @@ class SoDeliveryTax extends Component
             $this->genGLs[] = ([
                 'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$costAcc, 'glaccname'=>$costAccName
                 , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+                , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
                 , 'transactiondate'=>Carbon::now()
             ]);
         }
@@ -599,7 +599,7 @@ class SoDeliveryTax extends Component
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
                                 , $soDetails2['description'], $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount']
                                 , $soDetails2['quantity'] , $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $this->soHeader['invoiceno'], $soDetails2['discountamount'], $costAmt, 'N', 'SO', true, $soDetails2['serialno']
+                                , $this->soHeader['invoiceno'], $soDetails2['discountamount'], $costAmt, 'N', 'SO', 'true', $soDetails2['serialno']
                                 , $soDetails2['lotnumber'], $soDetails2['id'], 'Admin', Carbon::now()]);
     
                             // Inventory
@@ -651,9 +651,9 @@ class SoDeliveryTax extends Component
                 where snumber=?" 
                 , [$this->soHeader['sodate'], $this->soHeader['customerid'], $this->soHeader['invoiceno'], $this->soHeader['invoicedate']
                 , $this->soHeader['deliveryno'], $this->soHeader['deliverydate'], $this->soHeader['sototal'], $this->soHeader['salestax']
-                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
-                , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $this->soHeader['posted']
-                , $this->soHeader['sonote'], $this->soHeader['snumber']]);
+                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], convertToBoolean($this->soHeader['exclusivetax'])
+                , convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount'], 'Admin', Carbon::now()
+                , convertToBoolean($this->soHeader['posted']), $this->soHeader['sonote'], $this->soHeader['snumber']]);
 
                 // ปิดรายการ
                 if ($this->soHeader['posted']){
@@ -664,8 +664,8 @@ class SoDeliveryTax extends Component
                     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                     , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
                     , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['customerid'].'-'.$this->soHeader['snumber']
-                    , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
-                    , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
+                    , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], 'FALSE', 'TRUE'
+                    , 'TRUE', $this->soHeader['sototal'], 'Admin', Carbon::now()]);
 
                     //gltran
                     $this->generateGl($this->soHeader['deliveryno']);
@@ -689,8 +689,8 @@ class SoDeliveryTax extends Component
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , [$this->soHeader['snumber'], $this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
-                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
-                , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
+                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], convertToBoolean($this->soHeader['exclusivetax'])
+                , convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
                 , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted']
                 , $this->soHeader['sonote'], true]); //ram_sodeliverytax > แยก Type ของ SO
 
@@ -891,7 +891,7 @@ class SoDeliveryTax extends Component
             $this->soHeader['discountamount'] = 0;
             $this->soHeader['salestax'] = 0;
             $this->soHeader['sototal'] = 0;
-            $this->soHeader['customerid'] = "";
+            //$this->soHeader['customerid'] = "";
         }
         // ./Summary grid 
         

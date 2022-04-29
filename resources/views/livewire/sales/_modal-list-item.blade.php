@@ -1,7 +1,7 @@
 <div class="modal" id="itemListForm" tabindex="-1" role="dialog" data-backdrop="static" wire:ignore.self>
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <form autocomplete="off">
-            <div class="modal-content ">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">
                         รายการสินค้า

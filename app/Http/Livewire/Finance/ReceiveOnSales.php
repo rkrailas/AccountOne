@@ -66,7 +66,7 @@ class ReceiveOnSales extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $accountCode)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
 
                 if ($data->count() > 0) {
@@ -75,7 +75,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => $this->bankHeader['notes'], 'gldebit' => $this->bankHeader['amount'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => $this->bankHeader['notes'], 'gldebit' => $this->bankHeader['amount'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
 
@@ -90,7 +90,7 @@ class ReceiveOnSales extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $accountCode)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
 
                 if ($data->count() > 0) {
@@ -99,7 +99,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['witholdtax'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['witholdtax'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
 
@@ -114,7 +114,7 @@ class ReceiveOnSales extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $accountCode)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
 
                 if ($data->count() > 0) {
@@ -123,7 +123,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['findiscount'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['findiscount'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
 
@@ -138,7 +138,7 @@ class ReceiveOnSales extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $accountCode)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
 
                 if ($data->count() > 0) {
@@ -147,7 +147,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['feeamt'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => $this->bankHeader['feeamt'], 'glcredit' => 0, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
 
@@ -162,7 +162,7 @@ class ReceiveOnSales extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $accountCode)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
 
                 if ($data->count() > 0) {
@@ -171,7 +171,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => 0, 'glcredit' => $this->bankHeader['fincharge'], 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => 0, 'glcredit' => $this->bankHeader['fincharge'], 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
 
@@ -206,7 +206,7 @@ class ReceiveOnSales extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $accountCode)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $accountName = $data[0]->accnameother;
@@ -214,7 +214,7 @@ class ReceiveOnSales extends Component
             }
 
             $this->genGLs[] = ([
-                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => 0, 'glcredit' => $this->sumAR, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
+                'gjournal' => 'JR', 'gltran' => $this->bankHeader['gltran'], 'gjournaldt' => $this->bankHeader['gjournaldt'], 'glaccount' => $accountCode, 'glaccname' => $accountName, 'gldescription' => 'รับเงิน - บัญชีลูกหนี้' . ' - ' . $this->bankHeader['documentref'], 'gldebit' => 0, 'glcredit' => $this->sumAR, 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => 'Admin', 'transactiondate' => Carbon::now()
             ]);
         }
         //.Dr.ลูกหนี้การค้า 
@@ -309,8 +309,8 @@ class ReceiveOnSales extends Component
                 , taxnumber as taxref, taxamount as tax, taxdate, 'R1' as bookid, id as taxdataid, amount as totalamount
                 , amount as oriamount, taxamount as oritax")
                 ->where('customerid', $this->selectCustomerid)
-                ->where('iscancelled', false)
-                ->where('purchase', false)
+                ->where('iscancelled', 'false')
+                ->where('purchase', 'false')
                 ->whereRaw('amount > paidamount')
                 ->get();
             $this->bankDetails = json_decode(json_encode($data), true);
@@ -337,10 +337,11 @@ class ReceiveOnSales extends Component
                     [
                         $this->bankHeader['gjournaldt'], $this->bankHeader['payby'], $this->bankHeader['documentref'], $this->bankHeader['taxrunningno']
                         , $this->bankHeader['taxscheme'], $this->bankHeader['witholdamt'], $this->bankHeader['witholdtax'], $this->bankHeader['witholdtaxrate']
-                        , $this->bankHeader['taxscheme1'], $this->bankHeader['witholdamt1'], $this->bankHeader['witholdtax1'], $this->bankHeader['witholdtaxrate1']
+                        , $this->bankHeader['taxscheme1'], $this->bankHeader['witholdamt1'], $this->bankHeader['witholdtax1']
+                        , $this->bankHeader['witholdtaxrate1']
                         , $this->bankHeader['account'], $this->bankHeader['accountcus'], $this->bankHeader['accounttax'], $this->bankHeader['accountcharge']
-                        , $this->bankHeader['accountdis'], $this->bankHeader['accountfee'], 'Admin', Carbon::now(), $this->bankHeader['posted']
-                        , $xAmount, $this->bankHeader['notes'], $this->bankHeader['gltran']
+                        , $this->bankHeader['accountdis'], $this->bankHeader['accountfee'], 'Admin', Carbon::now()
+                        , convertToBoolean($this->bankHeader['posted']), $xAmount, $this->bankHeader['notes'], $this->bankHeader['gltran']
                     ]
                 );
 

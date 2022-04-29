@@ -99,7 +99,7 @@ class Inventory extends Component
                 ,$this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['unitofmeasures'],$this->product['averagecost']
                 ,$this->product['salesprice'],$this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac'],$this->product['salesrtac']
                 ,$this->product['costtype'],$this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty'],$inventory_images
-                ,$this->product['isserial'],'Admin', Carbon::now()
+                ,convertToBoolean($this->product['isserial']),'Admin', Carbon::now()
                 ]);
             });
     
@@ -190,7 +190,7 @@ class Inventory extends Component
                 , $this->product['model'],$this->product['location'],$this->product['unitofmeasure'],$this->product['averagecost'],$this->product['salesprice']
                 , $this->product['inventoryac'],$this->product['salesac'],$this->product['purchasertac'],$this->product['salesrtac'],$this->product['costtype']
                 , $this->product['stdcost'],$this->product['reorderlevel'],$this->product['reorderqty'],'Admin', Carbon::now(), $inventory_images
-                , $this->product['isserial'], $this->product['id']]);
+                , convertToBoolean($this->product['isserial']), $this->product['id']]);
         });
 
         $this->dispatchBrowserEvent('hide-inventoryForm', ['message' => 'Updated Successfully!']);

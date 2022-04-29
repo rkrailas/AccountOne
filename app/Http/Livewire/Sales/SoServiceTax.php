@@ -143,7 +143,7 @@ class SoServiceTax extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $buyAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();            
             if ($data->count() > 0) {
                 $buyAccName = $data[0]->accnameother;
@@ -162,7 +162,7 @@ class SoServiceTax extends Component
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$buyAcc, 'glaccname'=>$buyAccName
             , 'gldescription'=>$this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
 
@@ -189,7 +189,7 @@ class SoServiceTax extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $salesAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $salesAccName = $data[0]->accnameother;
@@ -208,7 +208,7 @@ class SoServiceTax extends Component
             $this->genGLs[] = ([
                 'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName
                 , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => ''
-                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => ''
+                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => ''
                 , 'employee_id' => '', 'transactiondate' => Carbon::now()
             ]);
         }
@@ -229,7 +229,7 @@ class SoServiceTax extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $taxAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();
             if ($data->count() > 0) {
                 $taxAccName = $data[0]->accnameother;
@@ -248,7 +248,7 @@ class SoServiceTax extends Component
         $this->genGLs[] = ([
             'gjournal'=>'SO', 'gltran'=>$xgltran, 'gjournaldt'=>$this->soHeader['journaldate'], 'glaccount'=>$taxAcc, 'glaccname'=>$taxAccName
             , 'gldescription'=> $this->soHeader['sonote'], 'gldebit'=>$xGLDebit, 'glcredit'=>$xGLCredit, 'jobid'=>''
-            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>false, 'bookid'=>'', 'employee_id'=>''
+            , 'department'=>'', 'allocated'=>0, 'currencyid'=>'', 'posted'=>'false', 'bookid'=>'', 'employee_id'=>''
             , 'transactiondate'=>Carbon::now()
         ]);
 
@@ -371,7 +371,7 @@ class SoServiceTax extends Component
                                 , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
                                 , $soDetails2['description'], $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount']
                                 , $soDetails2['quantity'] , $xquantitydel, $xquantitybac, $soDetails2['taxrate'], $soDetails2['taxamount']
-                                , $this->soHeader['invoiceno'], $soDetails2['discountamount'], 'V', 'SO', true, 'Admin', Carbon::now()]);
+                                , $this->soHeader['invoiceno'], $soDetails2['discountamount'], 'V', 'SO', 'true', 'Admin', Carbon::now()]);
                         }
                     }
                 }
@@ -383,9 +383,9 @@ class SoServiceTax extends Component
                 where snumber=?" 
                 , [$this->soHeader['sodate'], $this->soHeader['customerid'], $this->soHeader['invoiceno'], $this->soHeader['invoicedate']
                 , $this->soHeader['deliveryno'], $this->soHeader['deliverydate'], $this->soHeader['sototal'], $this->soHeader['salestax']
-                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
-                , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], 'Admin', Carbon::now(), $this->soHeader['posted']
-                , $this->soHeader['sonote'], $this->soHeader['snumber']]);
+                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], convertToBoolean($this->soHeader['exclusivetax'])
+                , convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount'], 'Admin', Carbon::now()
+                , convertToBoolean($this->soHeader['posted']), $this->soHeader['sonote'], $this->soHeader['snumber']]);
 
                 // ปิดรายการ 
                 if ($this->soHeader['posted']){
@@ -395,8 +395,8 @@ class SoServiceTax extends Component
                     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                     , [$this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
                     , $this->soHeader['deliveryno'], $this->soHeader['customerid'], 'ขายสินค้า-'.$this->soHeader['customerid'].'-'.$this->soHeader['snumber']
-                    , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], FALSE, TRUE
-                    , TRUE, $this->soHeader['sototal'], 'Admin', Carbon::now()]);
+                    , $this->soHeader['sototal'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['duedate'], 'FALSE', 'TRUE'
+                    , 'TRUE', $this->soHeader['sototal'], 'Admin', Carbon::now()]);
 
                     //gltran
                     $this->generateGl($this->soHeader['deliveryno']);
@@ -420,9 +420,9 @@ class SoServiceTax extends Component
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 , [$this->soHeader['snumber'], $this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
-                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
-                , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
-                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted'], $this->soHeader['sonote'], 'V']);
+                , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], convertToBoolean($this->soHeader['exclusivetax'])
+                , convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
+                , $this->soHeader['salestax'], 'true', 'Admin', Carbon::now(), convertToBoolean($this->soHeader['posted']), $this->soHeader['sonote'], 'V']);
 
                 //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
@@ -469,7 +469,6 @@ class SoServiceTax extends Component
             if(count($data) > 0){
                 $this->soHeader['full_address'] = $data[0]->full_address;
             }
-            
         }
 
         //ตรวจสอบว่าเป็นการแก้ไขข้อมูลที่ Grid หรือไม่
@@ -619,7 +618,7 @@ class SoServiceTax extends Component
             $this->soHeader['discountamount'] = 0;
             $this->soHeader['salestax'] = 0;
             $this->soHeader['sototal'] = 0;
-            $this->soHeader['customerid'] = "";
+            //$this->soHeader['customerid'] = "";
         }
         // ./Summary grid 
         

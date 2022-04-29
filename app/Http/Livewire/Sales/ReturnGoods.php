@@ -213,7 +213,7 @@ class ReturnGoods extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $buyAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();
             if ($data->count() > 0) {
                 $buyAccName = $data[0]->accnameother;
@@ -233,7 +233,7 @@ class ReturnGoods extends Component
         $this->genGLs[] = ([
             'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $buyAcc, 'glaccname' => $buyAccName
             , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit
-            , 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => ''
+            , 'jobid' => '', 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => ''
             , 'transactiondate' => Carbon::now()
         ]);
 
@@ -261,7 +261,7 @@ class ReturnGoods extends Component
                 $data = DB::table('account')
                     ->select("accnameother")
                     ->where('account', $salesAcc)
-                    ->where('detail', true)
+                    ->where('detail', 'true')
                     ->get();
                 if ($data->count() > 0) {
                     $salesAccName = $data[0]->accnameother;
@@ -281,7 +281,7 @@ class ReturnGoods extends Component
             $this->genGLs[] = ([
                 'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $salesAcc, 'glaccname' => $salesAccName
                 , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => ''
-                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => '', 'employee_id' => ''
+                , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => '', 'employee_id' => ''
                 , 'transactiondate' => Carbon::now()
             ]);
         }
@@ -302,7 +302,7 @@ class ReturnGoods extends Component
             $data = DB::table('account')
                 ->select("accnameother")
                 ->where('account', $taxAcc)
-                ->where('detail', true)
+                ->where('detail', 'true')
                 ->get();
             if ($data->count() > 0) {
                 $taxAccName = $data[0]->accnameother;
@@ -322,7 +322,7 @@ class ReturnGoods extends Component
         $this->genGLs[] = ([
             'gjournal' => 'SO', 'gltran' => $xgltran, 'gjournaldt' => $this->soHeader['journaldate'], 'glaccount' => $taxAcc, 'glaccname' => $taxAccName
             , 'gldescription' => $this->soHeader['sonote'], 'gldebit' => $xGLDebit, 'glcredit' => $xGLCredit, 'jobid' => ''
-            , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => false, 'bookid' => ''
+            , 'department' => '', 'allocated' => 0, 'currencyid' => '', 'posted' => 'false', 'bookid' => ''
             , 'employee_id' => '', 'transactiondate' => Carbon::now()
         ]);
 
@@ -396,8 +396,9 @@ class ReturnGoods extends Component
                     [
                         $this->soHeader['sodate'], $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno']
                         , $this->soHeader['deliverydate'], $this->soHeader['sototal'], $this->soHeader['salestax'], $this->soHeader['journaldate']
-                        , $this->soHeader['exclusivetax'], $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], 'Admin', Carbon::now()
-                        , $this->soHeader['closed'], $this->soHeader['refno'], $this->soHeader['sonote'], $this->soHeader['sonumber']
+                        , convertToBoolean($this->soHeader['exclusivetax']), convertToBoolean($this->soHeader['taxontotal'])
+                        , $this->soHeader['salesaccount'], 'Admin', Carbon::now()
+                        , convertToBoolean($this->soHeader['closed']), $this->soHeader['refno'], $this->soHeader['sonote'], $this->soHeader['sonumber']
                     ]
                 );
 
@@ -411,8 +412,8 @@ class ReturnGoods extends Component
                         [
                             $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['journaldate'], $this->soHeader['snumber']
                             , $this->soHeader['deliveryno'], $this->soHeader['customerid'], $this->soHeader['sonote'], $this->soHeader['sototal'] * -1
-                            , $this->soHeader['sototal'] * -1, $this->soHeader['salestax'] * -1, $this->soHeader['duedate'], FALSE, TRUE, TRUE
-                            , $this->soHeader['sototal'] * -1, true, 'Admin', Carbon::now()
+                            , $this->soHeader['sototal'] * -1, $this->soHeader['salestax'] * -1, $this->soHeader['duedate'], 'FALSE', 'TRUE', 'TRUE'
+                            , $this->soHeader['sototal'] * -1, 'true', 'Admin', Carbon::now()
                         ]
                     );
 
@@ -462,7 +463,7 @@ class ReturnGoods extends Component
                             , [$this->soHeader['snumber'], $this->soHeader['sodate'], $this->soHeader['deliveryno'], $soDetails2['itemid']
                             , $soDetails2['description'], $soDetails2['quantity'], $soDetails2['unitprice'], $soDetails2['amount']
                             , $soDetails2['taxrate'], $soDetails2['taxamount'], $soDetails2['discountamount'], $costAmt, 'Y', 'SO'
-                            , true, $soDetails2['id'], $soDetails2['serialno'], $soDetails2['lotnumber']
+                            , 'true', $soDetails2['id'], $soDetails2['serialno'], $soDetails2['lotnumber']
                             , 'Admin', Carbon::now()]);
 
                         //Inventory
@@ -555,9 +556,11 @@ class ReturnGoods extends Component
                     [
                         $this->soHeader['sonumber'], $this->soHeader['sonumber'], $this->soHeader['sodate'], $this->soHeader['customerid']
                         , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
-                        , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], $this->soHeader['exclusivetax']
-                        , $this->soHeader['taxontotal'], $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
-                        , $this->soHeader['salestax'], $this->soHeader['closed'], $this->taxNumber, 'Y', $this->soHeader['sonote'], 'Admin', Carbon::now()
+                        , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate']
+                        , convertToBoolean($this->soHeader['exclusivetax']), convertToBoolean($this->soHeader['taxontotal'])
+                        , $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
+                        , $this->soHeader['salestax'], convertToBoolean($this->soHeader['closed']), $this->taxNumber, 'Y'
+                        , $this->soHeader['sonote'], 'Admin', Carbon::now()
                     ]
                 );
 

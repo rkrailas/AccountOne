@@ -86,7 +86,7 @@ class CancelSoTax extends Component
             // 1. Update taxdata.iscancelled=true
             DB::statement("UPDATE taxdata SET iscancelled=?, employee_id=?, transactiondate=? 
                 where reference=? and taxnumber=? " 
-                , [true, 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
+                , ['true', 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
 
             //2. Update salesdetaillog.soreturn=G and taxnumber=''
             DB::statement("UPDATE salesdetaillog SET soreturn=?, taxnumber=?, employee_id=?, transactiondate=? 

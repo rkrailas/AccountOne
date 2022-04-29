@@ -76,7 +76,7 @@ class CancelSoDeliveryTax extends Component
             // 1. Update taxdata.iscancelled=true
             DB::statement("UPDATE taxdata SET iscancelled=?, employee_id=?, transactiondate=? 
                 where reference=? and taxnumber=? " 
-                , [true, 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
+                , ['true', 'Admin', Carbon::now(), $this->soHeader['snumber'], $this->deleteNumber]);
 
             //2. Update salesdetaillog
             DB::statement("UPDATE salesdetaillog SET soreturn=?, taxnumber=?, employee_id=?, transactiondate=? 
@@ -108,7 +108,7 @@ class CancelSoDeliveryTax extends Component
 
                     if($soDetails2['stocktype'] == "4") {
                         DB::statement("UPDATE inventoryserial SET sold=?,snumber=?,solddate=?,employee_id=?,transactiondate=? where itemid=? and serialno=?" 
-                        ,[false,null,null,'Admin',Carbon::now(),$soDetails2['itemid'],$soDetails2['serialno']]);
+                        ,['false',null,null,'Admin',Carbon::now(),$soDetails2['itemid'],$soDetails2['serialno']]);
                     }elseif($soDetails2['stocktype'] == "9") {
                         $xcount = 0;
                         while ($xcount < $soDetails2['quantity']) {

@@ -476,7 +476,7 @@ class SoDelivery extends Component
             $this->soHeader['discountamount'] = 0;
             $this->soHeader['salestax'] = 0;
             $this->soHeader['sototal'] = 0;
-            $this->soHeader['customerid'] = "";
+            //$this->soHeader['customerid'] = "";
         }
         // ./Summary grid 
         

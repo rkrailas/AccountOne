@@ -90,8 +90,8 @@ class CancelReturnGoods extends Component
 
             // 4. Update taxdata.iscancelled=true
             DB::statement("UPDATE taxdata SET iscancelled=?, employee_id=?, transactiondate=? 
-                where purchase=false and taxnumber=? and customerid=?" 
-                , [true, 'Admin', Carbon::now(), $this->soHeader['invoiceno'], $this->soHeader['customerid']]);
+                where purchase=? and taxnumber=? and customerid=?" 
+                , ['true', 'Admin', Carbon::now(), 'false', $this->soHeader['invoiceno'], $this->soHeader['customerid']]);
 
             // 5. Updaate Inventory inventoryserial & purchasedetaillog
             foreach ($this->soDetails as $soDetails2) {
@@ -113,7 +113,7 @@ class CancelReturnGoods extends Component
                     if($soDetails2['stocktype'] == "4"){
                         DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
                                 where itemid=? and serialno=?"
-                        ,[$this->soHeader['snumber'],$this->soHeader['sodate'], true, 'Admin', Carbon::now()
+                        ,[$this->soHeader['snumber'],$this->soHeader['sodate'], 'true', 'Admin', Carbon::now()
                         ,$soDetails2['itemid'],$soDetails2['serialno']]);
                     }elseif($soDetails2['stocktype'] == "9"){
                         //Loop เพื่อตัดสินค้าออก
