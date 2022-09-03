@@ -33,6 +33,7 @@ use App\Http\Livewire\Account\PostJournal;
 use App\Http\Livewire\Account\CancelPostJournal;
 use App\Http\Livewire\Account\TrialBalance;
 use App\Http\Livewire\Account\ListCoa;
+use App\Http\Livewire\Purchase\PoReceiveTax;
 use App\Http\Livewire\Tax\SalesTax;
 use App\Http\Livewire\Tax\PurchaseTax;
 use App\Http\Livewire\Tax\Withholdingtax;
@@ -82,6 +83,9 @@ Route::get('sales/returngoods', ReturnGoods::class)->name('sales.returngoods');
 Route::get('sales/cancelreturngoods', CancelReturnGoods::class)->name('sales.cancelreturngoods');
 Route::get('sales/saleshistory', SalesHistory::class)->name('sales.saleshistory');
 Route::get('sales/salesbackorder', SalesBackOrder::class)->name('sales.salesbackorder');
+
+//======== Purchase ========
+Route::get('purchase/poreceivetax', PoReceiveTax::class)->name('purchase.poreceivetax');
 
 //======== Finance ========
 Route::get('finance/receiveonsales', ReceiveOnSales::class)->name('finance.receiveonsales');

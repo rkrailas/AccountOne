@@ -65,6 +65,7 @@
             margin-left: 1em;
         }
 
+        /* กำหนดขนาดของ Modal */
         .modal-body {
             height: 500px;
             width: 1200px;

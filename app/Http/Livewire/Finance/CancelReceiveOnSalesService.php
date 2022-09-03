@@ -55,7 +55,6 @@ class CancelReceiveOnSalesService extends Component
             where bank.bookid='RV' and bank.iscancelled=false
             and bankdetail.gltran = '" . $this->deleteNumber . "'";
             $data = DB::select($strsql);
-            dd($strsql);
 
             if(count($data) > 0){
                 $this->bankDetails = json_decode(json_encode($data), true); 

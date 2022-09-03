@@ -2,12 +2,11 @@
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">การบันทึกบัญชี</h4>
+                <h5 class="modal-title" style="font-size: 20px;">การบันทึกบัญชี</h5>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
-            <div class="container"></div>
-            <div class="modal-body">
-                <table class="table table-hover">
+            <div class="modal-body2">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th scope="col">#</th>

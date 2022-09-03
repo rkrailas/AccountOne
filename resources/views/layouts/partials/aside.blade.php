@@ -110,9 +110,9 @@
           </a>
           <ul class="nav nav-treeview">            
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('purchase.poreceivetax') }}" class="nav-link">
                 <i class="far fa-circle nav-icon-submenu" aria-hidden="true"></i>
-                <p>_รับสินค้าพร้อมใบกำกับ</p>
+                <p>รับสินค้าพร้อมใบกำกับ</p>
               </a>
             </li>
             <li class="nav-item">

@@ -451,7 +451,7 @@ class SoDeliveryTax extends Component
     public function addNew() //กดปุ่ม สร้างข้อมูลใหม่
     {
         $this->showEditModal = FALSE;
-            $this->errorGLTran = true;
+        $this->errorGLTran = true;
         $this->reset(['soHeader', 'soDetails', 'sumQuantity', 'sumAmount', 'serialDetails', 'workingRow'
                     , 'errorTaxNumber', 'errorGLTran', 'errorSoDetail']);
         $xsnumber = getDocNunber("SO");
@@ -614,7 +614,7 @@ class SoDeliveryTax extends Component
                             if($soDetails2['stocktype'] == "4"){
                                 DB::statement("UPDATE inventoryserial SET snumber=?,solddate=?,sold=?,employee_id=?,transactiondate=?
                                         where itemid=? and serialno=?"
-                                ,[$this->soHeader['snumber'],$this->soHeader['sodate'], true, 'Admin', Carbon::now()
+                                ,[$this->soHeader['snumber'],$this->soHeader['sodate'], 'true', 'Admin', Carbon::now()
                                 ,$soDetails2['itemid'],$soDetails2['serialno']]);
                             }elseif($soDetails2['stocktype'] == "9"){
                                 //Loop เพื่อตัดสินค้าออก
@@ -691,8 +691,8 @@ class SoDeliveryTax extends Component
                 , $this->soHeader['invoiceno'], $this->soHeader['invoicedate'], $this->soHeader['deliveryno'], $this->soHeader['deliverydate']
                 , $this->soHeader['payby'], $this->soHeader['duedate'], $this->soHeader['journaldate'], convertToBoolean($this->soHeader['exclusivetax'])
                 , convertToBoolean($this->soHeader['taxontotal']), $this->soHeader['salesaccount'], Carbon::now()->addMonths(6), $this->soHeader['sototal']
-                , $this->soHeader['salestax'], true, 'Admin', Carbon::now(), $this->soHeader['posted']
-                , $this->soHeader['sonote'], true]); //ram_sodeliverytax > แยก Type ของ SO
+                , $this->soHeader['salestax'], 'true', 'Admin', Carbon::now(), convertToBoolean($this->soHeader['posted'])
+                , $this->soHeader['sonote'], 'true']); //ram_sodeliverytax > แยก Type ของ SO
 
                 //SalesDetail
                 DB::table('salesdetail')->where('snumber', $this->soHeader['snumber'])->delete();
@@ -914,7 +914,7 @@ class SoDeliveryTax extends Component
         $this->customers_dd = DB::select($strsql);
         // Bind Data to Dropdown End
 
-        // .getSalesOrder
+        // Get Sales Order
         $strsql = "SELECT a.id, a.snumber, a.sodate, a.sototal, b.customerid || ' : ' || b.name as name, a.transactiondate
         FROM sales a
         LEFT JOIN customer b ON a.customerid=b.customerid
@@ -925,7 +925,6 @@ class SoDeliveryTax extends Component
         ORDER BY " . $this->sortBy . " " . $this->sortDirection;
 
         $salesOrders = (new Collection(DB::select($strsql)))->paginate($this->numberOfPage);
-        // getSalesOrder End
 
         return view('livewire.sales.so-delivery-tax',[
             'salesOrders' => $salesOrders
